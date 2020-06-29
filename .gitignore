@@ -50,3 +50,18 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Eclipse files
+.settings/
+.cproject
+.project
+
+# Program output folders
+out/
+.build-log
+
+# User file and folders
+_programs/
+scripts/user/user_preferences.cfg
+program.mk
+board.mk
