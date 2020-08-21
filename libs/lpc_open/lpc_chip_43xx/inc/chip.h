@@ -32,7 +32,6 @@
 #include "sys_config.h"
 #include "cmsis.h"
 
-#define CHIP_LPC43XX 1	// USER-DEFINED
 
 #if defined(CHIP_LPC18XX)
 #include "chip_lpc18xx.h"

@@ -32,6 +32,8 @@
 #ifndef __I2C_COMMON_18XX_43XX_H_
 #define __I2C_COMMON_18XX_43XX_H_
 
+#include "cmsis.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

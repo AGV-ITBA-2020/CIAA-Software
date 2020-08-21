@@ -1,0 +1,1457 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"CMP",
+				"CMP_B"
+			],
+			[
+				"OPSTA",
+				"OPERATION_STATE_t"
+			],
+			[
+				"disa",
+				"cmpDisabledSet"
+			],
+			[
+				"CMPID",
+				"CMP_IDENTIFIER"
+			],
+			[
+				"CMPB",
+				"CMP_B"
+			],
+			[
+				"CM",
+				"CMP_B"
+			],
+			[
+				"INT",
+				"ENABLE_INTEGRAL_CONTROL"
+			],
+			[
+				"ENABL",
+				"ENABLE_INTEGRAL_CONTROL"
+			],
+			[
+				"PINMO",
+				"PIN_MOTOR_L"
+			],
+			[
+				"contro",
+				"controlTestbench"
+			],
+			[
+				"cur",
+				"currSpeed"
+			],
+			[
+				"speed",
+				"speedDes"
+			],
+			[
+				"uint",
+				"uint16_t"
+			],
+			[
+				"curr",
+				"currSpeed"
+			],
+			[
+				"MAX",
+				"MAX_SPEED"
+			],
+			[
+				"MIN",
+				"MIN_SPEED"
+			],
+			[
+				"TIMERIN",
+				"TIMER_INT_COUNT"
+			],
+			[
+				"uin",
+				"uint8_t"
+			],
+			[
+				"MSI",
+				"MS1_PIN"
+			],
+			[
+				"CMPTA",
+				"CMP_TA"
+			],
+			[
+				"tandem",
+				"tandemA"
+			],
+			[
+				"TIMERINT",
+				"TIMER_INT_SIZE"
+			],
+			[
+				"STEPM",
+				"STEP_MAX_PERIOD"
+			],
+			[
+				"STEP",
+				"STEPS_PER_REV"
+			],
+			[
+				"TIMERM",
+				"TIMER_MAX_PERIOD"
+			],
+			[
+				"TIMERCO",
+				"TIMER_INT_COUNT"
+			],
+			[
+				"TIME",
+				"TIMER_BASE_FREQ"
+			],
+			[
+				"TIMER",
+				"SetTimer"
+			],
+			[
+				"curre",
+				"currentTimerSize"
+			],
+			[
+				"timer",
+				"timerP"
+			],
+			[
+				"minute",
+				"minuteEvent"
+			],
+			[
+				"secon",
+				"secondCounter"
+			],
+			[
+				"next",
+				"nextState"
+			],
+			[
+				"digit",
+				"digitalWrite"
+			],
+			[
+				"setup",
+				"setupMillis"
+			],
+			[
+				"show",
+				"ShowDots"
+			],
+			[
+				"timet",
+				"timeToIdle"
+			],
+			[
+				"input",
+				"inputEvent"
+			],
+			[
+				"ENCODER",
+				"ENCODER_HISTERESYS"
+			],
+			[
+				"PIN",
+				"PIN_MOTOR_ENA"
+			],
+			[
+				"digi",
+				"digits1"
+			],
+			[
+				"PERIOD",
+				"DISPLAY_REFRESH_PERIOD"
+			],
+			[
+				"DISPL",
+				"DISPLAY_FPS"
+			],
+			[
+				"Enco",
+				"EncoderService"
+			],
+			[
+				"las",
+				"lastEncUpdate"
+			],
+			[
+				"last",
+				"lastEncService"
+			],
+			[
+				"Get",
+				"GetEncoderInput"
+			],
+			[
+				"laste",
+				"lastEncUpdate"
+			],
+			[
+				"Serv",
+				"serviceDisplay"
+			],
+			[
+				"stat",
+				"currentState"
+			],
+			[
+				"PINMOTO",
+				"PIN_MOTOR_ENA"
+			],
+			[
+				"potpi",
+				"POT_PIN"
+			],
+			[
+				"POTPi",
+				"POT_PIN"
+			],
+			[
+				"MODEL",
+				"MODE_FULL"
+			],
+			[
+				"sens",
+				"senseError"
+			],
+			[
+				"sensor",
+				"sensorsOk"
+			],
+			[
+				"Cmpa",
+				"CMP_A"
+			],
+			[
+				"Confige",
+				"ConfigReg1_GetMask"
+			],
+			[
+				"Opmo",
+				"OP_MODE_t"
+			],
+			[
+				"opM",
+				"OP_MODE_t"
+			],
+			[
+				"throw",
+				"throwError"
+			],
+			[
+				"error",
+				"errorValue"
+			],
+			[
+				"erro",
+				"errorValue"
+			],
+			[
+				"mails",
+				"mailServEnabled"
+			],
+			[
+				"presu",
+				"pressureArrayBuffer"
+			],
+			[
+				"prs",
+				"pressureArray"
+			],
+			[
+				"desi",
+				"desired"
+			],
+			[
+				"half",
+				"HALF_PWR"
+			],
+			[
+				"OPmodet",
+				"OP_MODE_t"
+			],
+			[
+				"MO",
+				"MODE_FULL"
+			],
+			[
+				"CMPA",
+				"CMP_A"
+			],
+			[
+				"hal",
+				"HALF_PWR"
+			],
+			[
+				"no",
+				"NO_PWR"
+			],
+			[
+				"high",
+				"highTemp"
+			],
+			[
+				"MUL",
+				"CMP_ON_TB_MULTIPLIER"
+			],
+			[
+				"flow",
+				"flowSwitchOn"
+			],
+			[
+				"edg",
+				"flowLowEdgeTime"
+			],
+			[
+				"Conf",
+				"ConfigReg1_GetFlag"
+			],
+			[
+				"mail",
+				"mailServiceEnabled"
+			],
+			[
+				"tiempo",
+				"Tiempo"
+			],
+			[
+				"Fan",
+				"Fan_Shutdown"
+			],
+			[
+				"MODE",
+				"MODE_A"
+			],
+			[
+				"NO",
+				"NO_PWR"
+			],
+			[
+				"ENABLE",
+				"ENABLE_TEMP_FILTER"
+			],
+			[
+				"DISBL",
+				"DISABLE_TEMP_FILTER"
+			],
+			[
+				"R",
+				"R"
+			],
+			[
+				"P",
+				"P"
+			],
+			[
+				"CMPI",
+				"CMP_IDENTIFIER"
+			],
+			[
+				"CMPSE",
+				"CMP_SET_GOAL_STATE"
+			],
+			[
+				"CMPGE",
+				"CMP_GET_CURR_STATE"
+			],
+			[
+				"cmpId",
+				"cmpIDs"
+			],
+			[
+				"tande",
+				"tandemA"
+			],
+			[
+				"solus",
+				"solus"
+			],
+			[
+				"Dou",
+				"DoutRead"
+			],
+			[
+				"tand",
+				"tandemB"
+			],
+			[
+				"congi",
+				"configReg1"
+			],
+			[
+				"Tout",
+				"tempOut"
+			],
+			[
+				"need",
+				"needTempRouting"
+			],
+			[
+				"time",
+				"timeSpace"
+			],
+			[
+				"load",
+				"loadHistory"
+			],
+			[
+				"MAIX",
+				"MAIL_MAX_MSG_LENGTH"
+			],
+			[
+				"DISABLE",
+				"DISABLE_MAIL_WARNINGS"
+			],
+			[
+				"code",
+				"errorCode"
+			],
+			[
+				"subj",
+				"subjectParam"
+			],
+			[
+				"fifo",
+				"fifoIndex"
+			],
+			[
+				"Mail",
+				"MAIL_MAX_MSG_LENGTH"
+			],
+			[
+				"syste",
+				"systemErrorCode"
+			],
+			[
+				"sta",
+				"startupTime"
+			],
+			[
+				"Push",
+				"PushHead"
+			],
+			[
+				"ERR_M",
+				"ERR_MAIL_SYSTEM"
+			],
+			[
+				"FIFO",
+				"FIFO_Full"
+			],
+			[
+				"MAILFI",
+				"MAIL_FIFO_SIZE"
+			],
+			[
+				"MAIL_MAX",
+				"MAIL_MAX_CONSECUTIVE_ATTEMPTS"
+			],
+			[
+				"timeout",
+				"timeoutTick"
+			],
+			[
+				"ME",
+				"ME_FIFO_FULL"
+			],
+			[
+				"syst",
+				"systemErrorCode"
+			],
+			[
+				"err",
+				"errorCount"
+			],
+			[
+				"sys",
+				"systemErrorCode"
+			],
+			[
+				"send",
+				"sendError"
+			],
+			[
+				"targ",
+				"targetMail"
+			],
+			[
+				"MAIL",
+				"MAIL_SUBJECT"
+			],
+			[
+				"MAILF",
+				"MAIL_FIFO_SIZE"
+			],
+			[
+				"M",
+				"M_NONE"
+			],
+			[
+				"adc",
+				"adcValue"
+			],
+			[
+				"rs23",
+				"rs232_dev"
+			],
+			[
+				"Save",
+				"SaveAccRuntime"
+			],
+			[
+				"std",
+				"std_logic"
+			],
+			[
+				"EV19",
+				"EV19_NOP"
+			]
+		]
+	},
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: ins",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: e",
+				"Package Control: Enable Package"
+			],
+			[
+				"Package Control: in",
+				"Package Control: Advanced Install Package"
+			],
+			[
+				"Package Control: del",
+				"Package Control: Disable Package"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 171.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/E/GitHub/CIAA-Software/libs/my_sapi/inc/my_sapi.h",
+		"/E/GitHub/CIAA-Software/projects/AGV_MainApp/inc/FreeRTOSConfig.h",
+		"/E/GitHub/CIAA-Software/projects/HMI Task/inc/FreeRTOSConfig.h",
+		"/E/GitHub/CIAA-Software/libs/freertos/include/FreeRTOS.h",
+		"/E/GitHub/CIAA-Software/projects/ProcDeCamino/inc/FreeRTOSConfig.h",
+		"/C/CIAA/firmware_v3-r130/libs/sapi/sapi_v0.5.2/soc/peripherals/src/sapi_i2c.c",
+		"/C/CIAA/firmware_v3-r130/libs/sapi/sapi_v0.5.2/soc/peripherals/inc/sapi_i2c.h",
+		"/C/CIAA/firmware_v3-r130/libs/sapi/sapi_v0.5.2/board/src/sapi_board.c",
+		"/C/Users/mdevo/Documents/Arduino/libraries/Adafruit_VL53L0X/src/vl53l0x_types.h",
+		"/C/Users/mdevo/Desktop/VL53L0X API 1.0.2/Api/core/inc/vl53l0x_api.h",
+		"/C/Users/mdevo/Desktop/VL53L0X API 1.0.2/Api/platform/inc/vl53l0x_i2c_platform.h",
+		"/C/Users/mdevo/Documents/Arduino/libraries/Adafruit_VL53L0X/src/vl53l0x_i2c_platform.h",
+		"/C/Users/mdevo/Documents/Arduino/libraries/Adafruit_BusIO/Adafruit_I2CDevice.h",
+		"/C/Users/mdevo/Desktop/VL53L0X API 1.0.2/Api/core/src/vl53l0x_api_core.c",
+		"/C/Users/mdevo/Documents/Arduino/libraries/Adafruit_VL53L0X/src/Adafruit_VL53L0X.cpp",
+		"/C/Users/mdevo/Desktop/VL53L0X API 1.0.2/Api/platform/src/vl53l0x_i2c_win_serial_comms.c",
+		"/C/Users/mdevo/Desktop/VL53L0X API 1.0.2/Api/platform/src/vl53l0x_platform.c",
+		"/C/Users/mdevo/Desktop/VL53L0X API 1.0.2/Api/platform/inc/vl53l0x_platform.h",
+		"/C/Users/mdevo/Desktop/VL53L0X API 1.0.2/Api/core/src/vl53l0x_api_strings.c",
+		"/C/Users/mdevo/Desktop/VL53L0X API 1.0.2/Api/core/src/vl53l0x_api.c",
+		"/C/Users/mdevo/Desktop/VL53L0X API 1.0.2/Api/core/inc/vl53l0x_device.h",
+		"/C/Users/mdevo/Documents/Arduino/libraries/Adafruit_VL53L0X/src/Adafruit_VL53L0X.h",
+		"/C/Users/mdevo/Desktop/Mi parcial E5/Las operaciones que ejecutará el microprocesador a.txt",
+		"/C/Users/mdevo/Desktop/Mi parcial E5/DEC ALPHA 21264.txt",
+		"/C/Users/mdevo/Desktop/Mi parcial E5/Virtualizacion",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/SensorCheck.p",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/ErrorHandler.p",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/Documentacion/UpdateLog.txt",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Adeclarations.inc",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/SubRoutines.inc",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/SubRoutines.p",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/PlcMain.p",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/control.shtml",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/status.css",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/control.json",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/RS232.inc",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/RS232.p",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/InitSetup.p",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/OpHandler.inc",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/OnPrintEvent.p",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/OnPostEvent.p",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/control.css",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/mainStyle.css",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/CmpHandler.p",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/CmpHandler.inc",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/OnFuncCallEvent.p",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/WebServer.inc",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Hmi_OpHandler.p",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/defaultOp.json",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/status.shtml",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Hmi.p",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/sysInfo.json",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/info.json",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/status.json",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/header.html",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/opLoad.json",
+		"/G/My Drive/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/WebServer.p",
+		"/G/Mi unidad/ITBA - Electrónica/Materias/Seguridad Ocupacional y Ambiental - 12.83/Ocupacional/Primer parcial 1C 2019.txt",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/PsiMuxDriver.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/CmpHandler.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/OnPrintEvent.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/status.json",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Hmi.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/control.shtml",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/SubRoutines.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/OnPostEvent.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/control.css",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/Documentacion/UpdateLog.txt",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/OnFuncCallEvent.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/PlcMain.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/SensorCheck.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/FanHandler.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/SubRoutines.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/OpLogic.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/valoresUtiles.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Hmi.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/ErrorHandler.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/FanHandler.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Adeclarations.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/CmpHandler.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Timeouts.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Timeouts.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Hmi_OpHandler.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/InitSetup.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Hmi_MsgHandler.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Hmi_MsgHandler.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/status.css",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/status.shtml",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/ConfigReg1.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/control.json",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/RegDriver.p",
+		"/C/Users/mdevo/AppData/Local/Temp/_tc/scripts/user/RegDriver.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Sim.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Sim.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/VirtualHmi.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/sysInfo.json",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/Documentacion/UpdateLog.txt",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/CmpHandler.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/ErrorCodes.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/EmailDriver.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/info.json",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/ConfigReg1.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/UdpHandler.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/webserver/status.shtml",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/Adeclarations.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/Hmi.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/SensorCheck.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/Sim.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/Sim.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/EmailDriver.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/valoresUtiles.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/PsiMuxDriver.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/webserver/GWFxxii-aammdd.bin",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/RegDriver.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/RegDriver.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/VirtualHmi.inc",
+		"/C/Users/mdevo/Desktop/ascope-master/x11/ascope-x11.c",
+		"/G/Mi unidad/Proyectos/ClimaRental/Workspace/VIN Extension/Prueba1ExtVINPawn/scripts/user/RegDriver.p",
+		"/G/Mi unidad/CV/Famar.txt",
+		"/G/Mi unidad/Proyectos/ClimaRental/Workspace/VIN Extension/Conexion DB9.txt",
+		"/G/Mi unidad/Proyectos/ClimaRental/Workspace/VIN Extension/Prueba1ExtVINPawn/scripts/user/PsiMuxDriver.inc",
+		"/G/Mi unidad/Proyectos/ClimaRental/Workspace/VIN Extension/Prueba1ExtVINPawn/scripts/user/PsiMuxDriver.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/ErrorHandler.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/VirtualHmi.p",
+		"/G/Mi unidad/Proyectos/ClimaRental/Workspace/VIN Extension/Prueba1ExtVINPawn/scripts/user/VirtualHmi.p",
+		"/G/Mi unidad/ITBA/2019/2do Cuatrimestre/Control Automatico/TP Eckecko/Cosas que andan/Control Arduino/controlSketch/myModel.h",
+		"/C/Users/mdevo/AppData/Local/Temp/FreeCommander12492/11/StateSpaceControl-master/StateSpaceControl.h",
+		"/G/Mi unidad/ITBA/2019/2do Cuatrimestre/Control Automatico/TP Eckecko/ID_Pwm2Angle/ID_Pwm2Angle.ino"
+	],
+	"find":
+	{
+		"height": 40.0
+	},
+	"find_in_files":
+	{
+		"height": 187.0,
+		"where_history":
+		[
+			"<project>"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"PROCDECAMINO",
+			"use_16_bi",
+			"data_init",
+			"i",
+			"add",
+			"4 ",
+			"×",
+			"cos",
+			"sin",
+			"α",
+			"μ",
+			"μ1",
+			"m ",
+			"×",
+			"=",
+			"CMP_TB",
+			"CMP_TA",
+			"Cmp_Start",
+			"Cmp_",
+			"OpStartRequest",
+			"CMP_A",
+			"Cmp_",
+			");",
+			";",
+			"Cmp_",
+			"CLEAR_CURR_CMP",
+			"CMP_A",
+			"tandem",
+			"CMP_T",
+			"CMP_TA",
+			"tandem",
+			"CMP_TB",
+			"CMP_TA",
+			"LoadDefaultSP",
+			"GetDefaultOpJson",
+			"runPeriodicServices",
+			"serviceDisplay",
+			"RunPeriodicServices",
+			"SysWdtFeedS",
+			"runPeriodicServices",
+			"runMailService",
+			"id",
+			"OP_st",
+			"tandem",
+			"CMP",
+			"tempMil",
+			"tempMileage",
+			"WebServerGetFieldValueFloat",
+			"WS_tempSetPoint",
+			"case",
+			"name",
+			"/span",
+			"%f",
+			"PrintStr",
+			"text",
+			"PrintStr 2",
+			"PrintStr 1",
+			"PrintStr 0",
+			"</span>",
+			"</span> PSI",
+			"str_cmp",
+			"</span>",
+			"<span",
+			"span",
+			"case",
+			"myJson",
+			"bypassTambEnableFan1",
+			"str_opEn",
+			"str_flow",
+			"str_opEn",
+			"DISABLE_MAIL_WARNINGS",
+			"DISABLE_OP_AUTO_RESTORE",
+			"sim_",
+			"StartFan",
+			"CheckFanOverload",
+			"sensorsOk",
+			"cmpA[mileage]",
+			"cmpA[timeOn]",
+			"SAVED_OP_STATE",
+			"DISABLE_CMP_B",
+			"DISABLE_CMP_A",
+			"formStopOperation",
+			"DISABLE_CMP_B",
+			"BYPASS_NOT_ENABLES_FAN1",
+			"NOT_BYPASS_ENABLES_FAN1",
+			"NOT_BYPASS_TAMB",
+			"DISABLE_CMP_A",
+			"difPSI",
+			"oilPSI",
+			"lowPSI",
+			"DISABLE_CMP_A",
+			"tandemB",
+			"tandemA",
+			"CMP_TB",
+			"CMP_TA",
+			"nextState",
+			"DISABLE_CMP_A",
+			"opMode",
+			"opState",
+			"DISABLE_CMP_A",
+			"DISABLE_CMP_B",
+			"ArgVal",
+			"CMP_A",
+			"BYPASS_ENABLES_FAN1",
+			"externalchec",
+			"$",
+			"\t$",
+			"$ ",
+			"\t$",
+			"DISABLE_TEMP_FILTER",
+			"mailServActive",
+			",",
+			"PwmDoutInit",
+			",",
+			"36441802978516e",
+			"5",
+			"CmdType_MenuKey",
+			"CmdCode",
+			"regA",
+			"LedOn",
+			"EH_SendError",
+			"OUTPUT_MAX",
+			"u",
+			"w_hat",
+			"outMax",
+			"integral",
+			"w_hat",
+			"outMin"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"angle",
+			"OpLimits_st",
+			"&",
+			".",
+			"LedOn"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"incremental_find":
+	{
+		"height": 28.0
+	},
+	"input":
+	{
+		"height": 65.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"replace":
+	{
+		"height": 52.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"free",
+				"projects\\AGV_MainApp\\inc\\FreeRTOSConfig.h"
+			],
+			[
+				"plcm",
+				"scripts\\user\\PlcMain.p"
+			],
+			[
+				"sens",
+				"scripts\\user\\SensorCheck.p"
+			],
+			[
+				"cm",
+				"scripts\\user\\CmpHandler.inc"
+			],
+			[
+				"upda",
+				"Documentacion\\UpdateLog.txt"
+			],
+			[
+				"adec",
+				"scripts\\user\\Adeclarations.inc"
+			],
+			[
+				"cmp",
+				"scripts\\user\\CmpHandler.p"
+			],
+			[
+				"json",
+				"webserver\\control.json"
+			],
+			[
+				"stat",
+				"webserver\\status.css"
+			],
+			[
+				"con",
+				"webserver\\control.shtml"
+			],
+			[
+				"rs",
+				"scripts\\user\\RS232.p"
+			],
+			[
+				"ini",
+				"scripts\\user\\InitSetup.p"
+			],
+			[
+				"ade",
+				"scripts\\user\\Adeclarations.inc"
+			],
+			[
+				"plc",
+				"scripts\\user\\PlcMain.p"
+			],
+			[
+				"sub",
+				"scripts\\user\\SubRoutines.p"
+			],
+			[
+				"subr",
+				"scripts\\user\\SubRoutines.p"
+			],
+			[
+				"oph",
+				"scripts\\user\\OpHandler.inc"
+			],
+			[
+				"init",
+				"scripts\\user\\InitSetup.p"
+			],
+			[
+				"contro",
+				"webserver\\control.css"
+			],
+			[
+				"onprin",
+				"scripts\\user\\OnPrintEvent.p"
+			],
+			[
+				"opha",
+				"scripts\\user\\OpHandler.inc"
+			],
+			[
+				"onpo",
+				"scripts\\user\\OnPostEvent.p"
+			],
+			[
+				"main",
+				"webserver\\mainStyle.css"
+			],
+			[
+				"subro",
+				"scripts\\user\\SubRoutines.p"
+			],
+			[
+				"cmph",
+				"scripts\\user\\CmpHandler.p"
+			],
+			[
+				"onfunc",
+				"scripts\\user\\OnFuncCallEvent.p"
+			],
+			[
+				"onh",
+				"scripts\\user\\OpHandler.inc"
+			],
+			[
+				"onpr",
+				"scripts\\user\\OnPrintEvent.p"
+			],
+			[
+				"defaul",
+				"webserver\\defaultOp.json"
+			],
+			[
+				"hmi",
+				"scripts\\user\\Hmi.p"
+			],
+			[
+				"sys",
+				"webserver\\sysInfo.json"
+			],
+			[
+				"control",
+				"webserver\\control.json"
+			],
+			[
+				"head",
+				"webserver\\header.html"
+			],
+			[
+				"opl",
+				"webserver\\opLoad.json"
+			],
+			[
+				"statu",
+				"webserver\\status.shtml"
+			],
+			[
+				"onpri",
+				"scripts\\user\\OnPrintEvent.p"
+			],
+			[
+				"arc",
+				"scripts\\user\\ArchiveHandler.p"
+			],
+			[
+				"tim",
+				"scripts\\user\\Timeouts.inc"
+			],
+			[
+				"ps",
+				"scripts\\user\\PsiMuxDriver.inc"
+			],
+			[
+				"simin",
+				"scripts\\user\\Sim.inc"
+			],
+			[
+				"hmioph",
+				"scripts\\user\\Hmi_OpHandler.p"
+			],
+			[
+				"sensor",
+				"scripts\\user\\SensorCheck.p"
+			],
+			[
+				"eep",
+				"scripts\\user\\EEPROM_AddressBook.inc"
+			],
+			[
+				"hmip",
+				"scripts\\user\\Hmi.p"
+			],
+			[
+				"val",
+				"scripts\\user\\valoresUtiles.inc"
+			],
+			[
+				"ses",
+				"scripts\\user\\SensorCheck.p"
+			],
+			[
+				"contr",
+				"webserver\\control.shtml"
+			],
+			[
+				"onpos",
+				"scripts\\user\\OnPostEvent.p"
+			],
+			[
+				"controlsh",
+				"webserver\\control.shtml"
+			],
+			[
+				"updat",
+				"Documentacion\\UpdateLog.txt"
+			],
+			[
+				"onfu",
+				"scripts\\user\\OnFuncCallEvent.p"
+			],
+			[
+				"erro",
+				"scripts\\user\\ErrorHandler.p"
+			],
+			[
+				"fan",
+				"scripts\\user\\FanHandler.inc"
+			],
+			[
+				"senso",
+				"scripts\\user\\SensorCheck.p"
+			],
+			[
+				"timeo",
+				"scripts\\user\\Timeouts.p"
+			],
+			[
+				"cmpha",
+				"scripts\\user\\CmpHandler.p"
+			],
+			[
+				"plcma",
+				"scripts\\user\\PlcMain.p"
+			],
+			[
+				"hmims",
+				"scripts\\user\\Hmi_MsgHandler.inc"
+			],
+			[
+				"statucss",
+				"webserver\\status.css"
+			],
+			[
+				"onpost",
+				"scripts\\user\\OnPostEvent.p"
+			],
+			[
+				"confi",
+				"scripts\\user\\ConfigReg1.inc"
+			],
+			[
+				"cont",
+				"webserver\\control.json"
+			],
+			[
+				"onp",
+				"scripts\\user\\OnPostEvent.p"
+			],
+			[
+				"psi",
+				"scripts\\user\\PsiMuxDriver.inc"
+			],
+			[
+				"sim",
+				"scripts\\user\\Sim.p"
+			],
+			[
+				"reg",
+				"scripts\\user\\RegDriver.p"
+			],
+			[
+				"hmimsg",
+				"scripts\\user\\Hmi_MsgHandler.p"
+			],
+			[
+				"pl",
+				"scripts\\user\\PlcMain.p"
+			],
+			[
+				"ema",
+				"scripts\\user\\EmailDriver.p"
+			],
+			[
+				"inits",
+				"scripts\\user\\InitSetup.p"
+			],
+			[
+				"simp",
+				"scripts\\user\\Sim.p"
+			],
+			[
+				"concss",
+				"webserver\\control.css"
+			],
+			[
+				"on",
+				"scripts\\user\\OnPostEvent.p"
+			],
+			[
+				"hmiin",
+				"scripts\\user\\Hmi.inc"
+			],
+			[
+				"virt",
+				"scripts\\user\\VirtualHmi.p"
+			],
+			[
+				"simi",
+				"scripts\\user\\Sim.inc"
+			],
+			[
+				"msg",
+				"scripts\\user\\Hmi_MsgHandler.p"
+			],
+			[
+				"senc",
+				"scripts\\user\\SensorCheck.p"
+			],
+			[
+				"mail",
+				"scripts\\user\\EmailDriver.p"
+			],
+			[
+				"sysi",
+				"webserver\\sysInfo.json"
+			],
+			[
+				"hmise",
+				"scripts\\user\\Hmi_MsgHandler.p"
+			],
+			[
+				"plma",
+				"scripts\\user\\PlcMain.p"
+			],
+			[
+				"js",
+				"webserver\\control.json"
+			],
+			[
+				"valo",
+				"scripts\\user\\valoresUtiles.inc"
+			],
+			[
+				"udp",
+				"scripts\\user\\UdpHandler.p"
+			],
+			[
+				"psimui",
+				"scripts\\user\\PsiMuxDriver.inc"
+			],
+			[
+				"psimu",
+				"scripts\\user\\PsiMuxDriver.p"
+			],
+			[
+				"gmi",
+				"webserver\\GWFxxii-aammdd.bin"
+			],
+			[
+				"err",
+				"scripts\\user\\ErrorCodes.inc"
+			],
+			[
+				"PSI",
+				"scripts\\user\\PsiMuxDriver.inc"
+			],
+			[
+				"psim",
+				"scripts\\user\\PsiMuxDriver.inc"
+			],
+			[
+				"erroha",
+				"scripts\\user\\ErrorHandler.p"
+			],
+			[
+				"initp",
+				"scripts\\user\\InitSetup.p"
+			],
+			[
+				"arch",
+				"scripts\\user\\ArchiveDriver.p"
+			],
+			[
+				"archi",
+				"scripts\\user\\ArchiveDriver.inc"
+			],
+			[
+				"controjso",
+				"webserver\\control.json"
+			],
+			[
+				"oplo",
+				"scripts\\user\\OpLogic.p"
+			],
+			[
+				"cmphand",
+				"scripts\\user\\CmpHandler.p"
+			],
+			[
+				"plm",
+				"scripts\\user\\PlcMain.p"
+			],
+			[
+				"hmiarc",
+				"scripts\\user\\Hmi_ArcDriver.p"
+			],
+			[
+				"hmira",
+				"scripts\\user\\Hmi_ArcDriver.p"
+			],
+			[
+				"timeou",
+				"scripts\\user\\Timeouts.inc"
+			],
+			[
+				"error",
+				"scripts\\user\\ErrorCodes.inc"
+			],
+			[
+				"valor",
+				"scripts\\user\\valoresUtiles.inc"
+			],
+			[
+				"simh",
+				"scripts\\user\\Hmi_MsgHandler.inc"
+			],
+			[
+				"plmai",
+				"scripts\\user\\PlcMain.p"
+			],
+			[
+				"oplog",
+				"scripts\\user\\OpLogic.p"
+			],
+			[
+				"initse",
+				"scripts\\user\\InitSetup.p"
+			],
+			[
+				"hmierror",
+				"scripts\\user\\Hmi_ErrorHandler.p"
+			],
+			[
+				"fanha",
+				"scripts\\user\\FanHandler.inc"
+			],
+			[
+				"config",
+				"scripts\\user\\ConfigReg1.p"
+			],
+			[
+				"erroh",
+				"scripts\\user\\ErrorHandler.p"
+			],
+			[
+				"sys\t",
+				"webserver\\sysInfo.json"
+			],
+			[
+				"info",
+				"webserver\\info.json"
+			],
+			[
+				"email",
+				"scripts\\user\\EmailServiceDriver.p"
+			],
+			[
+				"print",
+				"scripts\\user\\OnPrintEvent.p"
+			],
+			[
+				"CMP",
+				"scripts\\user\\CmpHandler.p"
+			],
+			[
+				"ad",
+				"scripts\\user\\Adeclarations.inc"
+			],
+			[
+				"hmierr",
+				"scripts\\user\\Hmi_ErrorHandler.p"
+			],
+			[
+				"hmi.p",
+				"scripts\\user\\Hmi.p"
+			],
+			[
+				"hmih",
+				"scripts\\user\\Hmi_OpHandler.inc"
+			],
+			[
+				"virtu",
+				"scripts\\user\\VirtualHmi.p"
+			],
+			[
+				"HMIP",
+				"scripts\\user\\Hmi.p"
+			],
+			[
+				"psiminc",
+				"scripts\\user\\PsiMuxDriver.inc"
+			],
+			[
+				"HMI",
+				"scripts\\user\\Hmi.inc"
+			],
+			[
+				"mails",
+				"scripts\\user\\EmailServiceDriver.p"
+			],
+			[
+				"upd",
+				"UpdateLog.txt"
+			],
+			[
+				"ignor",
+				".gitignore"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"settings":
+	{
+	},
+	"show_minimap": false,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 187.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

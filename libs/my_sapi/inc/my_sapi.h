@@ -14,10 +14,12 @@
 #include "my_sapi_datatypes.h"
 #include "my_sapi_peripheral_map.h"
 #include "board_api.h"
+#include "assert.h"
 
 // Application specific libraries
 #include "my_sapi_gpio.h"                   // Use GPIO peripherals
 
 void MySapi_BoardInit(bool_t debugUartEnable);
+
 
 #endif /* __MY_SAPI_H_ */
