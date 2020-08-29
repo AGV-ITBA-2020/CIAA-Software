@@ -15,7 +15,6 @@ int main( void )
 
 	bool_t initOk = true;
 
-	initOk = PC_Init();
 
 	if(initOk == true)
 	{

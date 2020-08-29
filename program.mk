@@ -1,2 +1,2 @@
 PROGRAM_PATH = projects
-PROGRAM_NAME = HMI_Panel
+PROGRAM_NAME = AGV_MainApp
