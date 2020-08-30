@@ -7,7 +7,6 @@ int main( void )
 	// Read clock settings and update SystemCoreClock variable
 	MySapi_BoardInit(true);
 	GpioInit();
-	VL53L0X_Init();
 
 	bool_t initOk = true;
 	char regIndex = 0xC1;
