@@ -38,14 +38,11 @@ static const lpc4337ScuPin_t lpcUart485DirPin = {
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions declaration]=========================*/
-void uartInit( uartMap_t uart, uint32_t baudRate )
+void uartInit( uartMap_t uart, uint32_t baudRate, bool loopback )
 {
-   // Initialize UART
-   Chip_UART_Init( lpcUarts[uart].uartAddr );
-   // Set Baud rate
-   Chip_UART_SetBaud( lpcUarts[uart].uartAddr, baudRate );
+   Chip_UART_Init( lpcUarts[uart].uartAddr );// Initialize UART
 
-   //Chip_UART_ConfigData(LPC_UART, (UART_LCR_WLEN8 | UART_LCR_SBS_1BIT));
+   Chip_UART_SetBaud( lpcUarts[uart].uartAddr, baudRate );// Set Baud rate
 
    // Restart FIFOS using FCR (FIFO Control Register).
    // Set Enable, Reset content, set trigger level
@@ -54,38 +51,26 @@ void uartInit( uartMap_t uart, uint32_t baudRate )
                          UART_FCR_TX_RS   |
                          UART_FCR_RX_RS   |
                          UART_FCR_TRG_LEV0 );
-	/*Chip_UART_SetupFIFOS(lpcUarts[uart].uartAddr,
-                          (UART_FCR_FIFO_EN | UART_FCR_TRG_LEV2));*/
-
    // Dummy read
    Chip_UART_ReadByte( lpcUarts[uart].uartAddr );
 
    // Enable UART Transmission
    Chip_UART_TXEnable( lpcUarts[uart].uartAddr );
+   if(loopback)
+   {
+	   Chip_UART_SetModemControl(lpcUarts[uart].uartAddr, UART_MCR_LOOPB_EN);
+   }
+   else
+   {
+	   // Configure SCU UARTn_TXD pin
+	   Chip_SCU_PinMux( lpcUarts[uart].txPin.lpcScuPort,lpcUarts[uart].txPin.lpcScuPin,MD_PDN,lpcUarts[uart].txPin.lpcScuFunc );
 
-   // Configure SCU UARTn_TXD pin
-   Chip_SCU_PinMux( lpcUarts[uart].txPin.lpcScuPort,
-                    lpcUarts[uart].txPin.lpcScuPin,
-                    MD_PDN,
-                    lpcUarts[uart].txPin.lpcScuFunc );
-
-   // Configure SCU UARTn_RXD pin
-   Chip_SCU_PinMux( lpcUarts[uart].rxPin.lpcScuPort,
-                    lpcUarts[uart].rxPin.lpcScuPin,
-                    MD_PLN | MD_EZI | MD_ZI,
-                    lpcUarts[uart].rxPin.lpcScuFunc );
-
-   // Specific configurations for RS485
-   if( uart == UART_485 ) {
-      // Specific RS485 Flags
-      Chip_UART_SetRS485Flags( LPC_USART0,
-                               UART_RS485CTRL_DCTRL_EN |
-                               UART_RS485CTRL_OINV_1     );
-      // UARTn_DIR extra pin for RS485
-      Chip_SCU_PinMux( lpcUart485DirPin.lpcScuPort,
-                       lpcUart485DirPin.lpcScuPin,
-                       MD_PDN,
-                       lpcUart485DirPin.lpcScuFunc );
+	   // Configure SCU UARTn_RXD pin
+	   Chip_SCU_PinMux( lpcUarts[uart].rxPin.lpcScuPort,lpcUarts[uart].rxPin.lpcScuPin,MD_PLN | MD_EZI | MD_ZI,lpcUarts[uart].rxPin.lpcScuFunc );
+	   // Specific configurations for RS485
+	     if( uart == UART_485 )
+	        Chip_UART_SetRS485Flags( LPC_USART0, UART_RS485CTRL_OINV_1     ); //Esto estaba en el sapi, hay que checkear si necesita
+	     	  //Se debería poner el pin de DE en 1 para que funcione como una uart normal
    }
 }
 
