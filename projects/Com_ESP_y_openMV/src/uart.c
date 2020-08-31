@@ -35,10 +35,22 @@ static const lpc4337ScuPin_t lpcUart485DirPin = {
    6, 2, FUNC2
 };
 
-/*==================[internal functions definition]==========================*/
+uint8_t uartRxRead( uartMap_t uart );// Read from RX FIFO
+void uartTxWrite( uartMap_t uart, const uint8_t value );
 
+/*==================[internal functions definition]==========================*/
+// Read from RX FIFO
+uint8_t uartRxRead( uartMap_t uart )
+{
+   return Chip_UART_ReadByte( lpcUarts[uart].uartAddr );
+}
+// Write in TX FIFO
+void uartTxWrite( uartMap_t uart, const uint8_t value )
+{
+   Chip_UART_SendByte( lpcUarts[uart].uartAddr, value );
+}
 /*==================[external functions declaration]=========================*/
-void uartInit( uartMap_t uart, uint32_t baudRate, bool loopback )
+void uartInit( uartMap_t uart, uint32_t baudRate, bool_t loopback )
 {
    Chip_UART_Init( lpcUarts[uart].uartAddr );// Initialize UART
 
@@ -75,6 +87,36 @@ void uartInit( uartMap_t uart, uint32_t baudRate, bool loopback )
 }
 
 
+bool_t uartReadByte( uartMap_t uart, uint8_t* receivedByte )
+{
+   bool_t retVal = TRUE;
+   if ( uartRxReady(uart) ) {
+      *receivedByte = uartRxRead(uart);
+   } else {
+      retVal = FALSE;
+   }
+   return retVal;
+}
 
+// Blocking Write 1 byte to TX FIFO
+void uartWriteByte( uartMap_t uart, const uint8_t value )
+{
+   // Wait for space in FIFO (blocking)
+   while( uartTxReady( uart ) == FALSE );
+   // Send byte
+   uartTxWrite( uart, value );
+}
+
+
+// Return TRUE if have unread data in RX FIFO
+bool_t uartRxReady( uartMap_t uart )
+{
+   return Chip_UART_ReadLineStatus( lpcUarts[uart].uartAddr ) & UART_LSR_RDR;
+}
+// Return TRUE if have space in TX FIFO
+bool_t uartTxReady( uartMap_t uart )
+{
+   return Chip_UART_ReadLineStatus( lpcUarts[uart].uartAddr ) & UART_LSR_THRE;
+}
 
 
