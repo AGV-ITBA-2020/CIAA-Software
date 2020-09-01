@@ -104,6 +104,8 @@ typedef float  real32_t;
 /* Define Tick Data Type */
 typedef uint64_t tick_t;
 
+typedef void (*callBackFuncPtr_t)(void *);
+
 /*==================[c++]====================================================*/
 #ifdef __cplusplus
 }

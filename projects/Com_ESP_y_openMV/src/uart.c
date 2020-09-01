@@ -38,6 +38,24 @@ static const lpc4337ScuPin_t lpcUart485DirPin = {
 uint8_t uartRxRead( uartMap_t uart );// Read from RX FIFO
 void uartTxWrite( uartMap_t uart, const uint8_t value );
 
+/*Callbacks interrupciones*/
+static callBackFuncPtr_t rxIsrCallbackUART0 = 0;
+static callBackFuncPtr_t rxIsrCallbackUART2 = 0;
+static callBackFuncPtr_t rxIsrCallbackUART3 = 0;
+
+static callBackFuncPtr_t txIsrCallbackUART0 = 0;
+static callBackFuncPtr_t txIsrCallbackUART2 = 0;
+static callBackFuncPtr_t txIsrCallbackUART3 = 0;
+
+/* 0x28 0x000000A0 - Handler for ISR UART0 (IRQ 24) */
+void UART0_IRQHandler(void);
+/* 0x2a 0x000000A8 - Handler for ISR UART2 (IRQ 26) */
+void UART2_IRQHandler(void);
+/* 0x2b 0x000000AC - Handler for ISR UART3 (IRQ 27) */
+void UART3_IRQHandler(void);
+
+static void uartProcessIRQ( uartMap_t uart );
+
 /*==================[internal functions definition]==========================*/
 // Read from RX FIFO
 uint8_t uartRxRead( uartMap_t uart )
@@ -48,6 +66,61 @@ uint8_t uartRxRead( uartMap_t uart )
 void uartTxWrite( uartMap_t uart, const uint8_t value )
 {
    Chip_UART_SendByte( lpcUarts[uart].uartAddr, value );
+}
+
+static void uartProcessIRQ( uartMap_t uart )
+{
+   uint8_t status = Chip_UART_ReadLineStatus( lpcUarts[uart].uartAddr );
+
+   // Rx Interrupt
+   if(status & UART_LSR_RDR) { // uartRxReady
+      // Execute callback
+      if( ( uart == UART_485 ) && (rxIsrCallbackUART0 != 0) )
+         (*rxIsrCallbackUART0)(0);
+
+      if( ( uart == UART_USB )  && (rxIsrCallbackUART2 != 0) )
+         (*rxIsrCallbackUART2)(0);
+
+      if( ( uart == UART_232 )  && (rxIsrCallbackUART3 != 0) )
+         (*rxIsrCallbackUART3)(0);
+   }
+
+   // Tx Interrupt
+   if( ( status & UART_LSR_THRE ) && // uartTxReady
+       ( Chip_UART_GetIntsEnabled( lpcUarts[uart].uartAddr ) & UART_IER_THREINT ) ) {
+
+      // Execute callback
+      if( ( uart == UART_485 ) && (txIsrCallbackUART0 != 0) )
+         (*txIsrCallbackUART0)(0);
+
+      if( ( uart == UART_USB )  && (txIsrCallbackUART2 != 0) )
+         (*txIsrCallbackUART2)(0);
+
+      if( ( uart == UART_232 )  && (txIsrCallbackUART3 != 0) )
+         (*txIsrCallbackUART3)(0);
+   }
+}
+__attribute__ ((section(".after_vectors"))) // Y esto?
+
+// UART0 (GPIO1 y GPIO2 or RS485/Profibus)
+// 0x28 0x000000A0 - Handler for ISR UART0 (IRQ 24)
+void UART0_IRQHandler(void)
+{
+   uartProcessIRQ( UART_485 );
+}
+
+// UART2 (USB-UART) or UART_ENET
+// 0x2a 0x000000A8 - Handler for ISR UART2 (IRQ 26)
+void UART2_IRQHandler(void)
+{
+   uartProcessIRQ( UART_USB );
+}
+
+// UART3 (RS232)
+// 0x2b 0x000000AC - Handler for ISR UART3 (IRQ 27)
+void UART3_IRQHandler(void)
+{
+   uartProcessIRQ( UART_232 );
 }
 /*==================[external functions declaration]=========================*/
 void uartInit( uartMap_t uart, uint32_t baudRate, bool_t loopback )
@@ -62,7 +135,7 @@ void uartInit( uartMap_t uart, uint32_t baudRate, bool_t loopback )
                          UART_FCR_FIFO_EN |
                          UART_FCR_TX_RS   |
                          UART_FCR_RX_RS   |
-                         UART_FCR_TRG_LEV0 );
+                         UART_FCR_TRG_LEV1 );
    // Dummy read
    Chip_UART_ReadByte( lpcUarts[uart].uartAddr );
 
@@ -117,6 +190,86 @@ bool_t uartRxReady( uartMap_t uart )
 bool_t uartTxReady( uartMap_t uart )
 {
    return Chip_UART_ReadLineStatus( lpcUarts[uart].uartAddr ) & UART_LSR_THRE;
+}
+
+void uartWriteString( uartMap_t uart, const char* str )
+{
+   while( *str != 0 ) {
+      uartWriteByte( uart, (uint8_t)*str );
+      str++;
+   }
+}
+
+// UART Global Interrupt Enable/Disable
+void uartInterrupt( uartMap_t uart, bool_t enable )
+{
+   if( enable ) {
+      // Interrupt Priority for UART channel
+      NVIC_SetPriority( lpcUarts[uart].uartIrqAddr, 5 ); // FreeRTOS Requiere prioridad >= 5 (numero mas alto, mas baja prioridad)
+      // Enable Interrupt for UART channel
+      NVIC_EnableIRQ( lpcUarts[uart].uartIrqAddr );
+   } else {
+      // Disable Interrupt for UART channel
+      NVIC_DisableIRQ( lpcUarts[uart].uartIrqAddr );
+   }
+}
+void uartCallbackSet( uartMap_t uart, uartEvents_t event,callBackFuncPtr_t callbackFunc)
+{
+   uint32_t intMask;
+
+   switch(event){
+
+      case UART_RECEIVE:
+         // Enable UART Receiver Buffer Register Interrupt
+         //intMask = UART_IER_RBRINT;
+
+         // Enable UART Receiver Buffer Register Interrupt and Enable UART line
+         //status interrupt. LPC43xx User manual page 1118
+         intMask = UART_IER_RBRINT | UART_IER_RLSINT;
+
+         if( callbackFunc != 0 ) {
+            // Set callback
+            if(uart == UART_485 ){
+               rxIsrCallbackUART0 = callbackFunc;
+            }
+            if( uart == UART_USB){
+               rxIsrCallbackUART2 = callbackFunc;
+            }
+            if( uart == UART_232 ){
+               rxIsrCallbackUART3 = callbackFunc;
+            }
+         } else{
+            return;
+         }
+      break;
+
+      case UART_TRANSMITER_FREE:
+         // Enable THRE irq (TX)
+         intMask = UART_IER_THREINT;
+
+         if( callbackFunc != 0 ) {
+
+            // Set callback
+            if(uart == UART_485){
+               txIsrCallbackUART0 = callbackFunc;
+            }
+            if(uart == UART_USB){
+               txIsrCallbackUART2 = callbackFunc;
+            }
+            if( uart == UART_232 ){
+               txIsrCallbackUART3 = callbackFunc;
+            }
+         } else{
+            return;
+         }
+      break;
+
+      default:
+         return;
+   }
+
+   // Enable UART Interrupt
+   Chip_UART_IntEnable(lpcUarts[uart].uartAddr, intMask);
 }
 
 
