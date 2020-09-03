@@ -5,8 +5,8 @@
  *      Author: Javier
  */
 
-#ifndef UART_H_
-#define UART_H_
+#ifndef MY_SAPI_UART_H_
+#define MY_SAPI_UART_H_
 
 #include "my_sapi_peripheral_map.h"
 
@@ -50,4 +50,4 @@ void uartCallbackSet( uartMap_t uart, uartEvents_t event,callBackFuncPtr_t callb
 #endif
 
 
-#endif /* PROJECTS_COM_ESP_Y_OPENMV_INC_UART_H_ */
+#endif /* PROJECTS_COM_ESP_Y_OPENMV_INC_MY_SAPI_UART_H_ */

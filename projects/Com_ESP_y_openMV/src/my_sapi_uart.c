@@ -4,7 +4,8 @@
  *  Created on: Aug 31, 2020
  *      Author: Javier
  */
-#include "uart.h"
+#include "../inc/my_sapi_uart.h"
+
 #include "chip.h"
 
 /*==================[typedef]================================================*/
