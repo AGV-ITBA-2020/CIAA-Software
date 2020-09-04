@@ -7,7 +7,7 @@ void examplecallback(void *);
 unsigned int j=0;
 uint8_t nRec;
 bool_t res;
-/*
+
 int main( void )
 {
 	uint8_t n=55;
@@ -52,7 +52,7 @@ int main( void )
 	  for(int i =0 ; i<50000000; i++);
    }
    return 0;
-}*/
+}
 
 void examplecallback(void * a) //OJO! Solo la interrupcion se baja sola al leer los datos en la fifo
 {
