@@ -36,7 +36,7 @@ typedef struct {
 
 void RP_Init(void);
 
-void attachQueues(QueueHandle_t missionQueue,QueueHandle_t errorSignalMailbox,QueueHandle_t missionStepReachedMailbox ); //Error signal devuelve el int de error y step un bool si pasó o no el paso actual de la misión.
+void RP_attachQueues(QueueHandle_t missionQueue,QueueHandle_t errorSignalMailbox,QueueHandle_t missionStepReachedMailbox ); //Error signal devuelve el int de error y step un bool si pasó o no el paso actual de la misión.
 
 #ifdef __cplusplus
 }

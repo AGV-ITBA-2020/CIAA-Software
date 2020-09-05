@@ -31,6 +31,9 @@ bool_t uartReadByte( uartMap_t uart, uint8_t* receivedByte );
 
 void uartTxWrite( uartMap_t uart, uint8_t value );
 
+void uartWriteString( uartMap_t uart, const char* str );
+
+
 
 //-------------------------------------------------------------
 // Interrupts

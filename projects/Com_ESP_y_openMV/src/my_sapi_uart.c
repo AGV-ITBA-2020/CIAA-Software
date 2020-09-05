@@ -137,6 +137,12 @@ void uartInit( uartMap_t uart, uint32_t baudRate, bool_t loopback )
                          UART_FCR_TX_RS   |
                          UART_FCR_RX_RS   |
                          UART_FCR_TRG_LEV1 );
+   if(uart == UART_232 ) //Esto deberíamos hacerlo fuera del driver
+	   Chip_UART_SetupFIFOS( lpcUarts[uart].uartAddr,
+	                            UART_FCR_FIFO_EN |
+	                            UART_FCR_TX_RS   |
+	                            UART_FCR_RX_RS   |
+	                            UART_FCR_TRG_LEV2 );//Hago que trigeree el interrupt cuando hay 8
    // Dummy read
    Chip_UART_ReadByte( lpcUarts[uart].uartAddr );
 
@@ -157,6 +163,7 @@ void uartInit( uartMap_t uart, uint32_t baudRate, bool_t loopback )
 	     if( uart == UART_485 )
 	        Chip_UART_SetRS485Flags( LPC_USART0, UART_RS485CTRL_OINV_1     ); //Esto estaba en el sapi, hay que checkear si necesita
 	     	  //Se debería poner el pin de DE en 1 para que funcione como una uart normal
+
    }
 }
 
@@ -200,7 +207,6 @@ void uartWriteString( uartMap_t uart, const char* str )
       str++;
    }
 }
-
 // UART Global Interrupt Enable/Disable
 void uartInterrupt( uartMap_t uart, bool_t enable )
 {

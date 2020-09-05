@@ -178,7 +178,7 @@ void RP_Init(void)
 	xTaskCreate( RP_MainTask, "RP Main task", 100	, NULL, 1, NULL ); //Crea task de misión
 }
 
-void attachQueues(QueueHandle_t mission_queue,QueueHandle_t error_signal_mailbox,QueueHandle_t mission_step_reached_mailbox )
+void RP_attachQueues(QueueHandle_t mission_queue,QueueHandle_t error_signal_mailbox,QueueHandle_t mission_step_reached_mailbox )
 {
 	missionQueue=mission_queue;
 	errorSignalMailbox=error_signal_mailbox;
