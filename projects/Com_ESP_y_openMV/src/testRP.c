@@ -5,14 +5,14 @@
  *      Author: Javier
  */
 
-#include "RoadProcessing.h"
-#include "CommunicationHandling.h"
+#include "../inc/CommunicationCentre.h"
+#include "../inc/PathControl.h"
 
 
 void main(void)
 {
-	RP_Init();
-	CH_Init();
+	PC_Init();
+	CCO_Init();
 
 }
 
