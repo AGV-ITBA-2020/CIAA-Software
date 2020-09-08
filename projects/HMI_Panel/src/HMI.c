@@ -22,9 +22,9 @@
 typedef struct {
 	bool IO_type;		// 0 indicates an input. 1 indicates an output.
 	HMI_INPUT_ID id : HMI_IO_ID_MAX_BIT_SIZE;
-	HMI_INPUT_PATTERN pattern : 3;			// Indicates the type of pattern to capture.
-	unsigned int maxCount : 3;					// Indicates the number of times the pattern repeats for a success. If 0, input is not active.
-	unsigned int count : 3;						// Used to count patterns
+	HMI_INPUT_PATTERN pattern : 3;				// Indicates the type of pattern to capture.
+	unsigned int maxCount : 3;					// Indicates the number of times the pattern repeats for a success. If 0, input is not active. Para short press es el número de short press necesarios para cumplir. Para long press es el tiempo máximo para ser considerado long press.
+	unsigned int count : 3;						// Used to count patterns. Para short press cuento cuántos voy teniendo. Para long press lo uso para el tiempo que permanece presionado.
 	bool lastValue : 1;							// Used for capturing input changes and debouncing.
 	gpioMap_t inputPin;
 	void (* callbackSuccess)(HMI_INPUT_ID inputId);
@@ -108,20 +108,113 @@ void HMI_MainTask()
 
 char RunInputRoutine()
 {
+	unsigned int ninputs=0;
+	for(int i=0;i<INPUT_TOTAL_COUNT;i++)
+	{
+	if(inputArray[i].maxCount==0)
+		continue;
+	else
+	{
+		if(gpioRead(inputArray[i].inputPin)==0)
+		{
+			if(inputArray[i].lastValue==1)
+			{
+				if(inputArray[i].pattern==LONG_PRESS)
+				{
+					(inputArray[i].count)=0;
+					inputArray[i].lastValue=gpioRead(inputArray[i].inputPin);
+					ninputs++;
+				}
+
+				else
+				{
+					(inputArray[i].count)++;
+
+					if(inputArray[i].count<inputArray[i].maxCount)
+					{
+						inputArray[i].lastValue=gpioRead(inputArray[i].inputPin);
+						ninputs++;
+					}
+					else
+					{
+						inputArray[i].maxCount=0;
+						inputArray[i].callbackSuccess;
+					}
+				}
+			}
+			else
+			{
+				if(inputArray[i].pattern==LONG_PRESS)
+				{
+					(inputArray[i].count)++;
+
+					if(inputArray[i].count<inputArray[i].maxCount)
+					{
+						inputArray[i].lastValue=gpioRead(inputArray[i].inputPin);
+						ninputs++;
+					}
+					else
+					{
+						inputArray[i].maxCount=0;
+						inputArray[i].callbackSuccess;
+					}
+
+				}
+				else
+
+					inputArray[i].callbackAbort;
+			}
+		}
+		else
+			if(inputArray[i].lastValue==0)
+			{
+
+			}
+
+
+	}
+	}
+
+	return ninputs;
+
 
 }
 
 char RunOutputRoutine()
 {
+	unsigned int noutputs;
+
+	for(int i=0;i<OUTPUT_TOTAL_COUNT;i++)
+		if((outputArray[i].timebaseCounter)<(outputArray[i].timeOn))
+		{
+			(outputArray[i].timebaseCounter)++;
+			gpioWrite(outputArray[i].outputPin,1);
+		}
+
+		else if((outputArray[i].timebaseCounter>=outputArray[i].timeOn) && (outputArray[i].timebaseCounter<=((outputArray[i].timeOff) + (outputArray[i].timeOff))))
+		{
+			(outputArray[i].timebaseCounter)++;
+			gpioWrite(outputArray[i].outputPin,0);
+		}
 	
+		else
+		{
+			(outputArray[i].timebaseCounter)=0;
+			outputArray[i].callbackSuccess;
+		}
+
+	return noutputs;
 }
 
 void LoadInputConfig(HMI_Input_t * data)
 {
+	inputArray[data.id]=data;
 
 }
 
 void LoadOutputConfig(HMI_Output_t * data)
 {
+
+	outputArray[data.id]=data;
 
 }

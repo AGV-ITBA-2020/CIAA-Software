@@ -33,7 +33,7 @@ typedef enum{
 
 
 void HMI_Init();
-void HMI?SetInput(OUTPUT_BUT_BLUE, )
+//void HMI_SetInput(OUTPUT_BUT_BLUE, )
 
 
 #endif /* HMI_H_ */
