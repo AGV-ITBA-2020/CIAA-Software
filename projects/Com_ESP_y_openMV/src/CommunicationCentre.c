@@ -80,6 +80,8 @@ bool_t CCO_Init(void)
 	uartInit( CCO_UART, CCO_UART_BAUDRATE, 1 );
 	uartInterrupt( CCO_UART, 1);
 	uartCallbackSet( CCO_UART, UART_RECEIVE,(callBackFuncPtr_t)readCallback);
+	recievedMailbox=xQueueCreate( 1,sizeof(char *));
+	sendQueue=xQueueCreate( CCO_SEND_BUF_MSGS,sizeof(char *));
 	xTaskCreate( CCO_recieve_task, "CH rec task", 100	, NULL, 1, NULL ); //Crea task de misión
 	xTaskCreate( CCO_send_task, "CH send task", 100	, NULL, 1, NULL ); //Crea task de misión
 }
@@ -89,8 +91,14 @@ bool_t CCO_connected(void)
 	return connected;
 }
 
-void CCO_attach_queue(QueueHandle_t sendqueue,QueueHandle_t recmailbox)
+bool_t CCO_recieveMsg(char * str)
 {
-	recievedMailbox=recmailbox;
-	sendQueue=sendqueue;
+	BaseType_t bt= xQueueReceive( recievedMailbox,&str,0);
+	return bt==pdPASS;
+}
+
+bool_t CCO_sendMsg(char * str)
+{
+	xQueueSendToFront(recievedMailbox,&str,0 );
+	return 1; //Debería checkearse que no se pase de la cantidad de la cola
 }

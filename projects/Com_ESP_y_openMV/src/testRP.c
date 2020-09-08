@@ -5,14 +5,12 @@
  *      Author: Javier
  */
 
-#include "../inc/CommunicationCentre.h"
-#include "../inc/PathControl.h"
+#include "ControlCenter.h"
 
 
 void main(void)
 {
-	PC_Init();
-	CCO_Init();
+	CC_init();
 
 }
 

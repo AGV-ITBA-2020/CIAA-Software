@@ -175,7 +175,7 @@ void PC_Init(void)
 {
 	uartInit( PC_UART, PC_UART_BAUDRATE, 1 );
 	xBinarySemaphore = xSemaphoreCreateBinary();
-	xTaskCreate( PC_MainTask, "RP Main task", 100	, NULL, 1, NULL ); //Crea task de misión
+	xTaskCreate( PC_MainTask, "PC Main task", 100	, NULL, 1, NULL ); //Crea task de misión
 	missionMailbox=xQueueCreate( 1,sizeof(Mission_Block));
 }
 

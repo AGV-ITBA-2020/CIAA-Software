@@ -18,13 +18,16 @@ extern "C" {
 
 #define CCO_UART_BAUDRATE 9600
 #define CCO_UART UART_232
-#define CCO_REC_BUF_LEN 200
+#define CCO_REC_BUF_LEN 1500
+#define CCO_SEND_BUF_MSGS 5
 
 bool_t CCO_Init(void);
 
 bool_t CCO_connected(void);
 
-void CCO_attach_queue(QueueHandle_t sendqueue,QueueHandle_t recmailbox);
+bool_t CCO_recieveMsg(char * str);
+
+bool_t CCO_sendMsg(char * str);
 
 #ifdef __cplusplus
 }
