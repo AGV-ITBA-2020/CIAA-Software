@@ -12,3 +12,9 @@ Proyecto de firmware y software para CIAA-NXP utilizando Eclipse IDE.
 
 [Documentación adicional interesante](https://github.com/epernia/firmware_v3/blob/master/documentation/firmware/readme/readme-es.md)
 
+### Para Mergear a Master:
+a) Pushear cambios a la branch tuya: branch-name.
+b) git checkout master
+c) git merge --squash 'branch-name'
+d) git commit -m "mensaje del commit que va a aparecer en master"
+e) git push
