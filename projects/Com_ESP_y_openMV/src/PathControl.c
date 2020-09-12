@@ -15,6 +15,7 @@
 /*==================[typedef]================================================*/
 #define OPEN_MV_MSG_LEN 4 //Length en bytes del mensaje del openMV
 #define MAX_DISPLACEMENT 64
+#define EVENT_QUEUE_LEN 10
 
 
 typedef enum {OPENMV_FOLLOW_LINE, OPENMV_FORK_LEFT, OPENMV_FORK_RIGHT, OPENMV_MERGE, OPENMV_ERROR,OPENMV_IDLE}openMV_states; //Los distintos estados del OpenMV
@@ -37,14 +38,15 @@ static Mission_Block mb;
 static bool_t queuesAttached=0;
 static SemaphoreHandle_t xBinarySemaphore;
 static TaskHandle_t * missionTask;
-static QueueHandle_t missionMailbox, errorSignalMailbox, missionStepReachedMailbox;
+static QueueHandle_t missionMailbox, errorSignalMailbox, missionStepReachedMailbox, eventQueue;
+
 
 void PC_MainTask();
 openMV_msg parse_openmv_msg(char * buf);
 void send_openmv_nxt_state(Block_checkpoint ms);
 void PC_MissionTask();
-void startNewMission();
-void abortMission();
+void startNewMissionBlock();
+void abortMissionBlock();
 void callbackInterrupt(void *);
 bool_t missionBlockLogic(openMV_msg msg, bool_t * stepReached); //Ejecuta la lógica de recorrida de camino, y devuelve si terminó la misión
 
@@ -61,9 +63,9 @@ void PC_MainTask()
 		{
 			xQueueReceive(missionMailbox,&mb,portMAX_DELAY); //Espera a que llegue una misión
 			if(mb.com== BLOCK_START || mb.com==BLOCK_REPLACE)
-				startNewMission();
+				startNewMissionBlock();
 			else
-				abortMission();
+				abortMissionBlock();
 		}
 		else
 			vTaskDelay( xDelay250ms );
@@ -75,6 +77,7 @@ void PC_MissionTask()
 {
 	openMV_msg msg;
 	bool_t quit,stepReached;
+	PC_Event ev;
 	for( ;; )
 	{
 		xSemaphoreTake( xBinarySemaphore, portMAX_DELAY ); //Espera hasta que haya nuevos datos del openMV
@@ -82,9 +85,18 @@ void PC_MissionTask()
 		msg=parse_openmv_msg(recBuff); //Se decodifica el msg
 		quit=missionBlockLogic(msg, &stepReached);
 		xQueueSendToFront(errorSignalMailbox,&msg.displacement,0 ); //Envía el error
-		xQueueSendToFront(missionStepReachedMailbox,&stepReached,0 ); //Avisa que se avanzó un paso en la misión
+		//xQueueSendToFront(missionStepReachedMailbox,&stepReached,0 ); //Avisa que se avanzó un paso en la misión
+		if(stepReached)
+		{
+			ev=PC_STEP_REACHED;
+			xQueueSendToBack(eventQueue, &ev,0);
+		}
 		if(quit)
-			abortMission();
+		{
+			ev=PC_BLOCK_FINISHED;
+			xQueueSendToBack(eventQueue, &ev,0);
+			abortMissionBlock();
+		}
 	}
 }
 
@@ -122,7 +134,7 @@ bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
 		missionFinished=1;
 	return missionFinished;
 }
-void startNewMission()
+void startNewMissionBlock()
 {
 	for(unsigned int i=0; i<OPEN_MV_MSG_LEN; i++ )
 		uartReadByte(PC_UART,(uint8_t *) &(recBuff[i]));// Si quedó basura en la cola de la uart la vuela
@@ -130,7 +142,7 @@ void startNewMission()
 	xTaskCreate( PC_MissionTask, "RP mission task", 100	, NULL, 2, missionTask ); //Crea task de misión
 	uartInterrupt( PC_UART, 1 ); //Enables uart interrupts
 }
-void abortMission()
+void abortMissionBlock()
 {
 	uartInterrupt( PC_UART, 0 ); //Disables interrupts
 	uartTxWrite(PC_UART,OPENMV_IDLE);
@@ -176,6 +188,7 @@ void PC_Init(void)
 	xBinarySemaphore = xSemaphoreCreateBinary();
 	xTaskCreate( PC_MainTask, "PC Main task", 100	, NULL, 1, NULL ); //Crea task de misión
 	missionMailbox=xQueueCreate( 1,sizeof(Mission_Block));
+	eventQueue=xQueueCreate( EVENT_QUEUE_LEN,sizeof(PC_Event));
 }
 
 void PC_setMissionBlock(Mission_Block mb)
@@ -188,4 +201,15 @@ void PC_attachQueues(QueueHandle_t error_signal_mailbox,QueueHandle_t mission_st
 	errorSignalMailbox=error_signal_mailbox;
 	missionStepReachedMailbox=mission_step_reached_mailbox;
 	queuesAttached=1;
+}
+bool_t PC_hasEvent()
+{
+	return uxQueueMessagesWaiting(eventQueue);
+}
+
+PC_Event PC_getEvent()
+{
+	PC_Event retVal;
+	xQueueReceive( eventQueue,&retVal,0);
+	return retVal;
 }

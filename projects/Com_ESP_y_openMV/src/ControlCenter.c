@@ -14,6 +14,7 @@
 #define MSG_QUEST_HEADER "Quest?"
 
 #define MSG_QUEST_ACCEPT "Quest?\nYes"
+#define MSG_QUEST_STEP_REACHED "Quest step reached"
 
 /*==================[typedef]================================================*/
 
@@ -29,6 +30,8 @@ void parseEthMsg(EthMsg *  msg);
 void decodeMission(char * questRecieved);
 bool_t getNextMissionBlock(Mission_Block * mb);
 bool_t isHeader(EthMsg * msg,char * header, char * p2Data);
+void parsePCEvent(PC_Event ev);
+void sendESPStr(char * msg);
 
 
 /*==================[internal functions definition]==========================*/
@@ -40,6 +43,9 @@ void CC_mainTask()
 	{
 		if(CCO_recieveMsg(&msgRecieved)) //Si llegó un mensaje del centro de comunicaciones se lo parsea
 			parseEthMsg(&msgRecieved);
+		if(PC_hasEvent())
+			parsePCEvent(PC_getEvent());
+
 		else
 			vTaskDelay(delay);
 	}
@@ -54,8 +60,7 @@ void parseEthMsg(EthMsg * msgP)
 		decodeMission(p2Data);
 		getNextMissionBlock(&mb);
 		PC_setMissionBlock(mb);
-		strcpy(auxSendMsg.array,MSG_QUEST_ACCEPT);
-		CCO_sendMsg(auxSendMsg);
+		sendESPStr(MSG_QUEST_ACCEPT);
 	}
 }
 
@@ -68,6 +73,7 @@ bool_t isHeader(EthMsg * msg,char * header, char * p2Data)
 }
 void decodeMission(char *questRecieved)
 {
+	currMission.active=1;
 	//Se encarga de pasar el string al formato que se guardaron los datos.
 }
 bool_t getNextMissionBlock(Mission_Block * mb)
@@ -76,7 +82,22 @@ bool_t getNextMissionBlock(Mission_Block * mb)
 	mb->com=BLOCK_START;
 	return 1; //Quizás se podría fijar si había que esperar por el evento.
 }
-
+void parsePCEvent(PC_Event ev)
+{
+	if(ev == PC_STEP_REACHED)
+		sendESPStr(MSG_QUEST_STEP_REACHED);
+	else if(ev == PC_BLOCK_FINISHED)
+	{
+		currMission.currBlock++;
+		if(currMission.currBlock < currMission.nmbrOfBlocks) //Si todavía quedan bloques por ejecutar
+			currMission.waitForIntraBlockEvent=1; //Se pone en un estado para esperar el evento que le indique que siga la misión
+	}
+}
+void sendESPStr(char * msg)
+{
+	strcpy(auxSendMsg.array,msg);
+	CCO_sendMsg(auxSendMsg);
+}
 /*==================[external functions declaration]=========================*/
 
 void CC_init()
@@ -85,4 +106,5 @@ void CC_init()
 	CCO_Init();
 	xTaskCreate(CC_mainTask, "PC Main task", 512, NULL, CC_MAIN_PRIORITY, NULL ); //Crea task de misión
 	state=CC_IDLE;
+	currMission.active=0;
 }
