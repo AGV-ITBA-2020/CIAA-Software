@@ -20,14 +20,24 @@ extern "C" {
 #define CCO_UART UART_232
 #define CCO_REC_BUF_LEN 1500
 #define CCO_SEND_BUF_MSGS 5
+#define CCO_ESP_HEADER "AGV 1\n"
 
-bool_t CCO_Init(void);
+#define CCO_RECIEVE_PRIORITY 2
+#define CCO_SEND_PRIORITY 1
 
-bool_t CCO_connected(void);
+#define ETHERNET_MCU 1500 //Cantidad máxima de bytes enviados por ethernet
+#define MAX_NMBR_OF_BLOCKS_IN_MISSION 15
 
-bool_t CCO_recieveMsg(char * str);
+typedef struct{ char array[ETHERNET_MCU]; } EthMsg;
 
-bool_t CCO_sendMsg(char * str);
+
+bool_t CCO_Init(void); //Inicializa el centro de comunicaciones
+
+bool_t CCO_connected(void); //Devuelve si el ESP está conectado al wifi
+
+bool_t CCO_recieveMsg(EthMsg *msgP); //Si hay un mensaje nuevo, devuelve uno y pone en el puntero el mensaje
+
+bool_t CCO_sendMsg(EthMsg msg); //Se encola un mensaje para enviar por internet.
 
 #ifdef __cplusplus
 }

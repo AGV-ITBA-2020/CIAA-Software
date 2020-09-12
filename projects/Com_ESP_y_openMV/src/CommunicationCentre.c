@@ -11,13 +11,12 @@
 #include "event_groups.h"
 #include "semphr.h"
 
-
 /*==================[typedef]================================================*/
 
 
 /*==================[internal data declaration]==============================*/
 static bool_t connected=0;
-static char recBuffer[CCO_REC_BUF_LEN],sendBuffer[CCO_REC_BUF_LEN];
+static EthMsg recBuffer,sendBuffer;
 static unsigned int recBufCount=0;
 static QueueHandle_t recievedMailbox,sendQueue;
 
@@ -37,23 +36,35 @@ void CCO_recieve_task()
 		{
 			uartInterrupt( CCO_UART, 0);
 			if (readUartAndCheckTerminator()) //Si se terminó de recibir un mensaje, se manda a la queue
-				xQueueSendToFront(recievedMailbox,&recBuffer,0 );
+				xQueueSendToFront(recievedMailbox,&recBuffer,0 ); //Se deberia revisar si se recibe "Disconnected" que indica que se desconectó el ESP
 			uartInterrupt( CCO_UART, 1);
 		}
-		if(!connected && uartRxReady(CCO_UART)) //Cuando el esp se conectó al wifi envía un caracter cualquiera
+		else if(uartRxReady(CCO_UART)) //Cuando no está conectado, espera al esp que mande que se conecto
 		{
 			connected=1;
-			uartReadByte(CCO_UART, &recievedByte );
+			uartReadByte(CCO_UART, &recievedByte ); //Lee el caracter
+			uartWriteString( CCO_UART, CCO_ESP_HEADER); //Le manda el header
 		}
 		vTaskDelay( read_delay );
 	}
 }
 void CCO_send_task()
 {
+	char * msgP;
+	const TickType_t delay = pdMS_TO_TICKS( 1 );
 	for( ;; )
 	{
+
 		xQueueReceive(sendQueue,&sendBuffer,portMAX_DELAY); //Espera a que llegue una misión
-		uartWriteString( CCO_UART, sendBuffer);
+		msgP = sendBuffer.array;
+		while(*msgP != 0) //Mientras no terminé de enviar el mensaje
+		{
+			while(uartTxReady(CCO_UART) && *msgP != 0) //Si tengo espacio en la fifo
+				uartWriteByte( CCO_UART, (uint8_t)*msgP  ); //Encolo el byte en cuestión
+			vTaskDelay( delay ); //Se blockea por un tiempo de manera de que se vacíe la fifo sin ocupar tiempo de ejecución.
+		}
+		while(uartTxReady(CCO_UART));
+		uartWriteByte( CCO_UART, (uint8_t) 0 ); //Envío el terminador
 	}
 }
 
@@ -65,9 +76,9 @@ void readCallback(void* a)
 bool_t readUartAndCheckTerminator()
 {
 	bool_t msg_recv=0;
-	while(uartReadByte(CCO_UART, &recBuffer[recBufCount]))
+	while(uartReadByte(CCO_UART, &recBuffer.array[recBufCount])) //Lee la UART hasta vaciarla
 		recBufCount++;
-	if(recBuffer[recBufCount-1]== 0)
+	if(recBuffer.array[recBufCount-1]== 0) //Si el ult byte recibido es un 0, se terminó la transmisión
 		msg_recv=1;
 	return msg_recv;
 }
@@ -80,10 +91,10 @@ bool_t CCO_Init(void)
 	uartInit( CCO_UART, CCO_UART_BAUDRATE, 1 );
 	uartInterrupt( CCO_UART, 1);
 	uartCallbackSet( CCO_UART, UART_RECEIVE,(callBackFuncPtr_t)readCallback);
-	recievedMailbox=xQueueCreate( 1,sizeof(char *));
-	sendQueue=xQueueCreate( CCO_SEND_BUF_MSGS,sizeof(char *));
-	xTaskCreate( CCO_recieve_task, "CH rec task", 100	, NULL, 1, NULL ); //Crea task de misión
-	xTaskCreate( CCO_send_task, "CH send task", 100	, NULL, 1, NULL ); //Crea task de misión
+	recievedMailbox=xQueueCreate( 1,sizeof(EthMsg)); //Queues para comunicación. Para recibir solo necesita 1 espacio dado que recibe un msj y se despacha al tok
+	sendQueue=xQueueCreate( CCO_SEND_BUF_MSGS,sizeof(EthMsg)); //Para enviar puede ser que varios procesos les pidan enviar cosas
+	xTaskCreate( CCO_recieve_task, "CCO rec task", 100	, NULL, CCO_RECIEVE_PRIORITY, NULL ); //Crea task de misión
+	xTaskCreate( CCO_send_task, "CCO send task", 100	, NULL, CCO_SEND_PRIORITY, NULL ); //Crea task de misión
 }
 
 bool_t CCO_connected(void)
@@ -91,14 +102,14 @@ bool_t CCO_connected(void)
 	return connected;
 }
 
-bool_t CCO_recieveMsg(char * str)
+bool_t CCO_recieveMsg(EthMsg *msgP)
 {
-	BaseType_t bt= xQueueReceive( recievedMailbox,&str,0);
-	return bt==pdPASS;
+	BaseType_t bt= xQueueReceive( recievedMailbox,msgP,0); //Si hay algo en la cola lo pone en msgP
+	return bt==pdPASS; //Esto dice si se leyó algo o no.
 }
 
-bool_t CCO_sendMsg(char * str)
+bool_t CCO_sendMsg(EthMsg msg)
 {
-	xQueueSendToFront(recievedMailbox,&str,0 );
+	xQueueSendToFront(recievedMailbox,&msg,0 );
 	return 1; //Debería checkearse que no se pase de la cantidad de la cola
 }

@@ -21,17 +21,17 @@ typedef enum{
 
 
 
-void uartInit( uartMap_t uart, uint32_t baudRate, bool_t loopback );
+void uartInit( uartMap_t uart, uint32_t baudRate, bool_t loopback ); //Inicializa la uart deseada, se puede poner en modo loopback
 
 bool_t uartRxReady( uartMap_t uart );// Return TRUE if have unread data in RX FIFO
 
 bool_t uartTxReady( uartMap_t uart );// Return TRUE if have space in TX FIFO
 
-bool_t uartReadByte( uartMap_t uart, uint8_t* receivedByte );
+bool_t uartReadByte( uartMap_t uart, uint8_t* receivedByte );  //Devuelve 1 si pudo leer el dato de la fifo, y lo pone en el puntero dado
 
-void uartTxWrite( uartMap_t uart, uint8_t value );
+void uartTxWrite( uartMap_t uart, uint8_t value ); //Pone un byte en la fifo de tx (Hay que verificar tx ready antes)
 
-void uartWriteString( uartMap_t uart, const char* str );
+void uartWriteString( uartMap_t uart, const char* str ); //Se queda blockeado enviando un string.
 
 
 

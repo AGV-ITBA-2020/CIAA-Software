@@ -149,7 +149,7 @@ openMV_msg parse_openmv_msg(char * buf)
 	return retVal;
 }
 void send_openmv_nxt_state(Block_checkpoint ms)
-{
+{ //Correlación entre los estados del openmv y el checkpoint que viene.
 	if(ms == CHECKPOINT_FORK_LEFT)
 		uartTxWrite(PC_UART,OPENMV_FORK_LEFT);
 	else if(ms == CHECKPOINT_FORK_RIGHT)
@@ -158,7 +158,6 @@ void send_openmv_nxt_state(Block_checkpoint ms)
 		uartTxWrite(PC_UART,OPENMV_FOLLOW_LINE);
 	else if(ms == CHECKPOINT_MERGE)
 		uartTxWrite(PC_UART,OPENMV_MERGE);
-
 }
 
 void callbackInterrupt(void* a)
