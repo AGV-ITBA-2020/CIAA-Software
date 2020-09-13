@@ -26,7 +26,7 @@ typedef struct {
 	unsigned int maxCount : 3;					// Indicates the number of times the pattern repeats for a success. If 0, input is not active. Para short press es el número de short press necesarios para cumplir. Para long press es el tiempo máximo para ser considerado long press.
 	unsigned int patCount : 3;					// Used to count patterns. Para short press cuento cuántos voy teniendo. Para long press lo uso para el tiempo que permanece presionado.
 	unsigned int count;							// Used to count time pressed.
-	bool lastValue : 1;							// Used for capturing input changes and debouncing.
+	bool_t lastValue : 1;							// Used for capturing input changes and debouncing.
 	gpioMap_t inputPin;
 	void (* callbackSuccess)(HMI_INPUT_ID inputId);
 	void (* callbackAbort)(HMI_INPUT_ID inputId);
