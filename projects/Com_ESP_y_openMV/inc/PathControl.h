@@ -40,8 +40,6 @@ void PC_Init(void);
 
 void PC_setMissionBlock(Mission_Block mb);
 
-void PC_attachQueues(QueueHandle_t errorSignalMailbox,QueueHandle_t missionStepReachedMailbox ); //Error signal devuelve el int de error y step un bool si pasó o no el paso actual de la misión.
-
 bool_t PC_hasEvent();
 
 PC_Event PC_getEvent();

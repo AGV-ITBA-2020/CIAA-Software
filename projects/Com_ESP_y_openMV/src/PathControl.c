@@ -7,15 +7,21 @@
 
 #include "../inc/my_sapi_uart.h"
 #include "../inc/PathControl.h"
+#include "../inc/MovementControl.h"
 
 #include "event_groups.h"
 #include "semphr.h"
+
 
 
 /*==================[typedef]================================================*/
 #define OPEN_MV_MSG_LEN 4 //Length en bytes del mensaje del openMV
 #define MAX_DISPLACEMENT 64
 #define EVENT_QUEUE_LEN 10
+
+#define LOW_SPEED_VEL 0.5
+#define HIGH_SPEED_VEL 1.0
+
 
 
 typedef enum {OPENMV_FOLLOW_LINE, OPENMV_FORK_LEFT, OPENMV_FORK_RIGHT, OPENMV_MERGE, OPENMV_ERROR,OPENMV_IDLE}openMV_states; //Los distintos estados del OpenMV
@@ -35,11 +41,10 @@ typedef struct  {
 /*==================[internal data declaration]==============================*/
 static char recBuff[OPEN_MV_MSG_LEN];//Acá se guarda la data en la interrupción
 static Mission_Block mb;
-static bool_t queuesAttached=0;
 static SemaphoreHandle_t xBinarySemaphore;
 static TaskHandle_t * missionTask;
-static QueueHandle_t missionMailbox, errorSignalMailbox, missionStepReachedMailbox, eventQueue;
-
+static QueueHandle_t missionMailbox, eventQueue;
+static float currVel=0;
 
 void PC_MainTask();
 openMV_msg parse_openmv_msg(char * buf);
@@ -49,7 +54,7 @@ void startNewMissionBlock();
 void abortMissionBlock();
 void callbackInterrupt(void *);
 bool_t missionBlockLogic(openMV_msg msg, bool_t * stepReached); //Ejecuta la lógica de recorrida de camino, y devuelve si terminó la misión
-
+float computeAngVel(unsigned int displacement); //Obtiene la velocidad angular objetivo (Acá debería estar el PID).
 /*==================[internal functions definition]==========================*/
 
 
@@ -59,16 +64,11 @@ void PC_MainTask()
 	const TickType_t xDelay250ms = pdMS_TO_TICKS( 250 );
 	for( ;; )
 	{
-		if(queuesAttached) //Si no se adjuntaron las colas de comunicación no hace nada
-		{
-			xQueueReceive(missionMailbox,&mb,portMAX_DELAY); //Espera a que llegue una misión
-			if(mb.com== BLOCK_START || mb.com==BLOCK_REPLACE)
-				startNewMissionBlock();
-			else
-				abortMissionBlock();
-		}
+		xQueueReceive(missionMailbox,&mb,portMAX_DELAY); //Espera a que llegue una misión. Habría que poner timeout quizás?
+		if(mb.com== BLOCK_START || mb.com==BLOCK_REPLACE)
+			startNewMissionBlock();
 		else
-			vTaskDelay( xDelay250ms );
+			abortMissionBlock();
 	}
 
 
@@ -84,8 +84,8 @@ void PC_MissionTask()
 		stepReached=0;
 		msg=parse_openmv_msg(recBuff); //Se decodifica el msg
 		quit=missionBlockLogic(msg, &stepReached);
-		xQueueSendToFront(errorSignalMailbox,&msg.displacement,0 ); //Envía el error
-		//xQueueSendToFront(missionStepReachedMailbox,&stepReached,0 ); //Avisa que se avanzó un paso en la misión
+		MC_setLinVel(currVel);
+		MC_setAngVel(computeAngVel(msg.displacement));
 		if(stepReached)
 		{
 			ev=PC_STEP_REACHED;
@@ -120,7 +120,7 @@ bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
 									((currChkpnt == CHECKPOINT_STATION) && msg.tag_found && msg.tag==TAG_STATION) 		||
 									(IS_FORKORMERGE_MISSION(currChkpnt) && msg.form_passed)
 								); //Condiciones para ir al siguiente paso de la misión
-
+	//Control de pasos de misión
 	if (steppingCondition)
 	{
 		mb.md.currStep++;
@@ -128,14 +128,18 @@ bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
 		if(stepsLeft)
 			send_openmv_nxt_state(nextChkpnt);
 	}
-
-
+	//Control de velocidad
+	if ((currChkpnt == CHECKPOINT_SLOW_DOWN) && msg.tag_found && msg.tag==TAG_SLOW_DOWN)
+		currVel=LOW_SPEED_VEL;
+	if ((currChkpnt == CHECKPOINT_SPEED_UP) && msg.tag_found && msg.tag==TAG_SPEED_UP)
+		currVel=HIGH_SPEED_VEL;
 	if(mb.md.currStep == mb.md.blockLen-1)
 		missionFinished=1;
 	return missionFinished;
 }
 void startNewMissionBlock()
 {
+	currVel=HIGH_SPEED_VEL;
 	for(unsigned int i=0; i<OPEN_MV_MSG_LEN; i++ )
 		uartReadByte(PC_UART,(uint8_t *) &(recBuff[i]));// Si quedó basura en la cola de la uart la vuela
 	uartCallbackSet( PC_UART, UART_RECEIVE,(callBackFuncPtr_t) callbackInterrupt);
@@ -144,6 +148,8 @@ void startNewMissionBlock()
 }
 void abortMissionBlock()
 {
+	currVel=0;
+	MC_setLinVel(currVel);
 	uartInterrupt( PC_UART, 0 ); //Disables interrupts
 	uartTxWrite(PC_UART,OPENMV_IDLE);
 	if(missionTask!=NULL)
@@ -180,11 +186,18 @@ void callbackInterrupt(void* a)
 	xSemaphoreGiveFromISR( xBinarySemaphore, &xHigherPriorityTaskWoken );
 	portYIELD_FROM_ISR( xHigherPriorityTaskWoken ); //Esto no lo entiendo bien
 }
+
+float computeAngVel(unsigned int displacement) //Desarrollar con PID
+{
+	float a;
+	return a;
+}
 /*==================[external functions declaration]=========================*/
 
 void PC_Init(void)
 {
 	uartInit( PC_UART, PC_UART_BAUDRATE, 1 );
+	MC_init();
 	xBinarySemaphore = xSemaphoreCreateBinary();
 	xTaskCreate( PC_MainTask, "PC Main task", 100	, NULL, 1, NULL ); //Crea task de misión
 	missionMailbox=xQueueCreate( 1,sizeof(Mission_Block));
@@ -193,15 +206,9 @@ void PC_Init(void)
 
 void PC_setMissionBlock(Mission_Block mb)
 {
-	xQueueSendToFront(errorSignalMailbox,&mb,0 );
+	xQueueSendToBack(missionMailbox,&mb,0 );
 }
 
-void PC_attachQueues(QueueHandle_t error_signal_mailbox,QueueHandle_t mission_step_reached_mailbox )
-{
-	errorSignalMailbox=error_signal_mailbox;
-	missionStepReachedMailbox=mission_step_reached_mailbox;
-	queuesAttached=1;
-}
 bool_t PC_hasEvent()
 {
 	return uxQueueMessagesWaiting(eventQueue);
