@@ -9,7 +9,8 @@ uint8_t nRec;
 bool_t res;
 uint8_t n=55;
 
-
+/*
+ // Código para funcionamiento en  la CIAA de toda UART
 int main( void )
 {
 
@@ -34,7 +35,7 @@ int main( void )
    }
    return 0;
 }
-
+*/
 
 /***************************************************************************************/
 //Código para ver que funcionaba en loopback.

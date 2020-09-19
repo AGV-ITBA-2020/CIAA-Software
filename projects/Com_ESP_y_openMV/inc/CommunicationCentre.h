@@ -31,13 +31,13 @@ extern "C" {
 typedef struct{ char array[ETHERNET_MCU]; } EthMsg;
 
 
-bool_t CCO_Init(void); //Inicializa el centro de comunicaciones
+bool_t CCO_init(void); //Inicializa el centro de comunicaciones
 
 bool_t CCO_connected(void); //Devuelve si el ESP está conectado al wifi
 
 bool_t CCO_recieveMsg(EthMsg *msgP); //Si hay un mensaje nuevo, devuelve uno y pone en el puntero el mensaje
 
-bool_t CCO_sendMsg(EthMsg msg); //Se encola un mensaje para enviar por internet.
+bool_t CCO_sendMsg(EthMsg *msg); //Se encola un mensaje para enviar por internet.
 
 #ifdef __cplusplus
 }

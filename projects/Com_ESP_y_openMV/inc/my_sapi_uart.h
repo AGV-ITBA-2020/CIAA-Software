@@ -33,7 +33,7 @@ void uartTxWrite( uartMap_t uart, uint8_t value ); //Pone un byte en la fifo de 
 
 void uartWriteString( uartMap_t uart, const char* str ); //Se queda blockeado enviando un string.
 
-
+void uartWriteByte( uartMap_t uart, const uint8_t value );
 
 //-------------------------------------------------------------
 // Interrupts

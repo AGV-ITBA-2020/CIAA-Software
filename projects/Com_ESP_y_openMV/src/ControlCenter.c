@@ -9,6 +9,11 @@
 #include "../inc/ControlCenter.h"
 #include <string.h>
 
+#include "../inc/PathControl.h"
+#include "../inc/CommunicationCentre.h"
+#include "task.h"
+
+
 /*==================[defines]================================================*/
 
 #define MSG_QUEST_HEADER "Quest?"
@@ -18,11 +23,22 @@
 
 /*==================[typedef]================================================*/
 
+typedef struct{
+	Block_details blocks[MAX_NMBR_OF_BLOCKS_IN_MISSION]; //Bloques de la misión
+	intraBlockEvent intraBlockEvent[MAX_NMBR_OF_BLOCKS_IN_MISSION]; //que evento trigerea el siguiente bloque
+	bool_t active,waitForIntraBlockEvent;
+	unsigned int currBlock,nmbrOfBlocks;
+	//Más metadata. Para probar no es nada más necesario.
+} Mission;
 
 /*==================[internal data declaration]==============================*/
 static CC_State state;
 static EthMsg msgRecieved,auxSendMsg;
 static Mission currMission;
+
+
+
+
 
 
 void CC_mainTask();
@@ -96,14 +112,14 @@ void parsePCEvent(PC_Event ev)
 void sendESPStr(char * msg)
 {
 	strcpy(auxSendMsg.array,msg);
-	CCO_sendMsg(auxSendMsg);
+	CCO_sendMsg(&auxSendMsg);
 }
 /*==================[external functions declaration]=========================*/
 
 void CC_init()
 {
 	PC_Init();
-	CCO_Init();
+	CCO_init();
 	xTaskCreate(CC_mainTask, "PC Main task", 512, NULL, CC_MAIN_PRIORITY, NULL ); //Crea task de misión
 	state=CC_IDLE;
 	currMission.active=0;
