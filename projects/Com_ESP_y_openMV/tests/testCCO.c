@@ -8,7 +8,7 @@
 #include "CommunicationCentre.h"
 #include "task.h"
 #include "my_sapi.h"
-
+/*
 void CCO_debug();
 EthMsg buf;
 
@@ -35,4 +35,4 @@ void main(void)
 	vTaskStartScheduler();
 
 }
-
+*/

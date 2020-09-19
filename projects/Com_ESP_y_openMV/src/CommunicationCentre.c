@@ -97,6 +97,7 @@ bool_t CCO_init(void)
 	uartCallbackSet( CCO_UART, UART_RECEIVE,(callBackFuncPtr_t)readCallback);
 	recievedMailbox=xQueueCreate( 1,sizeof(EthMsg)); //Queues para comunicación. Para recibir solo necesita 1 espacio dado que recibe un msj y se despacha al tok
 	sendQueue=xQueueCreate( 1,sizeof(EthMsg)); //Para enviar puede ser que varios procesos les pidan enviar cosas
+	uartWriteByte( CCO_UART, 0  ); //Le manda byte al esp para que empiece a conectarse
 	xTaskCreate( CCO_recieve_task, "CCO rec task", 100	, NULL, CCO_RECIEVE_PRIORITY, NULL ); //Crea task de misión
 	xTaskCreate( CCO_send_task, "CCO send task", 100	, NULL, CCO_SEND_PRIORITY, NULL ); //Crea task de misión
 }
