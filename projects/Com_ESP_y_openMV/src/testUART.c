@@ -1,6 +1,7 @@
 #include "../inc/my_sapi_uart.h"        // <= Biblioteca sAPI
 #include "my_sapi.h"
 
+#include "chip.h"
 
 void examplecallback(void *);
 unsigned int j=0;
@@ -86,8 +87,9 @@ int main( void )
 
 void examplecallback(void * a) //OJO! Solo la interrupcion se baja sola al leer los datos en la fifo
 {
+	int b= LPC_USART3->IIR;
 	while(uartReadByte(UART_232, &n)) //Lee la UART hasta vaciarla
 		j++;
-	j=0;
+	j=b | (1<<0);
 }
 

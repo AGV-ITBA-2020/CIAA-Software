@@ -35,7 +35,7 @@ void CCO_recieve_task()
 		if(connected)
 		{
 			uartInterrupt( CCO_UART, 0);
-			if (readUartAndCheckTerminator()) //Si se terminó de recibir un mensaje, se manda a la queue
+			if (msg_recv) //Si se terminó de recibir un mensaje, se manda a la queue
 				xQueueSendToFront(recievedMailbox,&recBuffer,0 ); //Se deberia revisar si se recibe "Disconnected" que indica que se desconectó el ESP
 			uartInterrupt( CCO_UART, 1);
 		}
