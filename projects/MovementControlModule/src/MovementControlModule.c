@@ -20,7 +20,7 @@
 /*==================[macros and definitions]=================================*/
 
 #define LEFT_MOTOR_OUTPUT	CTOUT9
-#define RIGHT_MOTOR_OUTPUT	CTOUT9
+#define RIGHT_MOTOR_OUTPUT	CTOUT8
 
 
 /*==================[internal data declaration]==============================*/
@@ -129,10 +129,11 @@ void calculateSpeeds(void)
  */
 void MC_Init(void)
 {
+	sctInit(1000);
 	sctEnablePwmFor(LEFT_MOTOR_OUTPUT);
 	sctEnablePwmFor(RIGHT_MOTOR_OUTPUT);
 
-	xTaskCreate( mainTask, "MC Main task", 100	, NULL, 1, NULL ); //Crea task de misión
+	xTaskCreate( mainTask, "MC Main task", 1000	, NULL, 1, NULL ); //Crea task de misión
 }
 
 /*
