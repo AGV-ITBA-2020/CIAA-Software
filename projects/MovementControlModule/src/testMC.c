@@ -10,5 +10,7 @@
 
 void main(void)
 {
+	MySapi_BoardInit(true);
 	MC_Init();
+	vTaskStartScheduler();
 }
