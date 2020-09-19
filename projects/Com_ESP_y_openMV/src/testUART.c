@@ -1,12 +1,42 @@
 #include "../inc/my_sapi_uart.h"        // <= Biblioteca sAPI
 #include "my_sapi.h"
-//#include "my_sapi_delay.h"
 
 
 void examplecallback(void *);
 unsigned int j=0;
 uint8_t nRec;
 bool_t res;
+uint8_t n=55;
+
+
+int main( void )
+{
+
+
+	// Read clock settings and update SystemCoreClock variable
+	MySapi_BoardInit(true);
+	printf("Inicializando\n");
+	uartInit(UART_232, 9600,0);
+
+	uartTxWrite( UART_232, n);
+
+	uartInterrupt( UART_232, 1 );
+	uartCallbackSet( UART_232, UART_RECEIVE,(callBackFuncPtr_t) examplecallback);
+   // ---------- REPETIR POR SIEMPRE --------------------------
+   for( ;; )
+   {
+	   //if(uartReadByte(UART_232, &n ))
+		  uartTxWrite( UART_232, n);
+	  //printf("Hello world\n");
+
+	  for(int i =0 ; i<50000000; i++);
+   }
+   return 0;
+}
+
+
+/***************************************************************************************/
+//Código para ver que funcionaba en loopback.
 /*
 int main( void )
 {
@@ -56,8 +86,8 @@ int main( void )
 
 void examplecallback(void * a) //OJO! Solo la interrupcion se baja sola al leer los datos en la fifo
 {
-	j++;
-	res=uartReadByte(UART_485,&nRec);// Read from RX FIFO
-	res=uartReadByte(UART_485,&nRec);// Read from RX FIFO
+	while(uartReadByte(UART_232, &n)) //Lee la UART hasta vaciarla
+		j++;
+	j=0;
 }
 

@@ -7,10 +7,10 @@
 
 #include "ControlCenter.h"
 
-
+/*
 void main(void)
 {
 	CC_init();
 
-}
+}*/
 
