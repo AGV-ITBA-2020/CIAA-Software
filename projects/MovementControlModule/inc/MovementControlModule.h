@@ -27,7 +27,9 @@ extern "C"
 #endif
 
 /*==================[macros and definitions]=================================*/
-
+#ifndef TICKS_TO_MS
+	#define TICKS_TO_MS(xTimeInTicks) (xTimeInTicks * 100 / pdMS_TO_TICKS( 100 ))
+#endif
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/

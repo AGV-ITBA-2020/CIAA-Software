@@ -25,7 +25,7 @@
 
 /*==================[internal data declaration]==============================*/
 bool testFlag;
-uint8_t leftMotorOutput, rightMotorOutput;
+uint8_t leftMotorOutput = 0, rightMotorOutput = 0;
 double linearSpeed, angularSpeed;
 
 /*==================[internal functions declaration]=========================*/
@@ -51,8 +51,6 @@ void setRightMotorDutyCtcle(uint8_t value);
 void calculateSpeeds(void);
 
 /*==================[internal data definition]===============================*/
-leftMotorOutput = 0;
-rightMotorOutput = 0;
 
 /*==================[external data definition]===============================*/
 

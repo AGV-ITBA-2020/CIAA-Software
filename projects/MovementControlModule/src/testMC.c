@@ -10,5 +10,5 @@
 
 void main(void)
 {
-	MC_init();
+	MC_Init();
 }
