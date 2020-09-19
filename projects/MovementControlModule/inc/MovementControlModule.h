@@ -19,6 +19,7 @@
 #include "queue.h"
 #include "config.h"
 #include "my_sapi_sct.h"
+// #include "PID_v1.hpp"
 
 
 #ifdef __cplusplus
@@ -30,6 +31,10 @@ extern "C"
 #ifndef TICKS_TO_MS
 	#define TICKS_TO_MS(xTimeInTicks) (xTimeInTicks * 100 / pdMS_TO_TICKS( 100 ))
 #endif
+
+#define AGV_AXIS_LONGITUDE 500.0
+#define AGV_WHEEL_DIAMETER 250.0
+#define AGV_WHEEL_RADIUS AGV_WHEEL_DIAMETER/2.0
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/

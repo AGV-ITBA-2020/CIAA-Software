@@ -22,11 +22,24 @@
 #define LEFT_MOTOR_OUTPUT	CTOUT9
 #define RIGHT_MOTOR_OUTPUT	CTOUT8
 
+#define MAX_RPM 2700.0
+#define MAX_ANGULAR_SPEED MAX_RPM*2.0*3.14/60.0
+#define MAX_DUTY_CYCLE 250
+
 
 /*==================[internal data declaration]==============================*/
 bool testFlag;
 uint8_t leftMotorOutput = 0, rightMotorOutput = 0;
 double linearSpeed, angularSpeed;
+
+//Define Variables we'll be connecting to
+double leftSetpoint = 0, leftInput = 0, leftOutput = 0;
+double rightSetpoint = 0, rightInput = 0, rightOutput = 0;
+
+//Specify the links and initial tuning parameters
+float Kp = 2, Ki = 0.3, Kd = 0.25;
+// PID leftPID(&leftInput, &leftOutput, &leftSetpoint, Kp, Ki, Kd, DIRECT);
+// PID rightPID(&rightInput, &rightOutput, &rightSetpoint, Kp, Ki, Kd, DIRECT);
 
 /*==================[internal functions declaration]=========================*/
 /*
@@ -50,6 +63,13 @@ void setRightMotorDutyCtcle(uint8_t value);
  */
 void calculateSpeeds(void);
 
+/*
+ * @brief:	cconvertRPM to dutyCycle
+ * @param:	Placeholder
+ * @note:	Converts RPM speed to dutyCycle value.
+ */
+uint8_t speedTODutyCycle(double w);
+
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
@@ -63,7 +83,13 @@ void mainTask()
 	{
 		// Calculate each duty cycle from angularSpeed & linearSpeed
 		calculateSpeeds();
-		// Call PID compute
+		
+		// leftPID.compute();
+		// rightPID.compute();
+
+		leftMotorOutput = speedTODutyCycle(leftSetpoint);
+		rightMotorOutput = speedTODutyCycle(rightSetpoint);
+
 		setLeftMotorDutyCtcle(leftMotorOutput);
 		setRightMotorDutyCtcle(rightMotorOutput);
 		vTaskDelay( xDelay250ms );
@@ -99,25 +125,18 @@ void setRightMotorDutyCtcle(uint8_t value)
  */
 void calculateSpeeds(void)
 {
-	if (!testFlag)
-	{
-		if (leftMotorOutput == 255){
-			testFlag = !testFlag;
-		}else
-		{
-			leftMotorOutput++;
-		}
-	}else
-	{
-		if (leftMotorOutput == 0){
-			testFlag = !testFlag;
-		}else
-		{
-			leftMotorOutput--;
-		}
-		
-	}
-	rightMotorOutput = leftMotorOutput;
+	leftSetpoint = -(linearSpeed + angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
+	rightSetpoint = (linearSpeed - angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
+}
+
+/*
+ * @brief:	cconvertRPM to dutyCycle
+ * @param:	Placeholder
+ * @note:	Converts RPM speed to dutyCycle value.
+ */
+uint8_t speedTODutyCycle(double w)
+{
+	return w*MAX_DUTY_CYCLE/MAX_ANGULAR_SPEED;
 }
 
 
@@ -133,7 +152,19 @@ void MC_Init(void)
 	sctEnablePwmFor(LEFT_MOTOR_OUTPUT);
 	sctEnablePwmFor(RIGHT_MOTOR_OUTPUT);
 
+	// Turn the PID on
+  	// leftPID.SetMode(AUTOMATIC);
+	// rightPID.SetMode(AUTOMATIC);
+
+  	// leftPID.SetOutputLimits(0, MAX_RPM);
+	// rightPID.SetOutputLimits(0, MAX_RPM);
+
+	MC_setLinearSpeed(1);
+	MC_setAngularSpeed(1);
+
 	xTaskCreate( mainTask, "MC Main task", 1000	, NULL, 1, NULL ); //Crea task de misión
+
+	// TODO: Deberíamos llamar aca al vTaskStartScheduler();?
 }
 
 /*
