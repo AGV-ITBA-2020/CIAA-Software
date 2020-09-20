@@ -1,9 +1,10 @@
-#include "MovementControlModule.h"
-
-
 #ifndef PID_v1_h
 #define PID_v1_h
-#define LIBRARY_VERSION	1.2.1
+
+#include "config.h"
+
+namespace pid
+{
 
 class PID
 {
@@ -89,5 +90,8 @@ class PID
 	double outMin, outMax;
 	bool inAuto, pOnE;
 };
+
+}
+
 #endif
 

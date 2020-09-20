@@ -4,7 +4,9 @@
  *
  * This Library is licensed under the MIT License
  **********************************************************************************************/
-#include "PID_v1.h"
+#include "PID_v1.hpp"
+
+using namespace pid;
 
 /*Constructor (...)*********************************************************
  *    The parameters specified here are those for for which we can't set up

@@ -18,7 +18,6 @@
 #endif /* __DEBUG__ */
 
 /*==================[macros and definitions]=================================*/
-
 #define LEFT_MOTOR_OUTPUT	CTOUT9
 #define RIGHT_MOTOR_OUTPUT	CTOUT8
 
@@ -26,6 +25,7 @@
 #define MAX_ANGULAR_SPEED MAX_RPM*2.0*3.14/60.0
 #define MAX_DUTY_CYCLE 250
 
+using namespace pid;
 
 /*==================[internal data declaration]==============================*/
 bool testFlag;
@@ -38,8 +38,8 @@ double rightSetpoint = 0, rightInput = 0, rightOutput = 0;
 
 //Specify the links and initial tuning parameters
 float Kp = 2, Ki = 0.3, Kd = 0.25;
-// PID leftPID(&leftInput, &leftOutput, &leftSetpoint, Kp, Ki, Kd, DIRECT);
-// PID rightPID(&rightInput, &rightOutput, &rightSetpoint, Kp, Ki, Kd, DIRECT);
+PID leftPID(&leftInput, &leftOutput, &leftSetpoint, Kp, Ki, Kd, DIRECT);
+PID rightPID(&rightInput, &rightOutput, &rightSetpoint, Kp, Ki, Kd, DIRECT);
 
 /*==================[internal functions declaration]=========================*/
 /*
@@ -76,7 +76,7 @@ uint8_t speedTODutyCycle(double w);
 
 /*==================[internal functions definition]==========================*/
 /*******Tasks*********/
-void mainTask()
+void mainTask(void * ptr)
 {
 	const TickType_t xDelay250ms = pdMS_TO_TICKS( 250 );
 	for( ;; )
@@ -84,11 +84,11 @@ void mainTask()
 		// Calculate each duty cycle from angularSpeed & linearSpeed
 		calculateSpeeds();
 		
-		// leftPID.compute();
-		// rightPID.compute();
+		leftPID.Compute();
+		rightPID.Compute();
 
-		leftMotorOutput = speedTODutyCycle(leftSetpoint);
-		rightMotorOutput = speedTODutyCycle(rightSetpoint);
+		leftMotorOutput = speedTODutyCycle(leftOutput);
+		rightMotorOutput = speedTODutyCycle(rightOutput);
 
 		setLeftMotorDutyCtcle(leftMotorOutput);
 		setRightMotorDutyCtcle(rightMotorOutput);
@@ -153,11 +153,11 @@ void MC_Init(void)
 	sctEnablePwmFor(RIGHT_MOTOR_OUTPUT);
 
 	// Turn the PID on
-  	// leftPID.SetMode(AUTOMATIC);
-	// rightPID.SetMode(AUTOMATIC);
+  	leftPID.SetMode(AUTOMATIC);
+	rightPID.SetMode(AUTOMATIC);
 
-  	// leftPID.SetOutputLimits(0, MAX_RPM);
-	// rightPID.SetOutputLimits(0, MAX_RPM);
+  	leftPID.SetOutputLimits(0, MAX_RPM);
+	rightPID.SetOutputLimits(0, MAX_RPM);
 
 	MC_setLinearSpeed(1);
 	MC_setAngularSpeed(1);

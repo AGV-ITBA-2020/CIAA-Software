@@ -27,6 +27,11 @@
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <chip.h>
 #include "supporting_functions.h"
 
@@ -204,6 +209,10 @@ extern int iMainRand32( void );
  * secure.  Do not use the standard C library rand() function as it can cause
  * unexpected behaviour, such as calls to malloc(). */
 #define configRAND32()    iMainRand32()
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* FREERTOS_CONFIG_H */

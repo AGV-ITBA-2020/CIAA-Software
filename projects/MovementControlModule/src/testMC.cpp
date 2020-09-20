@@ -8,9 +8,11 @@
 #include "MovementControlModule.h"
 
 
-void main(void)
+int main(void)
 {
 	MySapi_BoardInit(true);
 	MC_Init();
 	vTaskStartScheduler();
+
+	return 0;
 }
