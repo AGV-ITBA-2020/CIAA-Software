@@ -15,7 +15,7 @@
 // #include "lpc43xx_libcfg.h"
 #else
 #include "../inc/MovementControlModule.h"
-
+#include <math.h>
 
 #endif /* __DEBUG__ */
 
@@ -45,6 +45,14 @@ PID leftPID(&leftInput, &leftOutput, &leftSetpoint, Kp, Ki, Kd, DIRECT);
 PID rightPID(&rightInput, &rightOutput, &rightSetpoint, Kp, Ki, Kd, DIRECT);
 
 /*==================[internal functions declaration]=========================*/
+/*******Tasks*********/
+/*
+ * @brief:	Main task for the movement control module
+ * @param:	Placeholder
+ * @note:	It basically sets the value of the pwm for both motors.
+ */
+void mainTask(void * ptr);
+
 /*
  * @brief:	Initialize the MC module
  * @param:	Placeholder
@@ -71,14 +79,14 @@ void calculateSpeeds(void);
  * @param:	Placeholder
  * @note:	Converts RPM speed to dutyCycle value.
  */
-uint8_t wheelAngularspeedTODutyCycle(double w);
+void setMotorDirection(gpioMap_t pinENA, gpioMap_t pinENB, bool_t direction);
 
 /*
- * @brief:	Main task for the movement control module
+ * @brief:	cconvertRPM to dutyCycle
  * @param:	Placeholder
- * @note:	It basically sets the value of the pwm for both motors.
+ * @note:	Converts RPM speed to dutyCycle value.
  */
-void mainTask();
+uint8_t wheelAngularspeedTODutyCycle(double w);
 
 /*==================[internal data definition]===============================*/
 
@@ -86,6 +94,11 @@ void mainTask();
 
 /*==================[internal functions definition]==========================*/
 /*******Tasks*********/
+/*
+ * @brief:	Main task for the movement control module
+ * @param:	Placeholder
+ * @note:	It basically sets the value of the pwm for both motors.
+ */
 void mainTask(void * ptr)
 {
 	const TickType_t xDelay250ms = pdMS_TO_TICKS( 250 );
@@ -137,6 +150,19 @@ void calculateSpeeds(void)
 {
 	leftSetpoint = (linearSpeed + angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
 	rightSetpoint = (linearSpeed - angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
+	setMotorDirection(DI0, DI1, signbit(leftSetpoint));
+	setMotorDirection(DO4, DO5, signbit(leftSetpoint));
+}
+
+/*
+ * @brief:	calculateSpeeds output values
+ * @param:	Placeholder
+ * @note:	Is just a testing function for now.
+ */
+void setMotorDirection(gpioMap_t pinENA, gpioMap_t pinENB, bool_t direction)
+{
+	gpioWrite(pinENA, direction);
+	gpioWrite(pinENB, !direction);
 }
 
 /*
@@ -167,6 +193,16 @@ void MC_Init(void)
 	sctInit(1000);
 	sctEnablePwmFor(LEFT_MOTOR_OUTPUT);
 	sctEnablePwmFor(RIGHT_MOTOR_OUTPUT);
+
+	gpioInit(DI0, GPIO_OUTPUT);
+	gpioInit(DI1, GPIO_OUTPUT);
+	gpioInit(DO4, GPIO_OUTPUT);
+	gpioInit(DO5, GPIO_OUTPUT);
+
+	gpioWrite(DI0,1);
+	gpioWrite(DI1,0);
+	gpioWrite(DO4,1);
+	gpioWrite(DO5,0);
 
 	// Turn the PID on
   	leftPID.SetMode(AUTOMATIC);
