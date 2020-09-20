@@ -15,11 +15,11 @@
 // #include "lpc43xx_libcfg.h"
 #else
 #include "../inc/MovementControlModule.h"
-#include "task.h"
+
+
 #endif /* __DEBUG__ */
 
 /*==================[macros and definitions]=================================*/
-
 #define LEFT_MOTOR_OUTPUT	CTOUT9
 #define RIGHT_MOTOR_OUTPUT	CTOUT8
 
@@ -28,6 +28,7 @@
 #define MAX_DUTY_CYCLE 250.0
 #define REDUCTION_FACTOR 60.06
 
+using namespace pid;
 
 /*==================[internal data declaration]==============================*/
 bool testFlag;
@@ -40,8 +41,8 @@ double rightSetpoint = 0, rightInput = 0, rightOutput = 0;
 
 //Specify the links and initial tuning parameters
 float Kp = 2, Ki = 0.3, Kd = 0.25;
-// PID leftPID(&leftInput, &leftOutput, &leftSetpoint, Kp, Ki, Kd, DIRECT);
-// PID rightPID(&rightInput, &rightOutput, &rightSetpoint, Kp, Ki, Kd, DIRECT);
+PID leftPID(&leftInput, &leftOutput, &leftSetpoint, Kp, Ki, Kd, DIRECT);
+PID rightPID(&rightInput, &rightOutput, &rightSetpoint, Kp, Ki, Kd, DIRECT);
 
 /*==================[internal functions declaration]=========================*/
 /*
@@ -72,15 +73,20 @@ void calculateSpeeds(void);
  */
 uint8_t wheelAngularspeedTODutyCycle(double w);
 
+/*
+ * @brief:	Main task for the movement control module
+ * @param:	Placeholder
+ * @note:	It basically sets the value of the pwm for both motors.
+ */
+void mainTask();
 
-static void mainTask();
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
 /*******Tasks*********/
-void mainTask()
+void mainTask(void * ptr)
 {
 	const TickType_t xDelay250ms = pdMS_TO_TICKS( 250 );
 	for( ;; )
@@ -88,11 +94,11 @@ void mainTask()
 		// Calculate each duty cycle from angularSpeed & linearSpeed
 		calculateSpeeds();
 		
-		// leftPID.compute();
-		// rightPID.compute();
+		leftPID.Compute();
+		rightPID.Compute();
 
-		leftMotorOutput = wheelAngularspeedTODutyCycle(leftSetpoint);
-		rightMotorOutput = wheelAngularspeedTODutyCycle(rightSetpoint);
+		leftMotorOutput = wheelAngularspeedTODutyCycle(leftOutput);
+		rightMotorOutput = wheelAngularspeedTODutyCycle(rightOutput);
 
 		setLeftMotorDutyCtcle(leftMotorOutput);
 		setRightMotorDutyCtcle(rightMotorOutput);
@@ -163,18 +169,15 @@ void MC_Init(void)
 	sctEnablePwmFor(RIGHT_MOTOR_OUTPUT);
 
 	// Turn the PID on
-  	// leftPID.SetMode(AUTOMATIC);
-	// rightPID.SetMode(AUTOMATIC);
+  	leftPID.SetMode(AUTOMATIC);
+	rightPID.SetMode(AUTOMATIC);
 
-  	// leftPID.SetOutputLimits(0, MAX_RPM);
-	// rightPID.SetOutputLimits(0, MAX_RPM);
+  	leftPID.SetOutputLimits(0, MAX_RPM);
+	rightPID.SetOutputLimits(0, MAX_RPM);
 
-	MC_setLinearSpeed(1);
-	MC_setAngularSpeed(1);
+	// Create mission task
+	xTaskCreate( mainTask, "MC Main task", 1000	, NULL, 1, NULL );
 
-	xTaskCreate( mainTask, "MC Main task", 1000	, NULL, 1, NULL ); //Crea task de misión
-
-	// TODO: Deberíamos llamar aca al vTaskStartScheduler();?
 }
 
 /*

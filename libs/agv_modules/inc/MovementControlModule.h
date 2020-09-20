@@ -15,7 +15,6 @@
 #define _MC
 
 /*==================[inclusions]=============================================*/
-#include "config.h"
 #include "PID_v1.hpp"
 
 
@@ -25,8 +24,8 @@ extern "C"
 #endif
 
 /*==================[macros and definitions]=================================*/
-#define AGV_AXIS_LONGITUDE 500.0
-#define AGV_WHEEL_DIAMETER 250.0
+#define AGV_AXIS_LONGITUDE 0.5
+#define AGV_WHEEL_DIAMETER 0.25
 #define AGV_WHEEL_RADIUS AGV_WHEEL_DIAMETER/2.0
 
 /*==================[internal data declaration]==============================*/

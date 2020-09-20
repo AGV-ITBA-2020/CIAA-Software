@@ -7,18 +7,18 @@
 
 
 #include "../inc/CommunicationCentre.h"
-#include "../inc/MovementControlModule.h"
-#include "task.h"
+#include "MovementControlModule.h"
+// #include "task.h"
 #include "my_sapi.h"
 #include <stdlib.h>
 #include <string.h>
 
 
-static void mainTask();
+static void mainTask(void * ptr);
 static bool_t isHeader(EthMsg * msg,char * header);
 EthMsg buf;
 
-void mainTask()
+void mainTask(void * ptr)
 {
 	const TickType_t delay = pdMS_TO_TICKS( 1000 ); //Delay para ver si tiene mensajes
 	char * p2Data;
@@ -61,7 +61,7 @@ bool_t isHeader(EthMsg * msg,char * header)
 	return retVal;
 }
 
-void main(void)
+int main(void)
 {
 	MySapi_BoardInit(true);
 	//CCO_init();
@@ -71,6 +71,7 @@ void main(void)
 	xTaskCreate( mainTask, "CCO rec task", 100	, NULL, CCO_RECIEVE_PRIORITY, NULL ); //Task para debuggear lo enviado
 	vTaskStartScheduler();
 
+	return 0;
 }
 
 
