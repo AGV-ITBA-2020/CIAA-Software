@@ -1,2 +1,2 @@
 PROGRAM_PATH = projects
-PROGRAM_NAME = AGV_MainApp
+PROGRAM_NAME = EncoderCapture
