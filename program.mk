@@ -1,0 +1,2 @@
+PROGRAM_PATH = projects
+PROGRAM_NAME = Com_ESP_y_openMV

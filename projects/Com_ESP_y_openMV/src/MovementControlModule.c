@@ -19,14 +19,15 @@
 #endif /* __DEBUG__ */
 
 /*==================[macros and definitions]=================================*/
+
 #define LEFT_MOTOR_OUTPUT	CTOUT9
 #define RIGHT_MOTOR_OUTPUT	CTOUT8
 
 #define MAX_RPM 2700.0
 #define MAX_ANGULAR_SPEED MAX_RPM*2.0*3.14/60.0
-#define MAX_DUTY_CYCLE 250
+#define MAX_DUTY_CYCLE 250.0
+#define REDUCTION_FACTOR 60.06
 
-using namespace pid;
 
 /*==================[internal data declaration]==============================*/
 bool testFlag;
@@ -39,8 +40,8 @@ double rightSetpoint = 0, rightInput = 0, rightOutput = 0;
 
 //Specify the links and initial tuning parameters
 float Kp = 2, Ki = 0.3, Kd = 0.25;
-PID leftPID(&leftInput, &leftOutput, &leftSetpoint, Kp, Ki, Kd, DIRECT);
-PID rightPID(&rightInput, &rightOutput, &rightSetpoint, Kp, Ki, Kd, DIRECT);
+// PID leftPID(&leftInput, &leftOutput, &leftSetpoint, Kp, Ki, Kd, DIRECT);
+// PID rightPID(&rightInput, &rightOutput, &rightSetpoint, Kp, Ki, Kd, DIRECT);
 
 /*==================[internal functions declaration]=========================*/
 /*
@@ -69,18 +70,17 @@ void calculateSpeeds(void);
  * @param:	Placeholder
  * @note:	Converts RPM speed to dutyCycle value.
  */
-uint8_t speedTODutyCycle(double w);
+uint8_t wheelAngularspeedTODutyCycle(double w);
 
 
-void mainTask();
-
+static void mainTask();
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
 /*******Tasks*********/
-void mainTask(void * ptr)
+void mainTask()
 {
 	const TickType_t xDelay250ms = pdMS_TO_TICKS( 250 );
 	for( ;; )
@@ -88,11 +88,11 @@ void mainTask(void * ptr)
 		// Calculate each duty cycle from angularSpeed & linearSpeed
 		calculateSpeeds();
 		
-		leftPID.Compute();
-		rightPID.Compute();
+		// leftPID.compute();
+		// rightPID.compute();
 
-		leftMotorOutput = speedTODutyCycle(leftOutput);
-		rightMotorOutput = speedTODutyCycle(rightOutput);
+		leftMotorOutput = wheelAngularspeedTODutyCycle(leftSetpoint);
+		rightMotorOutput = wheelAngularspeedTODutyCycle(rightSetpoint);
 
 		setLeftMotorDutyCtcle(leftMotorOutput);
 		setRightMotorDutyCtcle(rightMotorOutput);
@@ -129,18 +129,24 @@ void setRightMotorDutyCtcle(uint8_t value)
  */
 void calculateSpeeds(void)
 {
-	leftSetpoint = -(linearSpeed + angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
+	leftSetpoint = (linearSpeed + angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
 	rightSetpoint = (linearSpeed - angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
 }
 
 /*
  * @brief:	cconvertRPM to dutyCycle
- * @param:	Placeholder
+ * @param:	w es la velocidad angular medida en la rueda
  * @note:	Converts RPM speed to dutyCycle value.
  */
-uint8_t speedTODutyCycle(double w)
+uint8_t wheelAngularspeedTODutyCycle(double w)
 {
-	return w*MAX_DUTY_CYCLE/MAX_ANGULAR_SPEED;
+	uint8_t retVal;
+	double motorAngularSpeedDesired=w*REDUCTION_FACTOR;
+	if(motorAngularSpeedDesired>MAX_ANGULAR_SPEED)
+		retVal=MAX_DUTY_CYCLE;
+	else
+		retVal=motorAngularSpeedDesired*MAX_DUTY_CYCLE/(MAX_ANGULAR_SPEED);
+	return retVal;
 }
 
 
@@ -157,11 +163,11 @@ void MC_Init(void)
 	sctEnablePwmFor(RIGHT_MOTOR_OUTPUT);
 
 	// Turn the PID on
-  	leftPID.SetMode(AUTOMATIC);
-	rightPID.SetMode(AUTOMATIC);
+  	// leftPID.SetMode(AUTOMATIC);
+	// rightPID.SetMode(AUTOMATIC);
 
-  	leftPID.SetOutputLimits(0, MAX_RPM);
-	rightPID.SetOutputLimits(0, MAX_RPM);
+  	// leftPID.SetOutputLimits(0, MAX_RPM);
+	// rightPID.SetOutputLimits(0, MAX_RPM);
 
 	MC_setLinearSpeed(1);
 	MC_setAngularSpeed(1);
