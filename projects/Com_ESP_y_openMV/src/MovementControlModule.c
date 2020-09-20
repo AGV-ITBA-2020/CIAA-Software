@@ -25,7 +25,8 @@
 
 #define MAX_RPM 2700.0
 #define MAX_ANGULAR_SPEED MAX_RPM*2.0*3.14/60.0
-#define MAX_DUTY_CYCLE 250
+#define MAX_DUTY_CYCLE 250.0
+#define REDUCTION_FACTOR 60.06
 
 
 /*==================[internal data declaration]==============================*/
@@ -69,8 +70,10 @@ void calculateSpeeds(void);
  * @param:	Placeholder
  * @note:	Converts RPM speed to dutyCycle value.
  */
-uint8_t speedTODutyCycle(double w);
+uint8_t wheelAngularspeedTODutyCycle(double w);
 
+
+static void mainTask();
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
@@ -88,8 +91,8 @@ void mainTask()
 		// leftPID.compute();
 		// rightPID.compute();
 
-		leftMotorOutput = speedTODutyCycle(leftSetpoint);
-		rightMotorOutput = speedTODutyCycle(rightSetpoint);
+		leftMotorOutput = wheelAngularspeedTODutyCycle(leftSetpoint);
+		rightMotorOutput = wheelAngularspeedTODutyCycle(rightSetpoint);
 
 		setLeftMotorDutyCtcle(leftMotorOutput);
 		setRightMotorDutyCtcle(rightMotorOutput);
@@ -126,18 +129,24 @@ void setRightMotorDutyCtcle(uint8_t value)
  */
 void calculateSpeeds(void)
 {
-	leftSetpoint = -(linearSpeed + angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
+	leftSetpoint = (linearSpeed + angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
 	rightSetpoint = (linearSpeed - angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
 }
 
 /*
  * @brief:	cconvertRPM to dutyCycle
- * @param:	Placeholder
+ * @param:	w es la velocidad angular medida en la rueda
  * @note:	Converts RPM speed to dutyCycle value.
  */
-uint8_t speedTODutyCycle(double w)
+uint8_t wheelAngularspeedTODutyCycle(double w)
 {
-	return w*MAX_DUTY_CYCLE/MAX_ANGULAR_SPEED;
+	uint8_t retVal;
+	double motorAngularSpeedDesired=w*REDUCTION_FACTOR;
+	if(motorAngularSpeedDesired>MAX_ANGULAR_SPEED)
+		retVal=MAX_DUTY_CYCLE;
+	else
+		retVal=motorAngularSpeedDesired*MAX_DUTY_CYCLE/(MAX_ANGULAR_SPEED);
+	return retVal;
 }
 
 

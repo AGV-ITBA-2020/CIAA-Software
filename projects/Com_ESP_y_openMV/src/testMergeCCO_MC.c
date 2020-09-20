@@ -20,14 +20,15 @@ EthMsg buf;
 
 void mainTask()
 {
-	const TickType_t delay = pdMS_TO_TICKS( 100 ); //Delay para ver si tiene mensajes
+	const TickType_t delay = pdMS_TO_TICKS( 1000 ); //Delay para ver si tiene mensajes
 	char * p2Data;
 	char * p2Space;
 	double linVel,angVel;
 	char speedHeader[]="Fix speed";
+	unsigned int i=0;
 	for( ;; )
 	{
-		if(CCO_connected()) //Si estoy conectado
+		/*if(CCO_connected()) //Si estoy conectado
 		{
 			if(CCO_recieveMsg(&buf))
 			{
@@ -37,13 +38,19 @@ void mainTask()
 					p2Space=strchr(p2Data,' ');
 					*p2Space=0x00;
 					p2Space++;
-					linVel=atoi(p2Data);
+					linVel=atoi(p2Data); //Entre 1 y 10 vienen estos valores
 					angVel=atoi(p2Space);
-					MC_setLinearSpeed((double)linVel*0.1*3000);
-					MC_setAngularSpeed((double)angVel*0.01*3000);
+					MC_setLinearSpeed((double)linVel*0.1);
+					MC_setAngularSpeed((double)angVel);
 				}
 			}
-		}
+		}*/
+		i++;
+		if(i%2)
+			MC_setLinearSpeed(0.5);
+		else
+			MC_setLinearSpeed(1);
+		MC_setAngularSpeed(0.5);
 		vTaskDelay( delay );
 	}
 }
@@ -57,8 +64,8 @@ bool_t isHeader(EthMsg * msg,char * header)
 void main(void)
 {
 	MySapi_BoardInit(true);
-	CCO_init();
-	//MC_init();
+	//CCO_init();
+	MC_Init();
 	//Setear velocidades 0
 	printf("Hola Mundo!");
 	xTaskCreate( mainTask, "CCO rec task", 100	, NULL, CCO_RECIEVE_PRIORITY, NULL ); //Task para debuggear lo enviado

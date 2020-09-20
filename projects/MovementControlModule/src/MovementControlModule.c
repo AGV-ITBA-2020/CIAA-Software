@@ -71,6 +71,9 @@ void calculateSpeeds(void);
  */
 uint8_t speedTODutyCycle(double w);
 
+
+void mainTask();
+
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
