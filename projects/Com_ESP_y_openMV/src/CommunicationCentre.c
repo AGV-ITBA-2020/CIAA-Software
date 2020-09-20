@@ -12,7 +12,7 @@
 #include "semphr.h"
 
 /*==================[typedef]================================================*/
-#define MSG_TERMINATOR '\r'
+#define MSG_TERMINATOR 0
 #define LOOPBACK_MODE 0 //Poner en 1 para modo loopback
 
 
