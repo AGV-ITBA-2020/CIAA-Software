@@ -23,7 +23,9 @@ int main( void )
 	  printf("DI0=%d ; DI1=%d ; DI2=%d ; DI3=%d \r\n", gpioRead(DI0), gpioRead(DI1), gpioRead(DI2), gpioRead(DI3));
 	  printf("DI4=%d ; DI5=%d ; DI6=%d ; DI7=%d \r\n", gpioRead(DI4), gpioRead(DI5), gpioRead(DI6), gpioRead(DI7));*/
 
-	  printf("Encoder [ R ; L ]=[%d ; %d]\r\n", Encoder_GetCount(encoderRight), Encoder_GetCount(encoderLeft));
+	  printf("%d ; %d \r\n", Encoder_GetCount(encoderRight), Encoder_GetCount(encoderLeft));
+	  Encoder_ResetCount(encoderRight);
+	  Encoder_ResetCount(encoderLeft);
   	  for(int i =0 ; i<8000000; i++);
    }
    return 0;
