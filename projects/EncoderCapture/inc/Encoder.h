@@ -22,5 +22,6 @@ typedef enum {
 
 void Encoder_Init(ENCODER_CHANNEL ch);
 uint32_t Encoder_GetCount(ENCODER_CHANNEL ch);
+void Encoder_ResetCount(ENCODER_CHANNEL ch);
 
 #endif /* ENCODER_H_ */
