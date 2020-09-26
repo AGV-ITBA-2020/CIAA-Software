@@ -27,7 +27,7 @@
 /*==================[internal data declaration]==============================*/
 static CC_State state;
 static EthMsg msgRecieved,auxSendMsg;
-static Mission currMission;
+static MISSION_T currMission;
 
 
 
@@ -37,7 +37,7 @@ static Mission currMission;
 void CC_mainTask();
 void parseEthMsg(EthMsg *  msg);
 void decodeMission(char * questRecieved);
-bool_t getNextMissionBlock(Mission_Block * mb);
+bool_t getNextMissionBlock(MISSION_BLOCK_T * mb);
 bool_t isHeader(EthMsg * msg,char * header, char * p2Data);
 void parsePCEvent(PC_Event ev);
 void sendESPStr(char * msg);
@@ -62,7 +62,7 @@ void CC_mainTask()
 
 void parseEthMsg(EthMsg * msgP)
 {
-	Mission_Block mb;
+	MISSION_BLOCK_T mb;
 	char * p2Data; //Puntero a data de los misiones (lo que le sigue al header)
 	if(state==CC_IDLE && isHeader(msgP,MSG_QUEST_HEADER,p2Data)) //En caso de que
 	{
@@ -85,7 +85,7 @@ void decodeMission(char *questRecieved)
 	currMission.active=1;
 	//Se encarga de pasar el string al formato que se guardaron los datos.
 }
-bool_t getNextMissionBlock(Mission_Block * mb)
+bool_t getNextMissionBlock(MISSION_BLOCK_T * mb)
 {
 	mb->md=currMission.blocks[currMission.currBlock];
 	mb->com=BLOCK_START;

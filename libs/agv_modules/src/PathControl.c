@@ -39,7 +39,7 @@ typedef struct  {
 
 /*==================[internal data declaration]==============================*/
 static char recBuff[OPEN_MV_MSG_LEN];//Acá se guarda la data en la interrupción
-static Mission_Block mb;
+static MISSION_BLOCK_T mb;
 static SemaphoreHandle_t xBinarySemaphore;
 static TaskHandle_t * missionTask;
 static QueueHandle_t missionMailbox, eventQueue;
@@ -47,7 +47,7 @@ static float currVel=0;
 
 void PC_MainTask();
 openMV_msg parse_openmv_msg(char * buf);
-void send_openmv_nxt_state(Block_Checkpoint ms);
+void send_openmv_nxt_state(BLOCK_CHECKPOINT_T ms);
 void PC_MissionTask();
 void startNewMissionBlock();
 void abortMissionBlock();
@@ -105,8 +105,8 @@ void PC_MissionTask()
 /*******Otros*********/
 bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
 {
-	Block_Checkpoint currChkpnt = mb.md.blockCheckpoints[mb.md.currStep];
-	Block_Checkpoint nextChkpnt;
+	BLOCK_CHECKPOINT_T currChkpnt = mb.md.blockCheckpoints[mb.md.currStep];
+	BLOCK_CHECKPOINT_T nextChkpnt;
 	bool_t missionFinished,stepsLeft=1;
 
 	if(mb.md.currStep == mb.md.blockLen-1)
@@ -165,7 +165,7 @@ openMV_msg parse_openmv_msg(char * buf)
 	retVal.tag=buf[1]%32;
 	return retVal;
 }
-void send_openmv_nxt_state(Block_Checkpoint ms)
+void send_openmv_nxt_state(BLOCK_CHECKPOINT_T ms)
 { //Correlación entre los estados del openmv y el checkpoint que viene.
 	if(ms == CHECKPOINT_FORK_LEFT)
 		uartTxWrite(PC_UART,OPENMV_FORK_LEFT);
@@ -199,11 +199,11 @@ void PC_Init(void)
 	MC_init();
 	xBinarySemaphore = xSemaphoreCreateBinary();
 	xTaskCreate( PC_MainTask, "PC Main task", 100	, NULL, 1, NULL ); //Crea task de misión
-	missionMailbox=xQueueCreate( 1,sizeof(Mission_Block));
+	missionMailbox=xQueueCreate( 1,sizeof(MISSION_BLOCK_T));
 	eventQueue=xQueueCreate( EVENT_QUEUE_LEN,sizeof(PC_Event));
 }
 
-void PC_setMissionBlock(Mission_Block mb)
+void PC_setMissionBlock(MISSION_BLOCK_T mb)
 {
 	xQueueSendToBack(missionMailbox,&mb,0 );
 }
