@@ -25,7 +25,7 @@ typedef enum {PC_BLOCK_FINISHED, PC_STEP_REACHED,PC_ERROR} PC_Event; //Comandos 
 
 void PC_Init(void);
 
-void PC_setMissionBlock(Mission_Block mb);
+void PC_setMissionBlock(MISSION_BLOCK_T mb);
 
 bool_t PC_hasEvent();
 
