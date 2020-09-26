@@ -41,11 +41,14 @@ extern "C" {
  * @{
  */
 
+#define GIMA_ENABLE_PULSE(x) ( (x & 1) << 3 )
+#define GIMA_ENABLE_SYNCH(x) ( (x & 1) << 2 )
+#define GIMA_ALT_SELECT(x) ( (x & 0xF) << 4 )
 /**
  * @brief Global Input Multiplexer Array (GIMA) register block structure
  */
 typedef struct {						/*!< GIMA Structure */
-	__IO uint32_t  CAP0_IN[4][4];		/*!< Timer x CAP0_y capture input multiplexer (GIMA output ((x*4)+y)) */
+	__IO uint32_t  CAPn_IN[4][4];		/*!< Timer x CAP0_y capture input multiplexer (GIMA output ((x*4)+y)) */
 	__IO uint32_t  CTIN_IN[8];			/*!< SCT CTIN_x capture input multiplexer (GIMA output (16+x)) */
 	__IO uint32_t  ADCHS_TRIGGER_IN;	/*!< ADCHS trigger input multiplexer (GIMA output 24) */
 	__IO uint32_t  EVENTROUTER_13_IN;	/*!< Event router input 13 multiplexer (GIMA output 25) */

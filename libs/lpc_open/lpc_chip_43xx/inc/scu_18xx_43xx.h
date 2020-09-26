@@ -27,7 +27,7 @@
 #ifndef __SCU_18XX_43XX_H_
 #define __SCU_18XX_43XX_H_
 
-#include "chip_lpc43xx.h"
+#include "chip.h"
 
 #ifdef __cplusplus
 extern "C" {

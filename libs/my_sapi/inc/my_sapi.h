@@ -19,6 +19,8 @@
 // Application specific libraries
 #include "my_sapi_gpio.h"                   // Use GPIO peripherals
 
+#define LPC4337_MAX_FREC 204000000 /* Microcontroller frequency */
+#define MICROSECONDS_TO_TICKS(x) (x*(LPC4337_MAX_FREC/1000000))
 void MySapi_BoardInit(bool_t debugUartEnable);
 
 

@@ -5,13 +5,12 @@
  *      Author: Javier
  */
 
-#include "../inc/my_sapi_uart.h"
-#include "../inc/PathControl.h"
-#include "../inc/MovementControl.h"
+#include "my_sapi_uart.h"
+#include "PathControl.h"
+#include "MovementControl.h"
 
 #include "event_groups.h"
 #include "semphr.h"
-
 
 
 /*==================[typedef]================================================*/
@@ -48,7 +47,7 @@ static float currVel=0;
 
 void PC_MainTask();
 openMV_msg parse_openmv_msg(char * buf);
-void send_openmv_nxt_state(Block_checkpoint ms);
+void send_openmv_nxt_state(Block_Checkpoint ms);
 void PC_MissionTask();
 void startNewMissionBlock();
 void abortMissionBlock();
@@ -106,8 +105,8 @@ void PC_MissionTask()
 /*******Otros*********/
 bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
 {
-	Block_checkpoint currChkpnt = mb.md.blockCheckpoints[mb.md.currStep];
-	Block_checkpoint nextChkpnt;
+	Block_Checkpoint currChkpnt = mb.md.blockCheckpoints[mb.md.currStep];
+	Block_Checkpoint nextChkpnt;
 	bool_t missionFinished,stepsLeft=1;
 
 	if(mb.md.currStep == mb.md.blockLen-1)
@@ -166,7 +165,7 @@ openMV_msg parse_openmv_msg(char * buf)
 	retVal.tag=buf[1]%32;
 	return retVal;
 }
-void send_openmv_nxt_state(Block_checkpoint ms)
+void send_openmv_nxt_state(Block_Checkpoint ms)
 { //Correlación entre los estados del openmv y el checkpoint que viene.
 	if(ms == CHECKPOINT_FORK_LEFT)
 		uartTxWrite(PC_UART,OPENMV_FORK_LEFT);
