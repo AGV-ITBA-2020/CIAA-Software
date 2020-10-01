@@ -35,5 +35,9 @@ typedef struct{
 	unsigned int currBlock,nmbrOfBlocks;
 	//MÃ¡s metadata. Para probar no es nada mÃ¡s necesario.
 } MISSION_T;
-
+typedef struct{
+	bool_t inMision, waitForInterBlockEvent, error;
+	unsigned int currBlock,nmbrOfBlocks;
+	//Faltan poner más cosas todavía
+} AGV_STATUS_T;
 #endif /* MISSIONDEFS_H_ */
