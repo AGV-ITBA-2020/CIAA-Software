@@ -5,7 +5,7 @@
  *      Author: Javier
  */
 
-#include "CommunicationCentre.h"
+#include "../../Communication/inc/CommunicationCentre.h"
 #include "task.h"
 #include "my_sapi.h"
 /*
