@@ -11,6 +11,7 @@
 #include "assert.h"
 #include <string>
 #include <map>
+#include <ctype.h>
 
 using namespace std;
 
@@ -49,7 +50,7 @@ MSG_REC_HEADER_T CCO_getMsgType()
 {
 	MSG_REC_HEADER_T retVal;
 
-	map<string,MSG_REC_HEADER_T> recHeaderLUT= { {"Quest?",NEW_MISSION},{"Continue",CONTINUE_MISSION},{"Status",STATUS_REQ}};
+	map<string,MSG_REC_HEADER_T> recHeaderLUT= { {"Quest?",CCO_NEW_MISSION},{"Continue",CCO_CONTINUE_MISSION},{"Status",CCO_STATUS_REQ},{"Quest?",CCO_NEW_MISSION},{"QuestAbort?",CCO_ABORT_MISSION},{"Pause",CCO_PAUSE_MISSION}};
 
 	if(!EMH_recieveMsg(&auxRecMsg))
 		assert(0); //En caso que se llamo a esta funcion pero la capa inferior no tenía mensajes
@@ -59,7 +60,7 @@ MSG_REC_HEADER_T CCO_getMsgType()
 	if(recHeaderLUT.count(header)) //Si el header existe
 		retVal=recHeaderLUT[auxRecStr]; //Devuelvo el tipo que se corresponde con ese header
 	else
-		retVal=NOT_DEF;
+		retVal=CCO_NOT_DEF;
 
 	return retVal;
 }
@@ -73,22 +74,36 @@ bool_t CCO_getMission(MISSION_T * mission)
 	map<string,INTER_BLOCK_EVENT_T> interBlockLUT = { {"Bp",BUTTON_PRESS}, {"Hc",HOUSTON_CONTINUE}, {"De",DELAY},{"No",NONE}};
 	mission->nmbrOfBlocks=0;
 	//FALTA PONER LAS DISTANCIAS!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	for(string::size_type i = 0; i < data.size(); i += 2)
+	unsigned int i=0;
+	while(i < data.size())
 	{
-		string com = data.substr(i,2);
-		if(com == "Bs")
+
+		if(isdigit(data[i])) //Si es un número (que representa una distancia)
 		{
-			mission->blocks[mission->nmbrOfBlocks].blockLen=0;
-			mission->blocks[mission->nmbrOfBlocks].currStep=0;
+			mission->blocks[mission->nmbrOfBlocks].distances[mission->blocks[mission->nmbrOfBlocks].blockLen]=stoi(data.substr(i));
+			while(isdigit(data[i])) //Salteo hasta que se terminen los números
+				i++;
 		}
-		else if(com == "Be")
-			(mission->nmbrOfBlocks)++;
-		else if(interBlockLUT.count(com)) //Si es un evento entre bloques
-			mission->interBlockEvent[mission->nmbrOfBlocks]=interBlockLUT[com];
-		else if(checkpointLUT.count(com)) //Si es un checkpoint
-			mission->blocks[mission->nmbrOfBlocks].blockCheckpoints[(mission->blocks[mission->nmbrOfBlocks].blockLen)++]=checkpointLUT[com];
-		else
-			assert(0); //Una misión no puede tener un campo que no sea los mencionados
+		else //Sino, tomo los comandos y los parseo como son.
+		{
+			string com = data.substr(i,2);
+			if(com == "Bs")
+			{
+				mission->blocks[mission->nmbrOfBlocks].blockLen=0;
+				mission->blocks[mission->nmbrOfBlocks].currStep=0;
+			}
+			else if(com == "Be")
+				(mission->nmbrOfBlocks)++;
+			else if(interBlockLUT.count(com)) //Si es un evento entre bloques
+				mission->interBlockEvent[mission->nmbrOfBlocks]=interBlockLUT[com];
+			else if(checkpointLUT.count(com)) //Si es un checkpoint
+				mission->blocks[mission->nmbrOfBlocks].blockCheckpoints[(mission->blocks[mission->nmbrOfBlocks].blockLen)++]=checkpointLUT[com];
+			else
+				assert(0); //Una misión no puede tener un campo que no sea los mencionados
+			i+=2;
+		}
+
+
 	}
 	return retVal;
 }
@@ -96,7 +111,7 @@ bool_t CCO_getMission(MISSION_T * mission)
 bool_t CCO_sendMsgWithoutData(MSG_SEND_HEADER_T msg)
 {
 	bool_t retVal= 0;
-	map<MSG_SEND_HEADER_T,string> msgLUT = { {MISSION_ACCEPT,"Quest\nYes"},{MISSION_DENY,"Quest\nNo"}};
+	map<MSG_SEND_HEADER_T,string> msgLUT = { {CCO_MISSION_ACCEPT,"Quest\nYes"},{CCO_MISSION_DENY,"Quest\nNo"},{CCO_MISSION_STEP_REACHED,"Quest step reached"}};
 	if(msgLUT.count(msg))
 	{
 		string str = msgLUT[msg];

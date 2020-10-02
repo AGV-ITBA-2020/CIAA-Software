@@ -19,8 +19,8 @@ typedef enum {BLOCK_START, BLOCK_ABORT, BLOCK_REPLACE} BLOCK_COMMAND_T; //Comand
 
 typedef struct  {
 	BLOCK_CHECKPOINT_T blockCheckpoints[MISSION_BLOCK_MAX_STEPS];
-	unsigned int blockLen;
-	unsigned int currStep;
+	unsigned int distances[MISSION_BLOCK_MAX_STEPS];
+	unsigned int blockLen,currStep;
 }BLOCK_DETAILS_T; //La información que trae cada mensaje del openMV.
 
 typedef struct {
