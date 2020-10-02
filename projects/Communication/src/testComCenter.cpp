@@ -5,19 +5,13 @@
  *      Author: Javier
  */
 
-#include "EthMsgHandler.h"
+#include "CommunicationCenter.hpp"
 
 
-void sample(void * a);
+EventGroupHandle_t xEventGroup;
 
 int main(void)
 {
-	EMH_init((callBackFuncPtr_t) sample,(callBackFuncPtr_t) sample);
-}
-
-void sample(void * a)
-{
-	int * b = (int *)a;
-	int c = *b;
-
+	CCO_init(xEventGroup);
+	while(1);
 }

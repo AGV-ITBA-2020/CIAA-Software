@@ -19,7 +19,7 @@ extern "C"
 // App specific includes
 //#include "MovementControlModule.h"
 
-#define CCO_MSG_REC 1 //bit del event group que indica que llegó un mensaje
+#define EV_CCO_MSG_REC 1 //bit del event group que indica que llegó un mensaje
 
 /*==================[macros and definitions]=================================*/
 #ifndef TICKS_TO_MS
