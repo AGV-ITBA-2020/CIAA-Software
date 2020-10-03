@@ -34,7 +34,7 @@ string getHeader(string auxRecStr)
 
 string getData(string auxRecStr)
 {
-	return auxRecStr.substr(auxRecStr.find_first_of('\n'));
+	return auxRecStr.substr(auxRecStr.find_first_of('\n')+1);
 }
 
 
