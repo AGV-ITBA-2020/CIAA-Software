@@ -5,7 +5,7 @@
  *      Author: Javier
  */
 
-#include "ControlCenter.h"
+#include "../../Communication/inc/ControlCenter.h"
 
 /*
 void main(void)

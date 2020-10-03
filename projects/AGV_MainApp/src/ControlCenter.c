@@ -9,8 +9,8 @@
 #include "../inc/ControlCenter.h"
 #include <string.h>
 
+#include "../inc/EthMsgHandler.h"
 #include "../inc/PathControl.h"
-#include "../inc/CommunicationCentre.h"
 #include "task.h"
 
 

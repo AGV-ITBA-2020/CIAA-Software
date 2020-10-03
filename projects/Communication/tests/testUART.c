@@ -1,4 +1,4 @@
-#include "../inc/my_sapi_uart.h"        // <= Biblioteca sAPI
+#include "../../Communication/inc/my_sapi_uart.h"        // <= Biblioteca sAPI
 #include "my_sapi.h"
 
 #include "chip.h"

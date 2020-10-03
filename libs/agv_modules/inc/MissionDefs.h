@@ -13,14 +13,14 @@
 #define MISSION_BLOCK_MAX_STEPS 100
 #define MAX_NMBR_OF_BLOCKS_IN_MISSION 15
 
-typedef enum {BUTTON_PRESS, DELAY, NONE} INTER_BLOCK_EVENT_T;
+typedef enum {BUTTON_PRESS,HOUSTON_CONTINUE, DELAY, NONE} INTER_BLOCK_EVENT_T;
 typedef enum {CHECKPOINT_SLOW_DOWN, CHECKPOINT_SPEED_UP, CHECKPOINT_FORK_LEFT, CHECKPOINT_FORK_RIGHT, CHECKPOINT_STATION,CHECKPOINT_MERGE} BLOCK_CHECKPOINT_T; //Los distintos objetivos de la mision
 typedef enum {BLOCK_START, BLOCK_ABORT, BLOCK_REPLACE} BLOCK_COMMAND_T; //Comandos de misiones
 
 typedef struct  {
 	BLOCK_CHECKPOINT_T blockCheckpoints[MISSION_BLOCK_MAX_STEPS];
-	unsigned int blockLen;
-	unsigned int currStep;
+	unsigned int distances[MISSION_BLOCK_MAX_STEPS];
+	unsigned int blockLen,currStep;
 }BLOCK_DETAILS_T; //La informaci√≥n que trae cada mensaje del openMV.
 
 typedef struct {
@@ -35,5 +35,9 @@ typedef struct{
 	unsigned int currBlock,nmbrOfBlocks;
 	//M√°s metadata. Para probar no es nada m√°s necesario.
 } MISSION_T;
-
+typedef struct{
+	bool_t inMision, waitForInterBlockEvent, error;
+	unsigned int currBlock,nmbrOfBlocks;
+	//Faltan poner m·s cosas todavÌa
+} AGV_STATUS_T;
 #endif /* MISSIONDEFS_H_ */
