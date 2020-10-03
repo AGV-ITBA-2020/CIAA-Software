@@ -14,8 +14,13 @@
 #ifdef __DEBUG__
 // #include "lpc43xx_libcfg.h"
 #else
-#include "../inc/MovementControlModule.h"
+#include "MovementControlModule.h"
 #include <math.h>
+// #include <stdlib.h>
+// #include <stdio.h>
+// #include <iostream>
+
+// using namespace std;
 
 #endif /* __DEBUG__ */
 
@@ -23,26 +28,21 @@
 #define LEFT_MOTOR_OUTPUT	CTOUT9
 #define RIGHT_MOTOR_OUTPUT	CTOUT8
 
-#define MAX_RPM 2700.0
-#define MAX_ANGULAR_SPEED MAX_RPM*2.0*3.14/60.0
-#define MAX_DUTY_CYCLE 250.0
+#define MAX_DUTY_CYCLE 100.0
+#define MAX_SCT_DUTY_CYCLE 250.0
 #define REDUCTION_FACTOR 60.06
+
+#define CONTROL_SAMPLE_PERIOD_MS 50.0
+
+#define abs(x)  ( (x<0) ? -(x) : x )
 
 using namespace pid;
 
 /*==================[internal data declaration]==============================*/
-bool testFlag;
 uint8_t leftMotorOutput = 0, rightMotorOutput = 0;
 double linearSpeed, angularSpeed;
 
-//Define Variables we'll be connecting to
-double leftSetpoint = 0, leftInput = 0, leftOutput = 0;
-double rightSetpoint = 0, rightInput = 0, rightOutput = 0;
-
-//Specify the links and initial tuning parameters
-float Kp = 2, Ki = 0.3, Kd = 0.25;
-PID leftPID(&leftInput, &leftOutput, &leftSetpoint, Kp, Ki, Kd, DIRECT);
-PID rightPID(&rightInput, &rightOutput, &rightSetpoint, Kp, Ki, Kd, DIRECT);
+AGVMovementModule_t movementModule;
 
 /*==================[internal functions declaration]=========================*/
 /*******Tasks*********/
@@ -51,74 +51,52 @@ PID rightPID(&rightInput, &rightOutput, &rightSetpoint, Kp, Ki, Kd, DIRECT);
  * @param:	Placeholder
  * @note:	It basically sets the value of the pwm for both motors.
  */
-void mainTask(void * ptr);
+void mcmMainTask(void * ptr);
 
 /*
  * @brief:	Initialize the MC module
  * @param:	Placeholder
  * @note:	The MC is in charge of controlling the speed and direction of the vehicle.
  */
-void setLeftMotorDutyCtcle(uint8_t value);
+double calculateInputSpeed(uint32_t value);
 
-/*
- * @brief:	Initialize the MC module
- * @param:	Placeholder
- * @note:	The MC is in charge of controlling the speed and direction of the vehicle.
- */
-void setRightMotorDutyCtcle(uint8_t value);
-
-/*
- * @brief:	calculateSpeeds output values
- * @param:	Placeholder
- * @note:	Is just a testing function for now.
- */
-void calculateSpeeds(void);
-
-/*
- * @brief:	cconvertRPM to dutyCycle
- * @param:	Placeholder
- * @note:	Converts RPM speed to dutyCycle value.
- */
-void setMotorDirection(gpioMap_t pinENA, gpioMap_t pinENB, bool_t direction);
-
-/*
- * @brief:	cconvertRPM to dutyCycle
- * @param:	Placeholder
- * @note:	Converts RPM speed to dutyCycle value.
- */
-uint8_t wheelAngularspeedTODutyCycle(double w);
 
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-/*******Tasks*********/
 /*
  * @brief:	Main task for the movement control module
  * @param:	Placeholder
  * @note:	It basically sets the value of the pwm for both motors.
  */
-void mainTask(void * ptr)
-{
-	const TickType_t xDelay250ms = pdMS_TO_TICKS( 250 );
-	for( ;; )
-	{
-		// Calculate each duty cycle from angularSpeed & linearSpeed
-		calculateSpeeds();
-		
-		leftPID.Compute();
-		rightPID.Compute();
+MotorController_t::MotorController_t(gpioMap_t in1Pin, gpioMap_t in2Pin, uint8_t enableSCTOutPin, ENCODER_CHANNEL_T ch): pidController(&input, &output, &setpoint, PID_KP, PID_KI, PID_KD, DIRECT) {
+	in1 = in1Pin;
+	in2 = in2Pin;
+	enableSCTOut = enableSCTOutPin;
+	encoderCh = ch;
+}
 
-		leftMotorOutput = wheelAngularspeedTODutyCycle(leftOutput);
-		rightMotorOutput = wheelAngularspeedTODutyCycle(rightOutput);
+/*
+ * @brief:	Main task for the movement control module
+ * @param:	Placeholder
+ * @note:	It basically sets the value of the pwm for both motors.
+ */
+void MotorController_t::init(void){
+	sctEnablePwmFor(enableSCTOut);
 
-		setLeftMotorDutyCtcle(leftMotorOutput);
-		setRightMotorDutyCtcle(rightMotorOutput);
-		vTaskDelay( xDelay250ms );
-	}
+	gpioInit(in1, GPIO_OUTPUT);
+	gpioInit(in2, GPIO_OUTPUT);
 
+	gpioWrite(in1,1);
+	gpioWrite(in2,0);
 
+	Encoder_Init(encoderCh);
+
+	// Turn the PID on
+  	pidController.SetMode(AUTOMATIC);	
+  	pidController.SetOutputLimits(0, MAX_DUTY_CYCLE);
 }
 
 /*
@@ -126,19 +104,9 @@ void mainTask(void * ptr)
  * @param:	Placeholder
  * @note:	The MC is in charge of controlling the speed and direction of the vehicle.
  */
-void setLeftMotorDutyCtcle(uint8_t value)
+void MotorController_t::setMotorDutyCtcle(uint8_t value)
 {
-	sctSetDutyCycle(LEFT_MOTOR_OUTPUT, value);
-}
-
-/*
- * @brief:	Initialize the MC module
- * @param:	Placeholder
- * @note:	The MC is in charge of controlling the speed and direction of the vehicle.
- */
-void setRightMotorDutyCtcle(uint8_t value)
-{
-	sctSetDutyCycle(RIGHT_MOTOR_OUTPUT, value);
+	sctSetDutyCycle(enableSCTOut, value);
 }
 
 /*
@@ -146,23 +114,10 @@ void setRightMotorDutyCtcle(uint8_t value)
  * @param:	Placeholder
  * @note:	Is just a testing function for now.
  */
-void calculateSpeeds(void)
+void MotorController_t::setMotorDirection(bool_t direction)
 {
-	leftSetpoint = (linearSpeed + angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
-	rightSetpoint = (linearSpeed - angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
-	setMotorDirection(DI0, DI1, signbit(leftSetpoint));
-	setMotorDirection(DO4, DO5, signbit(leftSetpoint));
-}
-
-/*
- * @brief:	calculateSpeeds output values
- * @param:	Placeholder
- * @note:	Is just a testing function for now.
- */
-void setMotorDirection(gpioMap_t pinENA, gpioMap_t pinENB, bool_t direction)
-{
-	gpioWrite(pinENA, direction);
-	gpioWrite(pinENB, !direction);
+	gpioWrite(in1, direction);
+	gpioWrite(in2, !direction);
 }
 
 /*
@@ -170,15 +125,89 @@ void setMotorDirection(gpioMap_t pinENA, gpioMap_t pinENB, bool_t direction)
  * @param:	w es la velocidad angular medida en la rueda
  * @note:	Converts RPM speed to dutyCycle value.
  */
-uint8_t wheelAngularspeedTODutyCycle(double w)
+void MotorController_t::getSpeed(void)
 {
-	uint8_t retVal;
-	double motorAngularSpeedDesired=w*REDUCTION_FACTOR;
-	if(motorAngularSpeedDesired>MAX_ANGULAR_SPEED)
-		retVal=MAX_DUTY_CYCLE;
-	else
-		retVal=motorAngularSpeedDesired*MAX_DUTY_CYCLE/(MAX_ANGULAR_SPEED);
-	return retVal;
+	input = calculateInputSpeed(Encoder_GetCount(encoderCh));
+	Encoder_ResetCount(encoderCh);
+}
+
+/*
+ * @brief:	cconvertRPM to dutyCycle
+ * @param:	w es la velocidad angular medida en la rueda
+ * @note:	Converts RPM speed to dutyCycle value.
+ */
+void MotorController_t::setSpeed(void)
+{
+
+	uint8_t sctDuty = output*MAX_SCT_DUTY_CYCLE/MAX_DUTY_CYCLE;
+	if(sctDuty > MAX_SCT_DUTY_CYCLE)
+		sctDuty = MAX_SCT_DUTY_CYCLE;
+	if(sctDuty < 0){
+		setMotorDirection(true);
+	}else{
+		setMotorDirection(false);
+	}
+	setMotorDutyCtcle(abs(sctDuty));
+}
+
+/*
+ * @brief:	calculateSpeeds output values
+ * @param:	Placeholder
+ * @note:	Is just a testing function for now.
+ */
+AGVMovementModule_t::AGVMovementModule_t(void): 
+leftMotor(GPIO2, GPIO3, LEFT_MOTOR_OUTPUT, ENCODER_LEFT), 
+rightMotor(DO4, DO5, RIGHT_MOTOR_OUTPUT, ENCODER_RIGHT) {
+
+}
+
+/*
+ * @brief:	calculateSpeeds output values
+ * @param:	Placeholder
+ * @note:	Is just a testing function for now.
+ */
+void AGVMovementModule_t::calculateSetpoints(void)
+{
+	leftMotor.setpoint = (linearSpeed + angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
+	rightMotor.setpoint = (linearSpeed - angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
+}
+
+
+/*******Tasks*********/
+/*
+ * @brief:	Main task for the movement control module
+ * @param:	Placeholder
+ * @note:	It basically sets the value of the pwm for both motors.
+ */
+void mcmMainTask(void * ptr)
+{
+	const TickType_t xDelay50ms = pdMS_TO_TICKS( CONTROL_SAMPLE_PERIOD_MS );
+	TickType_t xLastWakeTime = xTaskGetTickCount();
+	for( ;; )
+	{
+		movementModule.calculateSetpoints();
+		movementModule.leftMotor.getSpeed();
+		movementModule.rightMotor.getSpeed();
+		
+		movementModule.rightMotor.pidController.Compute();
+		movementModule.leftMotor.pidController.Compute();
+		
+		printf("inputSpeed:%d, setPointSpeed:%d, output:%d\n", (int)(10.0*movementModule.leftMotor.input), (int)(10.0*movementModule.leftMotor.setpoint), (int)(movementModule.leftMotor.output));
+		
+		movementModule.leftMotor.setSpeed();
+		movementModule.rightMotor.setSpeed();
+		vTaskDelayUntil( &xLastWakeTime, xDelay50ms );
+	}
+}
+
+/*
+ * @brief:	Initialize the MC module
+ * @param:	Placeholder
+ * @note:	The MC is in charge of controlling the speed and direction of the vehicle.
+ */
+double calculateInputSpeed(uint32_t value)
+{
+	return (double) value/(ENCODER_STEPS_PER_REVOLUTION * CONTROL_SAMPLE_PERIOD_MS * 0.001 * REDUCTION_FACTOR)*2.0*3.1415;
 }
 
 
@@ -191,29 +220,11 @@ uint8_t wheelAngularspeedTODutyCycle(double w)
 void MC_Init(void)
 {
 	sctInit(1000);
-	sctEnablePwmFor(LEFT_MOTOR_OUTPUT);
-	sctEnablePwmFor(RIGHT_MOTOR_OUTPUT);
-
-	gpioInit(DI0, GPIO_OUTPUT);
-	gpioInit(DI1, GPIO_OUTPUT);
-	gpioInit(DO4, GPIO_OUTPUT);
-	gpioInit(DO5, GPIO_OUTPUT);
-
-	gpioWrite(DI0,1);
-	gpioWrite(DI1,0);
-	gpioWrite(DO4,1);
-	gpioWrite(DO5,0);
-
-	// Turn the PID on
-  	leftPID.SetMode(AUTOMATIC);
-	rightPID.SetMode(AUTOMATIC);
-
-  	leftPID.SetOutputLimits(0, MAX_RPM);
-	rightPID.SetOutputLimits(0, MAX_RPM);
+	movementModule.leftMotor.init();
+	movementModule.rightMotor.init();
 
 	// Create mission task
-	xTaskCreate( mainTask, "MC Main task", 1000	, NULL, 1, NULL );
-
+	BaseType_t debug = xTaskCreate( mcmMainTask, "MC Main task", 1000	, NULL, 1, NULL );
 }
 
 /*

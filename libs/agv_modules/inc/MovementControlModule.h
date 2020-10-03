@@ -16,17 +16,47 @@
 
 /*==================[inclusions]=============================================*/
 #include "PID_v1.hpp"
+#include "Encoder.h"
 
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+using namespace pid;
 
 /*==================[macros and definitions]=================================*/
 #define AGV_AXIS_LONGITUDE 0.5
 #define AGV_WHEEL_DIAMETER 0.25
-#define AGV_WHEEL_RADIUS AGV_WHEEL_DIAMETER/2.0
+#define AGV_WHEEL_RADIUS (AGV_WHEEL_DIAMETER/2.0)
+#define PID_KP 2
+#define PID_KI 0.3
+#define PID_KD 0.25
+
+
+class MotorController_t{
+    public:
+        MotorController_t(gpioMap_t in1, gpioMap_t in2, uint8_t enableSCTOut, ENCODER_CHANNEL_T ch);
+
+        void init(void);
+        void setMotorDutyCtcle(uint8_t value);
+        void setMotorDirection(bool_t direction);
+        uint8_t outputDutyToPeripheralPWM(double duty);
+        void getSpeed(void);
+        void setSpeed(void);
+
+        PID pidController;
+        gpioMap_t in1, in2;
+        uint8_t enableSCTOut;
+        ENCODER_CHANNEL_T encoderCh;
+        double input, output, setpoint;
+
+    private:
+};
+
+class AGVMovementModule_t {
+    public:
+        AGVMovementModule_t();
+        void calculateSetpoints();
+
+        MotorController_t leftMotor;
+        MotorController_t rightMotor;
+};
 
 /*==================[internal data declaration]==============================*/
 
@@ -61,11 +91,6 @@ void MC_setLinearSpeed(double v);
  */
 void MC_setAngularSpeed(double w);
 
-
-
-#ifdef __cplusplus
-}
-#endif
 
 
 #endif /* _MC */
