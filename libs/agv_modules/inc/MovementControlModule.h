@@ -24,8 +24,8 @@ using namespace pid;
 #define AGV_AXIS_LONGITUDE 0.5
 #define AGV_WHEEL_DIAMETER 0.25
 #define AGV_WHEEL_RADIUS (AGV_WHEEL_DIAMETER/2.0)
-#define PID_KP 2
-#define PID_KI 0.3
+#define PID_KP 10
+#define PID_KI 1
 #define PID_KD 0.25
 
 

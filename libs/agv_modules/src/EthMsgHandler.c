@@ -66,6 +66,7 @@ void uartCallback(void* a) //Se llama cada vez que hubo 8 bytes entrando o un ti
 		recBufCount++;
 	if(recBufCount !=0 && recBuffer.array[recBufCount-1]== MSG_TERMINATOR) //Si el ult byte recibido es un 0, se terminó la transmisión
 	{
+		recBufCount=0;
 		xQueueSendToBackFromISR(recievedQueue,&recBuffer,0 );
 		outCallback(0);
 	}

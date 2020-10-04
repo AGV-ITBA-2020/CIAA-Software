@@ -62,7 +62,7 @@ MSG_REC_HEADER_T CCO_getMsgType()
 	string header = getHeader(auxRecStr);
 
 	if(recHeaderLUT.count(header)) //Si el header existe
-		retVal=recHeaderLUT[auxRecStr]; //Devuelvo el tipo que se corresponde con ese header
+		retVal=recHeaderLUT[header]; //Devuelvo el tipo que se corresponde con ese header
 	else
 		retVal=CCO_NOT_DEF;
 
@@ -114,6 +114,8 @@ bool_t CCO_getMission(MISSION_T * mission)
 
 double CCO_getLinSpeed()
 {
+	if(!EMH_recieveMsg(&auxRecMsg))
+		assert(0);
 	string auxStr = auxRecMsg.array;
 	auxStr=getData(auxStr);
 	return stoi(auxStr)*0.1;

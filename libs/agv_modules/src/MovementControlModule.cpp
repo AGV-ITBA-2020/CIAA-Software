@@ -192,8 +192,9 @@ void mcmMainTask(void * ptr)
 		movementModule.rightMotor.pidController.Compute();
 		movementModule.leftMotor.pidController.Compute();
 		
-		printf("inputSpeed:%d, setPointSpeed:%d, output:%d\n", (int)(10.0*movementModule.leftMotor.input), (int)(10.0*movementModule.leftMotor.setpoint), (int)(movementModule.leftMotor.output));
-		
+		printf("inputSpeedL:%d, setPointSpeedL:%d, outputL:%d, ", (int)(10.0*movementModule.leftMotor.input), (int)(10.0*movementModule.leftMotor.setpoint), (int)(movementModule.leftMotor.output));
+		printf("inputSpeedR:%d, setPointSpeedR:%d, outputR:%d\n", (int)(10.0*movementModule.rightMotor.input), (int)(10.0*movementModule.rightMotor.setpoint), (int)(movementModule.rightMotor.output));
+
 		movementModule.leftMotor.setSpeed();
 		movementModule.rightMotor.setSpeed();
 		vTaskDelayUntil( &xLastWakeTime, xDelay50ms );
@@ -219,12 +220,12 @@ double calculateInputSpeed(uint32_t value)
  */
 void MC_Init(void)
 {
-	sctInit(1000);
+	sctInit(20000);
 	movementModule.leftMotor.init();
 	movementModule.rightMotor.init();
 
 	// Create mission task
-	BaseType_t debug = xTaskCreate( mcmMainTask, "MC Main task", 1000	, NULL, 1, NULL );
+	BaseType_t debug = xTaskCreate( mcmMainTask, "MC Main task", 50	, NULL, 1, NULL );
 }
 
 /*
