@@ -13,7 +13,7 @@
 #include "FreeRTOS.h"
 #include "event_groups.h"
 
-typedef enum{CCO_NEW_MISSION,CCO_ABORT_MISSION,CCO_CONTINUE_MISSION,CCO_PAUSE_MISSION, CCO_STATUS_REQ, CCO_NOT_DEF} MSG_REC_HEADER_T; //All the headers that could be recieved
+typedef enum{CCO_NEW_MISSION,CCO_ABORT_MISSION,CCO_CONTINUE_MISSION,CCO_PAUSE_MISSION, CCO_STATUS_REQ, CCO_NOT_DEF,CCO_SET_VEL} MSG_REC_HEADER_T; //All the headers that could be recieved
 typedef enum{CCO_MISSION_ACCEPT=10,CCO_MISSION_DENY, CCO_AGV_STATUS, CCO_MISSION_STEP_REACHED} MSG_SEND_HEADER_T; //All the headers that could be sent
 
 /*
@@ -22,6 +22,7 @@ typedef enum{CCO_MISSION_ACCEPT=10,CCO_MISSION_DENY, CCO_AGV_STATUS, CCO_MISSION
  * @note:	Initializes EthMsg
  */
 void CCO_init(EventGroupHandle_t xEventGroup);
+bool_t CCO_connected();
 /*
  * @brief:	Pulls msg recieved from lower layer, and parses the header
  * @note:	Returns the header of the message
@@ -33,6 +34,13 @@ MSG_REC_HEADER_T CCO_getMsgType();
  * @note:	This function must be called when a msg has been pulled and has the header of a new mission.
  */
 bool_t CCO_getMission(MISSION_T * mission);
+/*
+ * @brief:	...
+ * @param:	...
+ * @note:	...
+ */
+double CCO_getLinSpeed();
+double CCO_getAngSpeed();
 /*
  * @brief:	Function to send msgs without Data (only headers)
  * @param:	header: Header to send

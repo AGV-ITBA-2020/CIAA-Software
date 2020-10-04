@@ -10,7 +10,7 @@
 #include "task.h"
 #include "my_sapi.h"
 #include "event_groups.h"
-
+/*
 EventGroupHandle_t xEventGroup;
 MISSION_T mission;
 
@@ -39,3 +39,5 @@ int main(void)
 	if(ret==pdPASS)
 		vTaskStartScheduler();
 }
+
+*/

@@ -45,12 +45,16 @@ void CCO_init(EventGroupHandle_t xEventGroup)
 	eventGroup=xEventGroup;
 	EMH_init(msgRecCallback,NULL);
 }
+bool_t CCO_connected()
+{
+	return EMH_connected();
+}
 
 MSG_REC_HEADER_T CCO_getMsgType()
 {
 	MSG_REC_HEADER_T retVal;
 
-	map<string,MSG_REC_HEADER_T> recHeaderLUT= { {"Quest?",CCO_NEW_MISSION},{"Continue",CCO_CONTINUE_MISSION},{"Status",CCO_STATUS_REQ},{"Quest?",CCO_NEW_MISSION},{"QuestAbort?",CCO_ABORT_MISSION},{"Pause",CCO_PAUSE_MISSION}};
+	map<string,MSG_REC_HEADER_T> recHeaderLUT= { {"Quest?",CCO_NEW_MISSION},{"Continue",CCO_CONTINUE_MISSION},{"Status",CCO_STATUS_REQ},{"Quest?",CCO_NEW_MISSION},{"QuestAbort?",CCO_ABORT_MISSION},{"Pause",CCO_PAUSE_MISSION},{"Fixed speed",CCO_SET_VEL}};
 
 	if(!EMH_recieveMsg(&auxRecMsg))
 		assert(0); //En caso que se llamo a esta funcion pero la capa inferior no tenía mensajes
@@ -58,7 +62,7 @@ MSG_REC_HEADER_T CCO_getMsgType()
 	string header = getHeader(auxRecStr);
 
 	if(recHeaderLUT.count(header)) //Si el header existe
-		retVal=recHeaderLUT[auxRecStr]; //Devuelvo el tipo que se corresponde con ese header
+		retVal=recHeaderLUT[header]; //Devuelvo el tipo que se corresponde con ese header
 	else
 		retVal=CCO_NOT_DEF;
 
@@ -106,6 +110,22 @@ bool_t CCO_getMission(MISSION_T * mission)
 
 	}
 	return retVal;
+}
+
+double CCO_getLinSpeed()
+{
+	if(!EMH_recieveMsg(&auxRecMsg))
+		assert(0);
+	string auxStr = auxRecMsg.array;
+	auxStr=getData(auxStr);
+	return stoi(auxStr)*0.1;
+}
+
+double CCO_getAngSpeed()
+{
+	string auxStr = auxRecMsg.array;
+	auxStr=getData(auxStr);
+	return stoi(auxStr.substr(auxStr.find_first_of(' ')+1))*0.1;
 }
 
 bool_t CCO_sendMsgWithoutData(MSG_SEND_HEADER_T msg)
