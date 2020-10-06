@@ -28,6 +28,9 @@
 #define LEFT_MOTOR_OUTPUT	CTOUT9
 #define RIGHT_MOTOR_OUTPUT	CTOUT8
 
+#define PWM_FREQUENCY 10000
+
+#define MAX_ANGULAR_SPEED 4.0
 #define MAX_DUTY_CYCLE 100.0
 #define MAX_SCT_DUTY_CYCLE 250.0
 #define REDUCTION_FACTOR 60.06
@@ -97,6 +100,7 @@ void MotorController_t::init(void){
 	// Turn the PID on
   	pidController.SetMode(AUTOMATIC);	
   	pidController.SetOutputLimits(0, MAX_DUTY_CYCLE);
+	pidController.SetSampleTime(CONTROL_SAMPLE_PERIOD_MS);
 }
 
 /*
@@ -208,7 +212,9 @@ void mcmMainTask(void * ptr)
  */
 double calculateInputSpeed(uint32_t value)
 {
-	return (double) value/(ENCODER_STEPS_PER_REVOLUTION * CONTROL_SAMPLE_PERIOD_MS * 0.001 * REDUCTION_FACTOR)*2.0*3.1415;
+	double speed = (double) value/(ENCODER_STEPS_PER_REVOLUTION * CONTROL_SAMPLE_PERIOD_MS * 0.001 * REDUCTION_FACTOR)*2.0*3.1415;
+	
+	return (speed >= 2*MAX_ANGULAR_SPEED) ? MAX_ANGULAR_SPEED : speed;
 }
 
 
@@ -220,7 +226,7 @@ double calculateInputSpeed(uint32_t value)
  */
 void MC_Init(void)
 {
-	sctInit(20000);
+	sctInit(PWM_FREQUENCY);
 	movementModule.leftMotor.init();
 	movementModule.rightMotor.init();
 
