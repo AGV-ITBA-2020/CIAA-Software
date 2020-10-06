@@ -358,5 +358,6 @@ else
 .try_enforce_no_gpl:
 endif
 # ----------------------------------------------------------------------
-
+.print_eclipse_cfg:
+	@echo $(CC) $(CFLAGS) -E -P -v -dD \"$$\{INPUTS\}\"
 .PHONY: all size download erase clean new_program select_program select_board
