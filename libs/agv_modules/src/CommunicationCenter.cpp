@@ -12,6 +12,7 @@
 #include <string>
 #include <map>
 #include <ctype.h>
+#include "GlobalEventGroup.h"
 
 using namespace std;
 
@@ -170,6 +171,6 @@ bool_t CCO_sendStatus(AGV_STATUS_T status)
 
 void msgRecCallback(void *)
 {
-	xEventGroupSetBitsFromISR( eventGroup, EV_CCO_MSG_REC, NULL );
+	xEventGroupSetBitsFromISR( eventGroup, GEG_COMS_RX, NULL );
 }
 
