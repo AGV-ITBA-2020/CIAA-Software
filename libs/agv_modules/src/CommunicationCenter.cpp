@@ -54,15 +54,27 @@ MSG_REC_HEADER_T CCO_getMsgType()
 {
 	MSG_REC_HEADER_T retVal;
 
-	map<string,MSG_REC_HEADER_T> recHeaderLUT= { {"Quest?",CCO_NEW_MISSION},{"Continue",CCO_CONTINUE_MISSION},{"Status",CCO_STATUS_REQ},{"Quest?",CCO_NEW_MISSION},{"QuestAbort?",CCO_ABORT_MISSION},{"Pause",CCO_PAUSE_MISSION},{"Fixed speed",CCO_SET_VEL}};
+	//map<string,MSG_REC_HEADER_T> recHeaderLUT= { {"Quest?",CCO_NEW_MISSION},{"Continue",CCO_CONTINUE_MISSION},{"Status",CCO_STATUS_REQ},{"Quest?",CCO_NEW_MISSION},{"QuestAbort?",CCO_ABORT_MISSION},{"Pause",CCO_PAUSE_MISSION},{"Fixed speed",CCO_SET_VEL}}; //Estp se ve que no le gustó
+//	if(recHeaderLUT.count(header)) //Si el header existe
+//		retVal=recHeaderLUT[header]; //Devuelvo el tipo que se corresponde con ese header
 
 	if(!EMH_recieveMsg(&auxRecMsg))
 		assert(0); //En caso que se llamo a esta funcion pero la capa inferior no tenía mensajes
 	string auxRecStr = auxRecMsg.array;
 	string header = getHeader(auxRecStr);
 
-	if(recHeaderLUT.count(header)) //Si el header existe
-		retVal=recHeaderLUT[header]; //Devuelvo el tipo que se corresponde con ese header
+	if(header=="Quest?")
+		retVal=CCO_NEW_MISSION;
+	else if(header =="Continue")
+		retVal=CCO_CONTINUE_MISSION;
+	else if(header =="Status")
+		retVal=CCO_STATUS_REQ;
+	else if(header =="QuestAbort?")
+		retVal=CCO_ABORT_MISSION;
+	else if(header =="Pause")
+		retVal=CCO_PAUSE_MISSION;
+	else if(header =="Fixed speed")
+		retVal=CCO_SET_VEL;
 	else
 		retVal=CCO_NOT_DEF;
 
@@ -130,19 +142,25 @@ double CCO_getAngSpeed()
 
 bool_t CCO_sendMsgWithoutData(MSG_SEND_HEADER_T msg)
 {
-	bool_t retVal= 0;
-	map<MSG_SEND_HEADER_T,string> msgLUT = { {CCO_MISSION_ACCEPT,"Quest\nYes"},{CCO_MISSION_DENY,"Quest\nNo"},{CCO_MISSION_STEP_REACHED,"Quest step reached"}};
-	if(msgLUT.count(msg))
-	{
-		string str = msgLUT[msg];
-		str.copy(auxSendMsg.array,str.length());
-		retVal= EMH_sendMsg(&auxSendMsg);
-	}
+	bool_t retVal= 1;
+	//map<MSG_SEND_HEADER_T,string> msgLUT = { {CCO_MISSION_ACCEPT,"Quest\nYes"},{CCO_MISSION_DENY,"Quest\nNo"},{CCO_MISSION_STEP_REACHED,"Quest step reached"}};
+	string auxStr;
+	if(msg == CCO_MISSION_ACCEPT)
+		auxStr="Quest\nYes";
+	else if (msg == CCO_MISSION_DENY)
+		auxStr="Quest\nNo";
+	else if (msg == CCO_MISSION_STEP_REACHED)
+		auxStr="Quest step reached";
+	else
+		assert(0);
+
+	auxStr.copy(auxSendMsg.array,auxStr.length());
+	retVal= EMH_sendMsg(&auxSendMsg);
 	return retVal;
 }
 
 bool_t CCO_sendStatus(AGV_STATUS_T status)
-{
+{//TBD
 	bool_t retVal=0;
 
 	return retVal;

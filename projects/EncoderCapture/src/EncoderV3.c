@@ -71,7 +71,7 @@ void EncoderV2_Init(ENCODER_CHANNEL_T ch)
 	Chip_TIMER_Enable(encoder->timer);
 }
 
-uint32_t EncoderV2_GetCount(ENCODER_CHANNEL_T ch)
+uint32_t EncoderV3_GetCount(ENCODER_CHANNEL_T ch)
 {
 	uint32_t measAverage=0;
 	enc_config_t * encoder=getEncoderPointer(ch);
@@ -83,7 +83,7 @@ uint32_t EncoderV2_GetCount(ENCODER_CHANNEL_T ch)
 	NVIC_EnableIRQ( encoder->timerIrqAddr); //Habilita interrupción de vuelta
 	return measAverage;
 }
-uint32_t EncoderV2_GetCountFiltered(ENCODER_CHANNEL_T ch,uint32_t minCount,uint32_t maxCount)
+uint32_t EncoderV3_GetCountFiltered(ENCODER_CHANNEL_T ch,uint32_t minCount,uint32_t maxCount)
 {
 	uint32_t measAverage=0,totalCount=0;
 	enc_config_t * encoder=getEncoderPointer(ch);
@@ -101,7 +101,7 @@ uint32_t EncoderV2_GetCountFiltered(ENCODER_CHANNEL_T ch,uint32_t minCount,uint3
 	return measAverage;
 }
 
-void EncoderV2_ResetCount(ENCODER_CHANNEL_T ch)
+void EncoderV3_ResetCount(ENCODER_CHANNEL_T ch)
 {
 	Chip_TIMER_Reset( ch == ENCODER_RIGHT ? encR.timer : encL.timer);
 }

@@ -1,6 +1,6 @@
 
 #include "../inc/config.h"        // <= Biblioteca sAPI
-#include "EncoderV2.h"
+#include "EncoderV3.h"
 
 void mainTask(void * ptr);
 
