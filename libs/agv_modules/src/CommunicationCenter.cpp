@@ -16,6 +16,7 @@
 
 using namespace std;
 
+extern EventGroupHandle_t xEventGroup;
 static EthMsg auxRecMsg,auxSendMsg;
 
 void msgRecCallback(void *);

@@ -21,6 +21,7 @@
 typedef enum{CC_IDLE,CC_ON_MISSION,CC_MANUAL, CC_ERROR, CC_PAUSE, CC_LOWPOWER} CC_State;
 
 /*==================[internal data declaration]==============================*/
+extern EventGroupHandle_t xEventGroup;
 static CC_State state;
 static MISSION_T currMission;
 
@@ -84,6 +85,12 @@ void missionAdvance() //Estas funciones de acá para abajo le darían motivo a una
 bool_t isMissionCompleted()
 {
 	return (currMission.currBlock==currMission.nmbrOfBlocks) && (!currMission.waitForInterBlockEvent);
+}
+MISSION_BLOCK_T getNextMissionBlock()
+{
+	MISSION_BLOCK_T retVal;
+	//TBD
+	return retVal;
 }
 /*==================[external functions declaration]=========================*/
 void CC_init()

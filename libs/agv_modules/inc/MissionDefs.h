@@ -10,6 +10,10 @@
 
 #include "my_sapi.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MISSION_BLOCK_MAX_STEPS 100
 #define MAX_NMBR_OF_BLOCKS_IN_MISSION 15
 
@@ -40,4 +44,9 @@ typedef struct{
 	unsigned int currBlock,nmbrOfBlocks;
 	//Faltan poner más cosas todavía
 } AGV_STATUS_T;
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* MISSIONDEFS_H_ */

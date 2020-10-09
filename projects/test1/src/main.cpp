@@ -1,9 +1,10 @@
 
+#include <ControlCenter.hpp>
 #include "my_sapi.h"        // <= Biblioteca sAPI
 
 int main( void )
 {
-
-   return 0;
+	CC_init();
+	return 0;
 }
 
