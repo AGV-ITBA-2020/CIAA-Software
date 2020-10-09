@@ -16,13 +16,16 @@
 
 using namespace std;
 
-
-static EventGroupHandle_t eventGroup;
 static EthMsg auxRecMsg,auxSendMsg;
 
 void msgRecCallback(void *);
 string getHeader(string auxRecStr);
 string getData(string auxRecStr);
+
+bool_t isCheckpoint(string ethFormat);
+bool_t isIBE(string ethFormat);
+BLOCK_CHECKPOINT_T getCheckpoint(string ethFormat);
+INTER_BLOCK_EVENT_T getIBE(string ethFormat);
 
 
 /*==================[internal functions definition]==========================*/
@@ -41,9 +44,8 @@ string getData(string auxRecStr)
 
 /*==================[external functions declaration]=========================*/
 
-void CCO_init(EventGroupHandle_t xEventGroup)
+void CCO_init()
 {
-	eventGroup=xEventGroup;
 	EMH_init(msgRecCallback,NULL);
 }
 bool_t CCO_connected()
@@ -87,10 +89,9 @@ bool_t CCO_getMission(MISSION_T * mission)
 	bool_t retVal=1;
 	string auxRecStr = auxRecMsg.array;
 	string data = getData(auxRecStr); //BUTTON_PRESS,HOUSTON_CONTINUE, DELAY, NONE
-	map<string,BLOCK_CHECKPOINT_T> checkpointLUT = { {"Sd",CHECKPOINT_SLOW_DOWN}, {"Su",CHECKPOINT_SPEED_UP}, {"Fr",CHECKPOINT_FORK_RIGHT},{"Fl",CHECKPOINT_FORK_LEFT},{"St",CHECKPOINT_STATION},{"Me",CHECKPOINT_MERGE}};
-	map<string,INTER_BLOCK_EVENT_T> interBlockLUT = { {"Bp",BUTTON_PRESS}, {"Hc",HOUSTON_CONTINUE}, {"De",DELAY},{"No",NONE}};
+	//map<string,BLOCK_CHECKPOINT_T> checkpointLUT = { {"Sd",CHECKPOINT_SLOW_DOWN}, {"Su",CHECKPOINT_SPEED_UP}, {"Fr",CHECKPOINT_FORK_RIGHT},{"Fl",CHECKPOINT_FORK_LEFT},{"St",CHECKPOINT_STATION},{"Me",CHECKPOINT_MERGE}};
+	//map<string,INTER_BLOCK_EVENT_T> interBlockLUT = { {"Bp",BUTTON_PRESS}, {"Hc",HOUSTON_CONTINUE}, {"De",DELAY},{"No",NONE}};
 	mission->nmbrOfBlocks=0;
-	//FALTA PONER LAS DISTANCIAS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	unsigned int i=0;
 	while(i < data.size())
 	{
@@ -111,10 +112,10 @@ bool_t CCO_getMission(MISSION_T * mission)
 			}
 			else if(com == "Be")
 				(mission->nmbrOfBlocks)++;
-			else if(interBlockLUT.count(com)) //Si es un evento entre bloques
-				mission->interBlockEvent[mission->nmbrOfBlocks]=interBlockLUT[com];
-			else if(checkpointLUT.count(com)) //Si es un checkpoint
-				mission->blocks[mission->nmbrOfBlocks].blockCheckpoints[(mission->blocks[mission->nmbrOfBlocks].blockLen)++]=checkpointLUT[com];
+			else if(isIBE(com)) //Si es un evento entre bloques
+				mission->interBlockEvent[mission->nmbrOfBlocks]=getIBE(com);
+			else if(isCheckpoint(com)) //Si es un checkpoint
+				mission->blocks[mission->nmbrOfBlocks].blockCheckpoints[(mission->blocks[mission->nmbrOfBlocks].blockLen)++]=getCheckpoint(com);
 			else
 				assert(0); //Una misión no puede tener un campo que no sea los mencionados
 			i+=2;
@@ -122,6 +123,45 @@ bool_t CCO_getMission(MISSION_T * mission)
 
 
 	}
+	return retVal;
+}
+
+bool_t isCheckpoint(string e)
+{
+	return (e=="Sd") || (e=="Su") || (e=="Fr") || (e=="Fl") || (e=="Me") || (e=="St");
+}
+bool_t isIBE(string e)
+{
+	return (e=="Bp") || (e=="Hc") || (e=="De") || (e=="No") ;
+}
+BLOCK_CHECKPOINT_T getCheckpoint(string e)
+{
+	BLOCK_CHECKPOINT_T retVal;
+	if(e=="Sd")
+		retVal=CHECKPOINT_SLOW_DOWN;
+	else if(e=="Su")
+		retVal=CHECKPOINT_SPEED_UP;
+	else if(e=="Fr")
+		retVal=CHECKPOINT_FORK_RIGHT;
+	else if(e=="Fl")
+		retVal=CHECKPOINT_FORK_LEFT;
+	else if(e=="Me")
+		retVal=CHECKPOINT_MERGE;
+	else if(e=="St")
+		retVal=CHECKPOINT_STATION;
+	return retVal;
+}
+INTER_BLOCK_EVENT_T getIBE(string e)
+{
+	INTER_BLOCK_EVENT_T retVal;
+	if(e=="Bp")
+		retVal=IBE_BUTTON_PRESS;
+	else if(e=="Hc")
+		retVal=IBE_HOUSTON_CONTINUE;
+	else if(e=="De")
+		retVal=IBE_DELAY;
+	else if(e=="No")
+		retVal=IBE_NONE;
 	return retVal;
 }
 
@@ -171,6 +211,6 @@ bool_t CCO_sendStatus(AGV_STATUS_T status)
 
 void msgRecCallback(void *)
 {
-	xEventGroupSetBitsFromISR( eventGroup, GEG_COMS_RX, NULL );
+	xEventGroupSetBitsFromISR( xEventGroup, GEG_COMS_RX, NULL );
 }
 
