@@ -120,9 +120,8 @@ bool_t CCO_getMission(MISSION_T * mission)
 				assert(0); //Una misión no puede tener un campo que no sea los mencionados
 			i+=2;
 		}
-
-
 	}
+	mission->currBlock=0;
 	return retVal;
 }
 
