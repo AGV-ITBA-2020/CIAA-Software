@@ -38,11 +38,11 @@ void CC_mainTask(void *)
 	while(!CCO_connected());
 	for( ;; )
 	{
-		EventBits_t ev = xEventGroupWaitBits( xEventGroup,1,pdTRUE,pdFALSE,errDelay);
+		EventBits_t ev = xEventGroupWaitBits( xEventGroup,CC_EVENT_MASK,pdTRUE,pdFALSE,errDelay);
 
 		if(state==CC_ON_MISSION)
 			CC_onMissionParseEv(ev);
-		//Y así con distintas funciones parser para cada estado
+		//Y asï¿½ con distintas funciones parser para cada estado
 		CC_mainFSM(ev);
 
 
@@ -51,14 +51,22 @@ void CC_mainTask(void *)
 void CC_mainFSM(EventBits_t ev)
 {
 	MSG_REC_HEADER_T recHeader;
-	if(ev & GEG_COMS_RX)
+	if(ev & GEG_COMS_RX){
 		recHeader=CCO_getMsgType(); //Si fue un mensaje de internet, recibe el header
-	if((recHeader == CCO_NEW_MISSION) && state==CC_IDLE) //Si llegó una nueva misión estando en IDLE
+	}
+	
+	switch(state){
+		case CC_IDLE:
+			break;
+		default:
+			break;
+	}
+	if((recHeader == CCO_NEW_MISSION) && state==CC_IDLE) //Si llegï¿½ una nueva misiï¿½n estando en IDLE
 	{
-		state=CC_ON_MISSION; //Pasa a estado misión
+		state=CC_ON_MISSION; //Pasa a estado misiï¿½n
 		CCO_getMission(&currMission);
-		CCO_sendMsgWithoutData(CCO_MISSION_ACCEPT); //Le comunica a houston que acepta la misión
-		if(!currMission.waitForInterBlockEvent) //En el caso que no necesite un evento extra para arrancar la misión
+		CCO_sendMsgWithoutData(CCO_MISSION_ACCEPT); //Le comunica a houston que acepta la misiï¿½n
+		if(!currMission.waitForInterBlockEvent) //En el caso que no necesite un evento extra para arrancar la misiï¿½n
 			PC_setMissionBlock(getNextMissionBlock());
 	}
 	if((ev & GEG_MISSION_STEP_REACHED) && isMissionCompleted())
@@ -66,7 +74,7 @@ void CC_mainFSM(EventBits_t ev)
 }
 void CC_onMissionParseEv(EventBits_t ev)
 {
-	if(ev & GEG_MISSION_STEP_REACHED) //Se llegó a un step de misión
+	if(ev & GEG_MISSION_STEP_REACHED) //Se llegï¿½ a un step de misiï¿½n
 	{
 		CCO_sendMsgWithoutData(CCO_MISSION_STEP_REACHED);
 		missionAdvance();
@@ -74,7 +82,7 @@ void CC_onMissionParseEv(EventBits_t ev)
 			PC_setMissionBlock(getNextMissionBlock());
 	}
 }
-void missionAdvance() //Estas funciones de acá para abajo le darían motivo a una clase misión
+void missionAdvance() //Estas funciones de acï¿½ para abajo le darï¿½an motivo a una clase misiï¿½n
 {
 	currMission.currBlock++;
 	if(currMission.interBlockEvent[currMission.currBlock]==IBE_NONE)
@@ -98,7 +106,7 @@ void CC_init()
 	PC_Init();
 	CCO_init();
 	xEventGroup =  xEventGroupCreate();
-	xTaskCreate(CC_mainTask, "CC Main task", 100, NULL, 1, NULL ); //Crea task de misión
+	xTaskCreate(CC_mainTask, "CC Main task", 100, NULL, 1, NULL ); //Crea task de misiï¿½n
 	state=CC_IDLE;
 	currMission.active=0;
 }
