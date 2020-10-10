@@ -207,6 +207,23 @@ void uartWriteString( uartMap_t uart, const char* str )
       str++;
    }
 }
+//-------------------------------------------------------------
+// DMA Functions
+//-------------------------------------------------------------
+
+void uartSetDMAMode(uartMap_t uart)
+{
+	Chip_UART_SetupFIFOS( lpcUarts[uart].uartAddr, UART_FCR_FIFO_EN | UART_FCR_TX_RS   |
+	                         UART_FCR_RX_RS   |UART_FCR_TRG_LEV0 | UART_FCR_DMAMODE_SEL );
+
+}
+
+
+//-------------------------------------------------------------
+// Interruptions
+//-------------------------------------------------------------
+
+
 // UART Global Interrupt Enable/Disable
 void uartInterrupt( uartMap_t uart, bool_t enable )
 {
