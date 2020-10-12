@@ -6,12 +6,12 @@
  */
 
 
-#include "../inc/CommunicationCentre.h"
 #include "MovementControlModule.h"
 // #include "task.h"
 #include "my_sapi.h"
 #include <stdlib.h>
 #include <string.h>
+#include "../../Communication/inc/CommunicationCentre.h"
 
 
 static void mainTask(void * ptr);
@@ -60,7 +60,7 @@ bool_t isHeader(EthMsg * msg,char * header)
 	bool_t retVal= (msg->array == strstr (msg->array,header)); //Si el header es lo primero que llega el mensaje
 	return retVal;
 }
-
+/*
 int main(void)
 {
 	MySapi_BoardInit(true);
@@ -74,5 +74,5 @@ int main(void)
 	return 0;
 }
 
-
+*/
 

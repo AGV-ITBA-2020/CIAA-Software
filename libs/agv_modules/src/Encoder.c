@@ -24,12 +24,16 @@ typedef struct {
 enc_config_t encR = { 6, 1, 5, LPC_TIMER2, 2, 0, 2, 8};
 enc_config_t encL = { 2, 5, 1, LPC_TIMER0, 0, 2, 0, 2};
 
-void Encoder_Init(ENCODER_CHANNEL ch)
+volatile uint32_t captureValue;	// Variable where timer captured value is saved DURING TESTING!!!
+volatile bool changed;
+bool compute;
+
+void Encoder_Init(ENCODER_CHANNEL_T ch)
 {
 	enc_config_t * encoder;
-	if(ch == encoderRight)
+	if(ch == ENCODER_RIGHT)
 		encoder = &encR;
-	else if(ch == encoderLeft)
+	else if(ch == ENCODER_LEFT)
 		encoder = &encL;
 
 	// Configure pin to capture
@@ -45,12 +49,12 @@ void Encoder_Init(ENCODER_CHANNEL ch)
 	Chip_TIMER_Enable(encoder->timer);
 }
 
-uint32_t Encoder_GetCount(ENCODER_CHANNEL ch)
+uint32_t Encoder_GetCount(ENCODER_CHANNEL_T ch)
 {
-	return Chip_TIMER_ReadCount( ch == encoderRight ? encR.timer : encL.timer);
+	return Chip_TIMER_ReadCount( ch == ENCODER_RIGHT ? encR.timer : encL.timer);
 }
 
-void Encoder_ResetCount(ENCODER_CHANNEL ch)
+void Encoder_ResetCount(ENCODER_CHANNEL_T ch)
 {
-	Chip_TIMER_Reset( ch == encoderRight ? encR.timer : encL.timer);
+	Chip_TIMER_Reset( ch == ENCODER_RIGHT ? encR.timer : encL.timer);
 }
