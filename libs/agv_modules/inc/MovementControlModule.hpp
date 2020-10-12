@@ -19,6 +19,7 @@
 #include "Encoder.h"
 
 using namespace pid;
+// using namespace std;
 
 /*==================[macros and definitions]=================================*/
 #define AGV_AXIS_LONGITUDE 0.5
@@ -27,6 +28,7 @@ using namespace pid;
 #define PID_KP 20.0
 #define PID_KI 1.5
 #define PID_KD 0.0
+#define SPEED_INPUT_DATA_LENGTH 2
 
 
 class MotorController_t{
@@ -45,6 +47,7 @@ class MotorController_t{
         uint8_t enableSCTOut;
         ENCODER_CHANNEL_T encoderCh;
         double input, output, setpoint;
+        double inputData[SPEED_INPUT_DATA_LENGTH];
 
     private:
 };
@@ -52,10 +55,14 @@ class MotorController_t{
 class AGVMovementModule_t {
     public:
         AGVMovementModule_t();
-        void calculateSetpoints();
+        void calculateSetpoints();    
+        void setLinerSpeed(double v){ linearSpeed = v; };
+        void setAngularSpeed(double w){ angularSpeed = w; };
 
-        MotorController_t leftMotor;
-        MotorController_t rightMotor;
+        MotorController_t leftMotor, rightMotor;
+    
+    private:
+        double linearSpeed, angularSpeed;
 };
 
 /*==================[internal data declaration]==============================*/

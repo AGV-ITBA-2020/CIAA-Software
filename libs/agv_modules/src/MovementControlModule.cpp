@@ -14,13 +14,15 @@
 #ifdef __DEBUG__
 // #include "lpc43xx_libcfg.h"
 #else
-#include "MovementControlModule.h"
-#include <math.h>
+#include "MovementControlModule.hpp"
+// #include <iostream>
+// #include <math.h>
+
 // #include <stdlib.h>
 // #include <stdio.h>
-// #include <iostream>
 
-// using namespace std;
+
+using namespace pid;
 
 #endif /* __DEBUG__ */
 
@@ -39,13 +41,15 @@
 
 #define abs(x)  ( (x<0) ? -(x) : x )
 
-using namespace pid;
+#define FILTER_ORDER 2
+double coeffs[ FILTER_ORDER ] =
+{
+  0.5,  0.5
+};
 
 /*==================[internal data declaration]==============================*/
-uint8_t leftMotorOutput = 0, rightMotorOutput = 0;
-double linearSpeed, angularSpeed;
-
 AGVMovementModule_t movementModule;
+
 
 /*==================[internal functions declaration]=========================*/
 /*******Tasks*********/
@@ -63,6 +67,13 @@ void mcmMainTask(void * ptr);
  */
 double calculateInputSpeed(uint32_t value);
 
+/*
+ * @brief:	Initialize the MC module
+ * @param:	Placeholder
+ * @note:	The MC is in charge of controlling the speed and direction of the vehicle.
+ */
+double filter(double inputData[]);
+
 
 /*==================[internal data definition]===============================*/
 
@@ -74,7 +85,8 @@ double calculateInputSpeed(uint32_t value);
  * @param:	Placeholder
  * @note:	It basically sets the value of the pwm for both motors.
  */
-MotorController_t::MotorController_t(gpioMap_t in1Pin, gpioMap_t in2Pin, uint8_t enableSCTOutPin, ENCODER_CHANNEL_T ch): pidController(&input, &output, &setpoint, PID_KP, PID_KI, PID_KD, DIRECT) {
+MotorController_t::MotorController_t(gpioMap_t in1Pin, gpioMap_t in2Pin, uint8_t enableSCTOutPin, ENCODER_CHANNEL_T ch):
+	pidController(&input, &output, &setpoint, PID_KP, PID_KI, PID_KD, DIRECT) {	
 	in1 = in1Pin;
 	in2 = in2Pin;
 	enableSCTOut = enableSCTOutPin;
@@ -131,7 +143,10 @@ void MotorController_t::setMotorDirection(bool_t direction)
  */
 void MotorController_t::getSpeed(void)
 {
-	input = calculateInputSpeed(Encoder_GetCount(encoderCh));
+	for(int i = SPEED_INPUT_DATA_LENGTH - 1; i > 0; --i){
+		inputData[i] = inputData[i + 1];
+	}
+	inputData[0] = calculateInputSpeed(Encoder_GetCount(encoderCh));
 	Encoder_ResetCount(encoderCh);
 }
 
@@ -192,6 +207,8 @@ void mcmMainTask(void * ptr)
 		movementModule.calculateSetpoints();
 		movementModule.leftMotor.getSpeed();
 		movementModule.rightMotor.getSpeed();
+		movementModule.leftMotor.input = filter(movementModule.leftMotor.inputData);
+		movementModule.rightMotor.input = filter(movementModule.rightMotor.inputData);
 		
 		movementModule.rightMotor.pidController.Compute();
 		movementModule.leftMotor.pidController.Compute();
@@ -215,6 +232,22 @@ double calculateInputSpeed(uint32_t value)
 	double speed = (double) value/(ENCODER_STEPS_PER_REVOLUTION * CONTROL_SAMPLE_PERIOD_MS * 0.001 * REDUCTION_FACTOR)*2.0*3.1415;
 	
 	return (speed >= 2*MAX_ANGULAR_SPEED) ? MAX_ANGULAR_SPEED : speed;
+}
+
+/*
+ * @brief:	Initialize the MC module
+ * @param:	Placeholder
+ * @note:	The MC is in charge of controlling the speed and direction of the vehicle.
+ */
+double filter(double inputData[])
+{
+	static double ret;
+	ret = 0;
+	for(int i = 0; i < FILTER_ORDER; ++i){
+		ret +=  coeffs[i]*inputData[i];
+	}
+	
+	return ret;
 }
 
 
@@ -241,7 +274,7 @@ void MC_Init(void)
  */
 void MC_setLinearSpeed(double v)
 {
-	linearSpeed = v;
+	movementModule.setLinerSpeed(v);
 }
 
 /*
@@ -251,7 +284,7 @@ void MC_setLinearSpeed(double v)
  */
 void MC_setAngularSpeed(double w)
 {
-	angularSpeed = w;
+	movementModule.setAngularSpeed(w);
 }
 
 /*==================[end of file]============================================*/
