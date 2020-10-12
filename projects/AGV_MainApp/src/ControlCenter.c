@@ -113,6 +113,7 @@ void CC_init()
 {
 	PC_Init();
 	CCO_init();
+	xEventGroup =  xEventGroupCreate();
 	xTaskCreate(CC_mainTask, "PC Main task", 512, NULL, CC_MAIN_PRIORITY, NULL ); //Crea task de misión
 	state=CC_IDLE;
 	currMission.active=0;

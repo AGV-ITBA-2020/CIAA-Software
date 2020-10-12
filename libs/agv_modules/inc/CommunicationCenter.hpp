@@ -21,7 +21,7 @@ typedef enum{CCO_MISSION_ACCEPT=10,CCO_MISSION_DENY, CCO_AGV_STATUS, CCO_MISSION
  * @param:	xEventGroup:   Event group where it publishes the given events
  * @note:	Initializes EthMsg
  */
-void CCO_init(EventGroupHandle_t xEventGroup);
+void CCO_init();
 bool_t CCO_connected();
 /*
  * @brief:	Pulls msg recieved from lower layer, and parses the header

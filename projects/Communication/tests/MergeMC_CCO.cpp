@@ -20,7 +20,7 @@
 #include "my_sapi.h"
 #include "event_groups.h"
 #include "MovementControlModule.h"
-
+/*
 EventGroupHandle_t xEventGroup;
 MISSION_T mission;
 
@@ -63,4 +63,4 @@ int main(void)
 	if(ret==pdPASS)
 		vTaskStartScheduler();
 }
-
+*/

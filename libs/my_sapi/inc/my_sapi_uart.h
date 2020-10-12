@@ -36,6 +36,13 @@ void uartWriteString( uartMap_t uart, const char* str ); //Se queda blockeado en
 void uartWriteByte( uartMap_t uart, const uint8_t value );
 
 //-------------------------------------------------------------
+// DMA Functions
+//-------------------------------------------------------------
+
+void uartSetDMAMode(uartMap_t uart); //Inicializa la uart deseada, se puede poner en modo loopback
+
+
+//-------------------------------------------------------------
 // Interrupts
 //-------------------------------------------------------------
 
