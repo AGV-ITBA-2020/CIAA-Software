@@ -85,7 +85,8 @@ bool_t EMH_init(callBackFuncPtr_t msgRecCallback,callBackFuncPtr_t connectionCal
 	uartCallbackSet( EMH_UART, UART_RECEIVE,(callBackFuncPtr_t)uartCallback);
 	recievedQueue=xQueueCreate( EMH_REC_BUF_LEN,sizeof(EthMsg)); //Queues para comunicación. Para recibir solo necesita 1 espacio dado que recibe un msj y se despacha al tok
 	sendQueue=xQueueCreate( EMH_SEND_BUF_MSGS,sizeof(EthMsg)); //Para enviar puede ser que varios procesos les pidan enviar cosas
-	uartWriteByte( EMH_UART, 0  ); //Le manda byte al esp para que empiece a conectarse
+	uartWriteString( EMH_UART, "Reset"); //Resetea el ESP
+	uartWriteByte( EMH_UART, 0  );
 	xTaskCreate( CCO_send_task, "CCO send task", 100	, NULL, EMH_SEND_PRIORITY, NULL ); //Crea task de misión
 }
 
