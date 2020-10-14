@@ -27,8 +27,10 @@ static MISSION_T currMission;
 
 void CC_mainTask(void *);
 void CC_mainFSM(EventBits_t ev);
+
 void CC_onMissionParseEv(EventBits_t ev);
-MISSION_BLOCK_T getNextMissionBlock();
+void CC_idleParseEv(EventBits_t ev);
+BLOCK_DETAILS_T * getNextMissionBlock();
 bool_t isMissionCompleted();
 void missionAdvance();
 /*==================[internal functions definition]==========================*/
@@ -39,10 +41,6 @@ void CC_mainTask(void *)
 	for( ;; )
 	{
 		EventBits_t ev = xEventGroupWaitBits( xEventGroup,CC_EVENT_MASK,pdTRUE,pdFALSE,errDelay);
-
-		if(state==CC_ON_MISSION)
-			CC_onMissionParseEv(ev);
-		//Y as� con distintas funciones parser para cada estado
 		CC_mainFSM(ev);
 
 
@@ -50,27 +48,39 @@ void CC_mainTask(void *)
 }
 void CC_mainFSM(EventBits_t ev)
 {
-	MSG_REC_HEADER_T recHeader;
-	if(ev & GEG_COMS_RX){
-		recHeader=CCO_getMsgType(); //Si fue un mensaje de internet, recibe el header
-	}
 	
+
 	switch(state){
 		case CC_IDLE:
+			CC_idleParseEv(ev);
+			break;
+		case CC_ON_MISSION:
+			CC_onMissionParseEv(ev);
+			break;
+		case CC_ERROR:
+			//CC_idleParseEv(ev);
+			break;
+		case CC_MANUAL:
+			//CC_idleParseEv(ev);
 			break;
 		default:
 			break;
 	}
-	if((recHeader == CCO_NEW_MISSION) && state==CC_IDLE) //Si lleg� una nueva misi�n estando en IDLE
+}
+void CC_idleParseEv(EventBits_t ev)
+{
+	MSG_REC_HEADER_T recHeader;
+	if(ev & GEG_COMS_RX){
+		recHeader=CCO_getMsgType(); //Si fue un mensaje de internet, recibe el header
+	}
+	if((ev & GEG_COMS_RX) && recHeader == CCO_NEW_MISSION)
 	{
 		state=CC_ON_MISSION; //Pasa a estado misi�n
 		CCO_getMission(&currMission);
 		CCO_sendMsgWithoutData(CCO_MISSION_ACCEPT); //Le comunica a houston que acepta la misi�n
-		if(!currMission.waitForInterBlockEvent) //En el caso que no necesite un evento extra para arrancar la misi�n
-			PC_setMissionBlock(getNextMissionBlock());
+		//if(!currMission.waitForInterBlockEvent) //En el caso que no necesite un evento extra para arrancar la misi�n
+			//PC_setMissionBlock(getNextMissionBlock());
 	}
-	if((ev & GEG_MISSION_STEP_REACHED) && isMissionCompleted())
-		state=CC_IDLE;
 }
 void CC_onMissionParseEv(EventBits_t ev)
 {
@@ -78,8 +88,15 @@ void CC_onMissionParseEv(EventBits_t ev)
 	{
 		CCO_sendMsgWithoutData(CCO_MISSION_STEP_REACHED);
 		missionAdvance();
-		if(!isMissionCompleted() && !currMission.waitForInterBlockEvent)
-			PC_setMissionBlock(getNextMissionBlock());
+		//if(!isMissionCompleted() && !currMission.waitForInterBlockEvent)
+			//PC_setMissionBlock(getNextMissionBlock());
+	}
+	else if(ev & GEG_CTMOVE_FINISH) //Se lleg� a un step de misi�n
+	{
+		CCO_sendMsgWithoutData(CCO_MISSION_STEP_REACHED);
+		missionAdvance();
+		if(!isMissionCompleted())
+			state=CC_IDLE;
 	}
 }
 void missionAdvance() //Estas funciones de ac� para abajo le dar�an motivo a una clase misi�n
@@ -94,11 +111,9 @@ bool_t isMissionCompleted()
 {
 	return (currMission.currBlock==currMission.nmbrOfBlocks) && (!currMission.waitForInterBlockEvent);
 }
-MISSION_BLOCK_T getNextMissionBlock()
+BLOCK_DETAILS_T * getNextMissionBlock()
 {
-	MISSION_BLOCK_T retVal;
-	//TBD
-	return retVal;
+	return &(currMission.blocks[currMission.currBlock]);
 }
 /*==================[external functions declaration]=========================*/
 void CC_init()
