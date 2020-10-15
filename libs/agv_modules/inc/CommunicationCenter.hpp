@@ -14,7 +14,7 @@
 #include "event_groups.h"
 
 typedef enum{CCO_NEW_MISSION,CCO_ABORT_MISSION,CCO_CONTINUE_MISSION,CCO_PAUSE_MISSION, CCO_STATUS_REQ, CCO_NOT_DEF,CCO_SET_VEL} MSG_REC_HEADER_T; //All the headers that could be recieved
-typedef enum{CCO_MISSION_ACCEPT=10,CCO_MISSION_DENY, CCO_AGV_STATUS, CCO_MISSION_STEP_REACHED} MSG_SEND_HEADER_T; //All the headers that could be sent
+typedef enum{CCO_MISSION_ACCEPT=10,CCO_MISSION_DENY, CCO_AGV_STATUS, CCO_MISSION_STEP_REACHED, CCO_IBE_RECIEVED, CCO_EMERGENCY_STOP, CCO_PRIORITY_STOP, CCO_ERROR} MSG_SEND_HEADER_T; //All the headers that could be sent
 
 /*
  * @brief:	Initializes the communication center
