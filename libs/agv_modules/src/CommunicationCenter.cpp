@@ -9,12 +9,10 @@
 #include "CommunicationCenter.hpp"
 #include "config.h"
 #include "assert.h"
-#include <string>
-#include <map>
 #include <ctype.h>
 #include "GlobalEventGroup.h"
 
-using namespace std;
+
 
 extern EventGroupHandle_t xEventGroup;
 static EthMsg auxRecMsg,auxSendMsg;
@@ -70,7 +68,7 @@ MSG_REC_HEADER_T CCO_getMsgType()
 	if(header=="Quest?")
 		retVal=CCO_NEW_MISSION;
 	else if(header =="Continue")
-		retVal=CCO_CONTINUE_MISSION;
+		retVal=CCO_CONTINUE;
 	else if(header =="Status")
 		retVal=CCO_STATUS_REQ;
 	else if(header =="QuestAbort?")
@@ -167,8 +165,6 @@ INTER_BLOCK_EVENT_T getIBE(string e)
 
 double CCO_getLinSpeed()
 {
-	if(!EMH_recieveMsg(&auxRecMsg))
-		assert(0);
 	string auxStr = auxRecMsg.array;
 	auxStr=getData(auxStr);
 	return stoi(auxStr)*0.1;
@@ -192,6 +188,12 @@ bool_t CCO_sendMsgWithoutData(MSG_SEND_HEADER_T msg)
 		auxStr="Quest\nNo";
 	else if (msg == CCO_MISSION_STEP_REACHED)
 		auxStr="Quest step reached";
+	else if (msg == CCO_IBE_RECIEVED)
+		auxStr="Inter-block event recieved";
+	else if (msg == CCO_EMERGENCY_STOP)
+		auxStr="QuestPaused\nEmergency stop";
+	else if (msg == CCO_PRIORITY_STOP)
+		auxStr="QuestPaused\nPriority stop";
 	else
 		assert(0);
 
@@ -207,6 +209,14 @@ bool_t CCO_sendStatus(AGV_STATUS_T status)
 	return retVal;
 }
 
+bool_t CCO_sendError(string err)
+{
+	bool_t retVal=1;
+	string finalMsg= "Error\n"+err;
+	finalMsg.copy(auxSendMsg.array,finalMsg.length());
+	retVal= EMH_sendMsg(&auxSendMsg);
+	return retVal;
+}
 /*==================[interrupt callbacks]==========================*/
 
 void msgRecCallback(void *)

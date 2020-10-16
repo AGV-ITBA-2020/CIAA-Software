@@ -83,11 +83,10 @@ void CC_indepParseEv(EventBits_t ev)
 {
 	if(ev == 0) //Si hubo un timeout. En principio no pasaría nada no?
 	{}
-	if(ev | ERROR_EVENT_MASK)
+	if(ev & ERROR_EVENT_MASK)
 	{
 		state=CC_ERROR;
 		CC_onErrorRoutine(ev);
-		CCO_sendMsgWithoutData(CCO_ERROR);
 	}
 	if(ev & GEG_EMERGENCY_STOP) //Se llego a un step de mision
 		CCO_sendMsgWithoutData(CCO_EMERGENCY_STOP);
@@ -109,6 +108,9 @@ void CC_idleParseEv(EventBits_t ev)
 		else
 			state=CC_PAUSE_EMERGENCY; //Sino espera hasta que ocurra ese evento
 	}
+//	if((ev & GEG_HMI) && HMIevType==MANUAL_MODE)
+//		state=CC_MANUAL;
+//
 }
 void CC_onMissionParseEv(EventBits_t ev)
 {
@@ -117,24 +119,29 @@ void CC_onMissionParseEv(EventBits_t ev)
 		CCO_sendMsgWithoutData(CCO_MISSION_STEP_REACHED);
 		missionAdvance();
 	}
-	if(ev & GEG_CTMOVE_FINISH) //Se termino la mision que se le habia mandado al PC
+	if(ev & GEG_CTMOVE_FINISH) //Se termino el bloque que se le habia mandado al PC
 	{
 		CCO_sendMsgWithoutData(CCO_MISSION_STEP_REACHED);
 		missionAdvance();
-		if(!currMission.waitForInterBlockEvent) //Puede ser que falte un evento como presionar un boton o
-			state=CC_IDLE;
-		else
+		if(!currMission.waitForInterBlockEvent) //Si se tiene que esperar por un evento se va a pausa
 			state=CC_PAUSE_EMERGENCY;
+		else if(!isMissionCompleted()) //Sino, si todavía no terminó la misión le paso el bloque que viene
+		{
+			//PC_setMissionBlock(getNextMissionBlock());
+			xEventGroupSetBits( xEventGroup, GEG_MISSION_STARTED);
+		}
+		else //En caso de que ya la haya terminado, voy a IDLE
+			state=CC_IDLE;
 	}
-	if(ev & (GEG_EMERGENCY_STOP | GEG_PRIORITY_STOP )) //Se llego a un step de mision
+	if(ev & (GEG_EMERGENCY_STOP | GEG_PRIORITY_STOP )) //Cualquier emergencia va a estado de emergencia
 		state=CC_PAUSE_EMERGENCY;
-	if((ev & GEG_COMS_RX) && recHeader == CCO_ABORT_MISSION)
+	if((ev & GEG_COMS_RX) && recHeader == CCO_ABORT_MISSION) //Recibe que aborte misión por internes
 	{
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_ABORT_CMD);
 		state=CC_IDLE;
 	}
 
-	if((ev & GEG_COMS_RX) && recHeader == CCO_PAUSE_MISSION)
+	if((ev & GEG_COMS_RX) && recHeader == CCO_PAUSE_MISSION)//Recibe que pause misión por internes
 	{
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_PAUSE_CMD);
 		state=CC_PAUSE_EMERGENCY;
@@ -144,10 +151,11 @@ void CC_onMissionParseEv(EventBits_t ev)
 }
 void CC_pauseEmergencyParseEv(EventBits_t ev)
 {
+	/*Esto sería correspondiente a pausa */
 	if(currMission.waitForInterBlockEvent) //En el caso en que se este esperando por un evento entre bloques.
 	{
-		if(((currMissionIBE()== IBE_HOUSTON_CONTINUE) && (ev & GEG_COMS_RX) && (recHeader == CCO_CONTINUE_MISSION)) || //Si se esperaba un continue de houston y llegó
-		   ((currMissionIBE()== IBE_BUTTON_PRESS) && (ev & GEG_HMI) /*&& HMIevType==LONG_PRESS */)){ //o si se esperaba presionar un botón y se presionó
+		if(((currMissionIBE()== IBE_HOUSTON_CONTINUE) && (ev & GEG_COMS_RX) && (recHeader == CCO_CONTINUE)) || //Si se esperaba un continue de houston y llegó
+		   ((currMissionIBE()== IBE_BUTTON_PRESS) && (ev & GEG_HMI) /*&& (ev & GEG_HMI) && HMIevType==LONG_PRESS */)){ //o si se esperaba presionar un botón y se presionó
 			currMission.waitForInterBlockEvent=false; //Ya no se tiene que esperar por evento.
 			CCO_sendMsgWithoutData(CCO_IBE_RECIEVED); //Comunica a Houston que recibió el IBE
 			if(!isMissionCompleted()) //Si faltan bloques de la misión
@@ -160,16 +168,26 @@ void CC_pauseEmergencyParseEv(EventBits_t ev)
 				state=CC_IDLE;
 		}
 	}
-	if((ev & GEG_COMS_RX) && recHeader == CCO_ABORT_MISSION)
+	if((ev & GEG_COMS_RX) && recHeader == CCO_ABORT_MISSION) //Si estando en pausa recibe que aborte misión.
 	{
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_ABORT_CMD);
 		state=CC_IDLE;
+	}
+	/*Esto sería correspondiente a emergencia */
+	if((ev & GEG_COMS_RX) && recHeader == CCO_CONTINUE /*&& (ev & GEG_HMI) && HMIevType==LONG_PRESS */)
+	{
+//		if(chekcOnEmergency()) //Se fija que no siga estando en emergencia
+//		{
+//			state = prevState;
+			//xEventGroupSetBits( xEventGroup, GEG_MISSION_CONTINUE_CMD); //Si vuelve a estado misión debería poner esto
+//		}
 	}
 }
 
 void CC_onErrorRoutine(EventBits_t ev)
 {
-	//Pasar por todos los módulos que activaron errores en ev y pullear todos los strings de error?
+	//Pasar por todos los módulos con eventos de error y recupera el string de error
+	//Lo comunica a houston salvo que sea algo del centro de comunicaciones (CCO_sendError(string err))
 }
 
 /*Estas funciones de abajo le darían motivo a una clase misión (con funciones propias) */
