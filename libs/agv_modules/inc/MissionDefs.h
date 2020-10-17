@@ -34,7 +34,7 @@ typedef struct {
 
 typedef struct{
 	BLOCK_DETAILS_T blocks[MAX_NMBR_OF_BLOCKS_IN_MISSION]; //Bloques de la misión
-	INTER_BLOCK_EVENT_T interBlockEvent[MAX_NMBR_OF_BLOCKS_IN_MISSION]; //que evento trigerea el siguiente bloque
+	INTER_BLOCK_EVENT_T interBlockEvent[MAX_NMBR_OF_BLOCKS_IN_MISSION+1]; //que evento trigerea el siguiente bloque
 	bool_t active, waitForInterBlockEvent;
 	unsigned int currBlock,nmbrOfBlocks;
 	//Más metadata. Para probar no es nada más necesario.

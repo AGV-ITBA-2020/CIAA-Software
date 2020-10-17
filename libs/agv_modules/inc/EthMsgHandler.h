@@ -16,11 +16,11 @@
 extern "C" {
 #endif
 
-#define EMH_UART_BAUDRATE 9600
+#define EMH_UART_BAUDRATE 115200
 #define EMH_UART UART_232
 #define EMH_SEND_BUF_MSGS 5
-#define EMH_REC_BUF_LEN 2
-#define EMH_ESP_HEADER "AGV 1\n"
+#define EMH_REC_BUF_LEN 5
+#define EMH_ESP_HEADER "AGV1"
 #define EMH_SEND_PRIORITY 1
 
 #define ETHERNET_MCU 256 //Cantidad máxima de bytes enviados por ethernet (Esto debe ser tan grande como lo que se quiera mandar. Es 256 por el buf len max del ESP)
