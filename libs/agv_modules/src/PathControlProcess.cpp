@@ -1,27 +1,24 @@
 /*
- * RoadProcessing.c
+ * PathControlModule.c
  *
  *  Created on: Sep 3, 2020
  *      Author: Javier
  */
 
-#include "my_sapi_uart.h"
-#include "PathControl.h"
-#include "MovementControl.h"
 
-#include "event_groups.h"
+/*==================[inclusions]=============================================*/
+#include "my_sapi_uart.h"
+#include "PathControlProcess.hpp"
 #include "semphr.h"
 
 
-/*==================[typedef]================================================*/
+/*==================[macros and definitions]=================================*/
 #define OPEN_MV_MSG_LEN 4 //Length en bytes del mensaje del openMV
 #define MAX_DISPLACEMENT 64
 #define EVENT_QUEUE_LEN 10
 
 #define LOW_SPEED_VEL 0.5
 #define HIGH_SPEED_VEL 1.0
-
-
 
 typedef enum {OPENMV_FOLLOW_LINE, OPENMV_FORK_LEFT, OPENMV_FORK_RIGHT, OPENMV_MERGE, OPENMV_ERROR,OPENMV_IDLE}openMV_states; //Los distintos estados del OpenMV
 typedef enum {TAG_SLOW_DOWN, TAG_SPEED_UP, TAG_STATION=3}Tag_t; //Los distintos TAGs
@@ -34,17 +31,18 @@ typedef struct  {
   bool_t form_passed;
   bool_t error;
   Tag_t tag;
-}openMV_msg; //La información que trae cada mensaje del openMV.
+}openMV_msg; //La informaciï¿½n que trae cada mensaje del openMV.
 
 
 /*==================[internal data declaration]==============================*/
-static char recBuff[OPEN_MV_MSG_LEN];//Acá se guarda la data en la interrupción
+static char recBuff[OPEN_MV_MSG_LEN];//Acï¿½ se guarda la data en la interrupciï¿½n
 static MISSION_BLOCK_T mb;
 static SemaphoreHandle_t xBinarySemaphore;
 static TaskHandle_t * missionTask;
 static QueueHandle_t missionMailbox, eventQueue;
 static float currVel=0;
 
+/*==================[internal functions declaration]=========================*/
 void PC_MainTask();
 openMV_msg parse_openmv_msg(char * buf);
 void send_openmv_nxt_state(BLOCK_CHECKPOINT_T ms);
@@ -52,26 +50,28 @@ void PC_MissionTask();
 void startNewMissionBlock();
 void abortMissionBlock();
 void callbackInterrupt(void *);
-bool_t missionBlockLogic(openMV_msg msg, bool_t * stepReached); //Ejecuta la lógica de recorrida de camino, y devuelve si terminó la misión
-float computeAngVel(unsigned int displacement); //Obtiene la velocidad angular objetivo (Acá debería estar el PID).
+bool_t missionBlockLogic(openMV_msg msg, bool_t * stepReached); //Ejecuta la lï¿½gica de recorrida de camino, y devuelve si terminï¿½ la misiï¿½n
+float computeAngVel(unsigned int displacement); //Obtiene la velocidad angular objetivo (Acï¿½ deberï¿½a estar el PID).
+
+/*==================[internal data definition]===============================*/
+
+/*==================[external data definition]===============================*/
+
 /*==================[internal functions definition]==========================*/
-
-
 /*******Tasks*********/
-void PC_MainTask()
+void PC_MainTask(void * ptr)
 {
 	const TickType_t xDelay250ms = pdMS_TO_TICKS( 250 );
 	for( ;; )
 	{
-		xQueueReceive(missionMailbox,&mb,portMAX_DELAY); //Espera a que llegue una misión. Habría que poner timeout quizás?
+		xQueueReceive(missionMailbox,&mb,portMAX_DELAY); //Espera a que llegue una misiï¿½n. Habrï¿½a que poner timeout quizï¿½s?
 		if(mb.com== BLOCK_START || mb.com==BLOCK_REPLACE)
 			startNewMissionBlock();
 		else
 			abortMissionBlock();
 	}
-
-
 }
+
 void PC_MissionTask()
 {
 	openMV_msg msg;
@@ -99,9 +99,6 @@ void PC_MissionTask()
 	}
 }
 
-
-
-
 /*******Otros*********/
 bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
 {
@@ -112,14 +109,14 @@ bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
 	if(mb.md.currStep == mb.md.blockLen-1)
 		stepsLeft = 0;
 	else
-		nextChkpnt= mb.md.blockCheckpoints[mb.md.currStep+1];//Si quedan pasos próximos, obtengo el proximo paso de la misión
+		nextChkpnt= mb.md.blockCheckpoints[mb.md.currStep+1];//Si quedan pasos prï¿½ximos, obtengo el proximo paso de la misiï¿½n
 
 	bool_t steppingCondition = ( 	((currChkpnt == CHECKPOINT_SLOW_DOWN) && msg.tag_found && msg.tag==TAG_SLOW_DOWN) 	||
 									((currChkpnt == CHECKPOINT_SPEED_UP) && msg.tag_found && msg.tag==TAG_SPEED_UP) 	||
 									((currChkpnt == CHECKPOINT_STATION) && msg.tag_found && msg.tag==TAG_STATION) 		||
 									(IS_FORKORMERGE_MISSION(currChkpnt) && msg.form_passed)
-								); //Condiciones para ir al siguiente paso de la misión
-	//Control de pasos de misión
+								); //Condiciones para ir al siguiente paso de la misiï¿½n
+	//Control de pasos de misiï¿½n
 	if (steppingCondition)
 	{
 		mb.md.currStep++;
@@ -136,15 +133,17 @@ bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
 		missionFinished=1;
 	return missionFinished;
 }
+
 void startNewMissionBlock()
 {
 	currVel=HIGH_SPEED_VEL;
 	for(unsigned int i=0; i<OPEN_MV_MSG_LEN; i++ )
-		uartReadByte(PC_UART,(uint8_t *) &(recBuff[i]));// Si quedó basura en la cola de la uart la vuela
+		uartReadByte(PC_UART,(uint8_t *) &(recBuff[i]));// Si quedï¿½ basura en la cola de la uart la vuela
 	uartCallbackSet( PC_UART, UART_RECEIVE,(callBackFuncPtr_t) callbackInterrupt);
-	xTaskCreate( PC_MissionTask, "RP mission task", 100	, NULL, 2, missionTask ); //Crea task de misión
+	xTaskCreate( PC_MissionTask, "RP mission task", 100	, NULL, 2, missionTask ); //Crea task de misiï¿½n
 	uartInterrupt( PC_UART, 1 ); //Enables uart interrupts
 }
+
 void abortMissionBlock()
 {
 	currVel=0;
@@ -152,9 +151,10 @@ void abortMissionBlock()
 	uartInterrupt( PC_UART, 0 ); //Disables interrupts
 	uartTxWrite(PC_UART,OPENMV_IDLE);
 	if(missionTask!=NULL)
-		vTaskDelete(missionTask); //Borra la task de misión
+		vTaskDelete(missionTask); //Borra la task de misiï¿½n
 
 }
+
 openMV_msg parse_openmv_msg(char * buf)
 {
 	openMV_msg retVal;
@@ -165,8 +165,9 @@ openMV_msg parse_openmv_msg(char * buf)
 	retVal.tag=buf[1]%32;
 	return retVal;
 }
+
 void send_openmv_nxt_state(BLOCK_CHECKPOINT_T ms)
-{ //Correlación entre los estados del openmv y el checkpoint que viene.
+{ //Correlaciï¿½n entre los estados del openmv y el checkpoint que viene.
 	if(ms == CHECKPOINT_FORK_LEFT)
 		uartTxWrite(PC_UART,OPENMV_FORK_LEFT);
 	else if(ms == CHECKPOINT_FORK_RIGHT)
@@ -179,7 +180,7 @@ void send_openmv_nxt_state(BLOCK_CHECKPOINT_T ms)
 
 void callbackInterrupt(void* a)
 {
-	BaseType_t xHigherPriorityTaskWoken=pdFALSE; //Seccion 6.4 semáforos binarios freeRTOS
+	BaseType_t xHigherPriorityTaskWoken=pdFALSE; //Seccion 6.4 semï¿½foros binarios freeRTOS
 	for(unsigned int i=0; i<OPEN_MV_MSG_LEN; i++ )
 		uartReadByte(PC_UART,(uint8_t *) &(recBuff[i]));// Read from RX FIFO
 	xSemaphoreGiveFromISR( xBinarySemaphore, &xHigherPriorityTaskWoken );
@@ -191,14 +192,14 @@ float computeAngVel(unsigned int displacement) //Desarrollar con PID
 	float a;
 	return a;
 }
-/*==================[external functions declaration]=========================*/
 
+/*==================[external functions definition]==========================*/
 void PC_Init(void)
 {
 	uartInit( PC_UART, PC_UART_BAUDRATE, 1 );
 	MC_init();
 	xBinarySemaphore = xSemaphoreCreateBinary();
-	xTaskCreate( PC_MainTask, "PC Main task", 100	, NULL, 1, NULL ); //Crea task de misión
+	xTaskCreate( PC_MainTask, "PC Main task", 100	, NULL, 1, NULL ); //Crea task de misiï¿½n
 	missionMailbox=xQueueCreate( 1,sizeof(MISSION_BLOCK_T));
 	eventQueue=xQueueCreate( EVENT_QUEUE_LEN,sizeof(PC_Event));
 }
@@ -206,6 +207,7 @@ void PC_Init(void)
 void PC_setMissionBlock(MISSION_BLOCK_T mb)
 {
 	xQueueSendToBack(missionMailbox,&mb,0 );
+	xEventGroupSetBits( xEventGroup, CC_EVENT_MASK );
 }
 
 bool_t PC_hasEvent()

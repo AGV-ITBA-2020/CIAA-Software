@@ -6,7 +6,7 @@
  */
 
 #include "CommunicationCenter.hpp"
-#include "PathControl.h"
+#include "PathControlModule.h"
 #include "GlobalEventGroup.h"
 #include "FreeRTOS.h"
 #include "task.h"
