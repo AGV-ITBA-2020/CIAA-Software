@@ -202,8 +202,11 @@ void CC_onErrorRoutine(EventBits_t ev)
 
 void checkIfManualModeEnabled(EventBits_t ev)
 {
-	//	if((ev & GEG_HMI) && HMIevType==MANUAL_MODE)
-	//		changeStateTo(CC_MANUAL);
+//		if((ev & GEG_HMI) && HMIevType==MANUAL_MODE){
+//			changeStateTo(CC_MANUAL);
+//			if(state==CC_ON_MISSION)
+//				xEventGroupSetBits( xEventGroup, GEG_MISSION_ABORT_CMD);
+//		}
 }
 void changeStateTo(CC_State newState)
 {
