@@ -18,7 +18,7 @@
 
 /*==================[typedef]================================================*/
 
-typedef enum{CC_IDLE,CC_ON_MISSION,CC_MANUAL, CC_ERROR, CC_PAUSE_EMERGENCY, CC_LOWPOWER} CC_State;
+typedef enum{CC_IDLE,CC_ON_MISSION,CC_MANUAL, CC_ERROR, CC_PAUSE, CC_EMERGENCY,CC_LOWPOWER} CC_State;
 
 /*==================[internal data declaration]==============================*/
 extern EventGroupHandle_t xEventGroup;
@@ -33,7 +33,12 @@ void CC_onErrorRoutine(EventBits_t ev);
 void CC_indepParseEv(EventBits_t ev);
 void CC_onMissionParseEv(EventBits_t ev);
 void CC_idleParseEv(EventBits_t ev);
-void CC_pauseEmergencyParseEv(EventBits_t ev);
+void CC_pauseParseEv(EventBits_t ev);
+void CC_emergencyParseEv(EventBits_t ev);
+
+void checkIfManualModeEnabled(EventBits_t ev);
+void changeStateTo(CC_State newState);
+
 
 INTER_BLOCK_EVENT_T currMissionIBE();
 BLOCK_DETAILS_T * getNextMissionBlock();
@@ -66,8 +71,11 @@ void CC_mainFSM(EventBits_t ev)
 		case CC_ON_MISSION:
 			CC_onMissionParseEv(ev);
 			break;
-		case CC_PAUSE_EMERGENCY:
-			CC_pauseEmergencyParseEv(ev);
+		case CC_PAUSE:
+			CC_pauseParseEv(ev);
+			break;
+		case CC_EMERGENCY:
+			CC_emergencyParseEv(ev);
 			break;
 		case CC_ERROR:
 			//CC_idleParseEv(ev);
@@ -85,7 +93,7 @@ void CC_indepParseEv(EventBits_t ev)
 	{}
 	if(ev & ERROR_EVENT_MASK)
 	{
-		state=CC_ERROR;
+		changeStateTo(CC_ERROR);
 		CC_onErrorRoutine(ev);
 	}
 	if(ev & GEG_EMERGENCY_STOP) //Se llego a un step de mision
@@ -102,15 +110,13 @@ void CC_idleParseEv(EventBits_t ev)
 		//PC_setMissionBlock(getNextMissionBlock());
 		if(!currMission.waitForInterBlockEvent) //En el caso que no necesite un evento extra para arrancar la misiï¿½n
 		{
-			state=CC_ON_MISSION; //Pasa a estado misiï¿½n
-			xEventGroupSetBitsFromISR( xEventGroup, GEG_MISSION_STARTED, NULL );
+			changeStateTo(CC_ON_MISSION); //Pasa a estado misiï¿½n
+			xEventGroupSetBitsFromISR( xEventGroup, GEG_MISSION_BLOCK_STARTED, NULL );
 		}
 		else
-			state=CC_PAUSE_EMERGENCY; //Sino espera hasta que ocurra ese evento
+			changeStateTo(CC_PAUSE); //Sino espera hasta que ocurra ese evento
 	}
-//	if((ev & GEG_HMI) && HMIevType==MANUAL_MODE)
-//		state=CC_MANUAL;
-//
+	checkIfManualModeEnabled(ev);
 }
 void CC_onMissionParseEv(EventBits_t ev)
 {
@@ -123,71 +129,92 @@ void CC_onMissionParseEv(EventBits_t ev)
 	{
 		CCO_sendMsgWithoutData(CCO_MISSION_STEP_REACHED);
 		missionAdvance();
-		if(!currMission.waitForInterBlockEvent) //Si se tiene que esperar por un evento se va a pausa
-			state=CC_PAUSE_EMERGENCY;
+		if(currMission.waitForInterBlockEvent) //Si se tiene que esperar por un evento se va a pausa
+			changeStateTo(CC_PAUSE);
 		else if(!isMissionCompleted()) //Sino, si todavía no terminó la misión le paso el bloque que viene
 		{
 			//PC_setMissionBlock(getNextMissionBlock());
-			xEventGroupSetBits( xEventGroup, GEG_MISSION_STARTED);
+			xEventGroupSetBits( xEventGroup, GEG_MISSION_BLOCK_STARTED);
 		}
 		else //En caso de que ya la haya terminado, voy a IDLE
-			state=CC_IDLE;
+			changeStateTo(CC_IDLE);
 	}
 	if(ev & (GEG_EMERGENCY_STOP | GEG_PRIORITY_STOP )) //Cualquier emergencia va a estado de emergencia
-		state=CC_PAUSE_EMERGENCY;
+		changeStateTo(CC_PAUSE);
 	if((ev & GEG_COMS_RX) && recHeader == CCO_ABORT_MISSION) //Recibe que aborte misión por internes
 	{
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_ABORT_CMD);
-		state=CC_IDLE;
+		changeStateTo(CC_IDLE);
 	}
 
 	if((ev & GEG_COMS_RX) && recHeader == CCO_PAUSE_MISSION)//Recibe que pause misión por internes
 	{
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_PAUSE_CMD);
-		state=CC_PAUSE_EMERGENCY;
+		changeStateTo(CC_PAUSE);
 	}
 
-
+	checkIfManualModeEnabled(ev);
 }
-void CC_pauseEmergencyParseEv(EventBits_t ev)
+
+void CC_pauseParseEv(EventBits_t ev)
 {
 	/*Esto sería correspondiente a pausa */
 	if(currMission.waitForInterBlockEvent) //En el caso en que se este esperando por un evento entre bloques.
 	{
 		if(((currMissionIBE()== IBE_HOUSTON_CONTINUE) && (ev & GEG_COMS_RX) && (recHeader == CCO_CONTINUE)) || //Si se esperaba un continue de houston y llegó
-		   ((currMissionIBE()== IBE_BUTTON_PRESS) && (ev & GEG_HMI) /*&& (ev & GEG_HMI) && HMIevType==LONG_PRESS */)){ //o si se esperaba presionar un botón y se presionó
+		   ((currMissionIBE()== IBE_BUTTON_PRESS) /*&& (ev & GEG_HMI) && HMIevType==LONG_PRESS */)){ //o si se esperaba presionar un botón y se presionó
 			currMission.waitForInterBlockEvent=false; //Ya no se tiene que esperar por evento.
 			CCO_sendMsgWithoutData(CCO_IBE_RECIEVED); //Comunica a Houston que recibió el IBE
 			if(!isMissionCompleted()) //Si faltan bloques de la misión
 			{
 				//PC_setMissionBlock(getNextMissionBlock());
-				xEventGroupSetBits( xEventGroup, GEG_MISSION_STARTED);
-				state=CC_ON_MISSION;
+				xEventGroupSetBits( xEventGroup, GEG_MISSION_BLOCK_STARTED);
+				changeStateTo(CC_ON_MISSION);
 			}
 			else //Si este evento era el último paso de la misión, vuelve a IDLE
-				state=CC_IDLE;
+				changeStateTo(CC_IDLE);
 		}
 	}
 	if((ev & GEG_COMS_RX) && recHeader == CCO_ABORT_MISSION) //Si estando en pausa recibe que aborte misión.
 	{
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_ABORT_CMD);
-		state=CC_IDLE;
+		changeStateTo(CC_IDLE);
 	}
-	/*Esto sería correspondiente a emergencia */
+	checkIfManualModeEnabled(ev);
+}
+void CC_emergencyParseEv(EventBits_t ev)
+{
 	if((ev & GEG_COMS_RX) && recHeader == CCO_CONTINUE /*&& (ev & GEG_HMI) && HMIevType==LONG_PRESS */)
 	{
 //		if(chekcOnEmergency()) //Se fija que no siga estando en emergencia
 //		{
-//			state = prevState;
+//			changeStateTo(prevState);
 			//xEventGroupSetBits( xEventGroup, GEG_MISSION_CONTINUE_CMD); //Si vuelve a estado misión debería poner esto
 //		}
 	}
 }
-
 void CC_onErrorRoutine(EventBits_t ev)
 {
 	//Pasar por todos los módulos con eventos de error y recupera el string de error
 	//Lo comunica a houston salvo que sea algo del centro de comunicaciones (CCO_sendError(string err))
+}
+
+
+void checkIfManualModeEnabled(EventBits_t ev)
+{
+	//	if((ev & GEG_HMI) && HMIevType==MANUAL_MODE)
+	//		changeStateTo(CC_MANUAL);
+}
+void changeStateTo(CC_State newState)
+{
+	prevState=state;
+	state=newState;
+//	if(state==CC_EMERGENCY)
+//		//Prender led rojo (apagar los otros)
+//	else if(state==CC_ON_MISSION)
+//		//Prender led verde
+//	else if(state==CC_ON_PAUSE)
+//		//Prender led verde parpadeando
 }
 
 /*Estas funciones de abajo le darían motivo a una clase misión (con funciones propias) */
