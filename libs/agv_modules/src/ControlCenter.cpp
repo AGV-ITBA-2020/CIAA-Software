@@ -25,8 +25,10 @@ extern EventGroupHandle_t xEventGroup;
 static CC_State state,prevState;
 static MISSION_T currMission;
 static MSG_REC_HEADER_T recHeader;
+static AGV_STATUS_T agvStatus;
 
 void CC_mainTask(void *);
+void CC_notifyStatus(void *);
 void CC_mainFSM(EventBits_t ev);
 
 void CC_onErrorRoutine(EventBits_t ev);
@@ -45,6 +47,18 @@ BLOCK_DETAILS_T * getNextMissionBlock();
 bool_t isMissionCompleted();
 void missionAdvance();
 /*==================[internal functions definition]==========================*/
+
+void CC_notifyStatus(void *)
+{
+	char * msgP;
+	const TickType_t delay = pdMS_TO_TICKS( 2000 );
+	for( ;; )
+	{
+		//getStatus();
+		//CCO_sendStatus(agvStatus);
+	}
+
+}
 void CC_mainTask(void *)
 {
 	const TickType_t timeoutDelay = pdMS_TO_TICKS( 12000 );
@@ -251,4 +265,5 @@ void CC_init()
 	state=CC_IDLE;
 	prevState=CC_IDLE;
 	currMission.active=0;
+	xTaskCreate( CC_notifyStatus, "CC notify status task", 100	, NULL, 1, NULL );
 }
