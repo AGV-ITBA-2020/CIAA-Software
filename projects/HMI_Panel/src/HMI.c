@@ -22,10 +22,10 @@
 typedef struct {
 	bool_t IO_type;		// 0 indicates an input. 1 indicates an output.
 	HMI_INPUT_ID id : HMI_IO_ID_MAX_BIT_SIZE;
-	HMI_INPUT_PATTERN pattern : 3;				// Indicates the type of pattern to capture.
-	unsigned int maxCount : 3;					// Indicates the number of times the pattern repeats for a success. If 0, input is not active. Para short press es el número de short press necesarios para cumplir. Para long press es el tiempo máximo para ser considerado long press.
-	unsigned int patCount : 3;					// Used to count patterns. Para short press cuento cuántos voy teniendo. Para long press lo uso para el tiempo que permanece presionado.
-	unsigned int count;							// Used to count time pressed.
+	HMI_INPUT_PATTERN pattern : 3;					// Indicates the type of pattern to capture.
+	unsigned int maxCount;							// Indicates the time required to consider that the button has been pressed. If 0, input is not active.
+	unsigned int patCount : 3;						// Used to count patterns.
+	unsigned int count;								// Used to count time pressed.
 	bool_t lastValue : 1;							// Used for capturing input changes and debouncing.
 	gpioMap_t inputPin;
 	void (* callbackSuccess)(HMI_INPUT_ID inputId);
@@ -79,7 +79,7 @@ void HMI_MainTask()
 	for( ;; )
 	{
 		// First, load all pending IO request in the corresponding IO struct
-		while(uxQueueMessagesWaiting(hmiQueue) > 0)
+/*		while(uxQueueMessagesWaiting(hmiQueue) > 0)
 		{
 			char tempObj[queueObjectSize];
 			xQueueReceive(hmiQueue, tempObj, 0);
@@ -88,6 +88,20 @@ void HMI_MainTask()
 			else
 				LoadOutputConfig((HMI_Output_t *) tempObj);
 		}
+*/
+HMI_Input_t tempObj;
+tempObj.IO_type=0;
+tempObj.count=0;
+tempObj.id=0;
+tempObj.inputPin;
+tempObj.lastValue=1;
+tempObj.maxCount=500;
+tempObj.patCount=1;
+tempObj.pattern=COUNTER;
+HMI_Input_t *pointer =tempObj;
+
+		LoadInputConfig((HMI_Input_t *) pointer);
+
 
 		char nInputs = RunInputRoutine();
 		char nOutputs = RunOutputRoutine();
@@ -129,9 +143,9 @@ char RunInputRoutine()
 			{
 
 				(inputArray[i].count)++;
-				inputArray[i].lastValue=pinread;				// If needed time is not reached -> update last value, set input as active.
+				inputArray[i].lastValue=pinread;				// Whether needed time is reached or not -> update last value, set input as active.
 				ninputs++;
-			}													// If needed time is reached -> do nothing because the button is still being pressed.
+			}													// Whether needed time is reached or not -> do nothing because the button is still being pressed.
 		}
 		else
 		{
@@ -146,7 +160,7 @@ char RunInputRoutine()
 						inputArray[i].maxCount=0;
 						inputArray[i].callbackSuccess();
 					}
-					else										// If number of patterns not reached ->, update last value, set input as active.
+					else										// If number of patterns not reached -> update last value, set input as active.
 					{
 						inputArray[i].lastValue=pinread;
 						ninputs++;
