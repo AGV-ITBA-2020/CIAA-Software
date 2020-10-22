@@ -1,6 +1,6 @@
 
 #include "../inc/config.h"        // <= Biblioteca sAPI
-#include "EncoderV3.h"
+#include "EncoderV2.h"
 
 void mainTask(void * ptr);
 
@@ -12,6 +12,7 @@ void mainTask(void * ptr)
 		uint32_t simpleCount = EncoderV2_GetCount(ENCODER_LEFT);
 		uint32_t filteredCount =EncoderV2_GetCountFiltered(ENCODER_LEFT,SEC_TO_COUNT(2e-3),SEC_TO_COUNT(50e-3));
 		printf("sC= %d, fC=%d",simpleCount ,filteredCount );
+		//printf("sCHz= %f, fCHz=%f",1/COUNT_TO_SECS(simpleCount) ,1/COUNT_TO_SECS(filteredCount) );
 		vTaskDelay( xDelay5s );
 	}
 }
