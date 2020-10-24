@@ -8,6 +8,10 @@
 #ifndef PATH_CONTROL_PROCESS_H_
 #define PATH_CONTROL_PROCESS_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*==================[inclusions]=============================================*/
 #include "MissionDefs.h"
 #include "my_sapi_peripheral_map.h"
@@ -19,13 +23,11 @@
 #define PC_UART_BAUDRATE 115200
 #define PC_UART UART_485
 
-typedef enum {PC_BLOCK_FINISHED, PC_STEP_REACHED,PC_ERROR} PC_Event; //Comandos de misiones
-
-class PathControlProcess_t{
-    public:
-        PathControlProcess_t(){};
-    private:
-}
+// class PathControlProcess_t{
+//     public:
+//         PathControlProcess_t(){};
+//     private:
+// }
 
 /*==================[internal data declaration]==============================*/
 
@@ -38,13 +40,23 @@ class PathControlProcess_t{
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-void PC_Init(void);
+/*
+ * @brief:	Main task for the movement control module
+ * @param:	Placeholder
+ * @note:	It basically sets the value of the pwm for both motors.
+ */
+void PCP_startNewMissionBlock(MISSION_BLOCK_T * mb);
 
-void PC_setMissionBlock(MISSION_BLOCK_T mb);
+/*
+ * @brief:	Main task for the movement control module
+ * @param:	Placeholder
+ * @note:	It basically sets the value of the pwm for both motors.
+ */
+void PCP_abortMissionBlock(void);
 
-bool_t PC_hasEvent();
-
-PC_Event PC_getEvent();
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif /* PATH_CONTROL_PROCESS_H_ */

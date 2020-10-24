@@ -24,8 +24,6 @@ extern "C" {
 #define PC_UART_BAUDRATE 115200
 #define PC_UART UART_485
 
-typedef enum {PC_BLOCK_FINISHED, PC_STEP_REACHED,PC_ERROR} PC_Event; //Comandos de misiones
-
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -39,11 +37,7 @@ typedef enum {PC_BLOCK_FINISHED, PC_STEP_REACHED,PC_ERROR} PC_Event; //Comandos 
 /*==================[external functions definition]==========================*/
 void PC_Init(void);
 
-void PC_setMissionBlock(MISSION_BLOCK_T mb);
-
-bool_t PC_hasEvent();
-
-PC_Event PC_getEvent();
+void PC_setMissionBlock(MISSION_BLOCK_T * mb);
 
 
 #ifdef __cplusplus
