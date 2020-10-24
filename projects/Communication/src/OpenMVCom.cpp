@@ -7,6 +7,7 @@
 #include "my_sapi_uart.h"
 #include "config.h"
 #include "semphr.h"
+/*
 
 static uint8_t state;
 static SemaphoreHandle_t xBinarySemaphore;
@@ -23,6 +24,7 @@ int main( void )
 	MySapi_BoardInit(true);
 	uartInit( UART_485, 115200, 1 );
 	state=1;
+	xBinarySemaphore = xSemaphoreCreateBinary();
 	xTaskCreate( masterSendTask, "PC master send task", 100	, NULL, 1, NULL ); //Crea task de misión
 	uartCallbackSet( UART_485, UART_RECEIVE,(callBackFuncPtr_t) callbackInterrupt);
 	uartInterrupt( UART_485, 1 ); //Enables uart interrupts
@@ -62,4 +64,4 @@ void callbackInterrupt(void* a)
 		uartReadByte(UART_485,(uint8_t *) &(recBuff[i]));// Read from RX FIFO
 	xSemaphoreGiveFromISR( xBinarySemaphore, &xHigherPriorityTaskWoken );
 	portYIELD_FROM_ISR( xHigherPriorityTaskWoken ); //Esto no lo entiendo bien
-}
+}*/

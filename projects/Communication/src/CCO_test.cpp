@@ -20,7 +20,8 @@
 #include "my_sapi.h"
 #include "event_groups.h"
 #include "MovementControlModule.h"
-/*
+#include "GlobalEventGroup.h"
+
 EventGroupHandle_t xEventGroup;
 MISSION_T mission;
 
@@ -32,18 +33,11 @@ void testComCenter(void * ptr)
 	while(!CCO_connected());
 	for( ;; )
 	{
-		EventBits_t ev = xEventGroupWaitBits( xEventGroup,1,pdTRUE,pdFALSE,errDelay);
-		if(ev & EV_CCO_MSG_REC)
+		EventBits_t ev = xEventGroupWaitBits( xEventGroup,GEG_COMS_RX,pdTRUE,pdFALSE,portMAX_DELAY);
+		if(ev & GEG_COMS_RX)
 		{
 			int debug =1;
-			//MSG_REC_HEADER_T type = CCO_getMsgType();
-//			if(type==CCO_SET_VEL)
-//			{
-				MC_setLinearSpeed(CCO_getLinSpeed());
-				MC_setAngularSpeed(CCO_getAngSpeed());
-//			}
-//			else
-//				assert(0);
+			MSG_REC_HEADER_T type = CCO_getMsgType();
 		}
 		else
 			assert(0);
@@ -57,10 +51,9 @@ int main(void)
 	bool_t debugUartEnable=1;
 	MySapi_BoardInit(debugUartEnable);
 	xEventGroup =  xEventGroupCreate();
-	CCO_init(xEventGroup);
-	MC_Init();
+	CCO_init();
 	BaseType_t ret = xTaskCreate(testComCenter, "CCO Test", 100	, NULL, 1, NULL ); //Task para debuggear lo enviado
 	if(ret==pdPASS)
 		vTaskStartScheduler();
 }
-*/
+
