@@ -160,9 +160,15 @@ void uartInit( uartMap_t uart, uint32_t baudRate, bool_t loopback )
 	   // Configure SCU UARTn_RXD pin
 	   Chip_SCU_PinMux( lpcUarts[uart].rxPin.lpcScuPort,lpcUarts[uart].rxPin.lpcScuPin,MD_PLN | MD_EZI | MD_ZI,lpcUarts[uart].rxPin.lpcScuFunc );
 	   // Specific configurations for RS485
-	     if( uart == UART_485 )
-	        Chip_UART_SetRS485Flags( LPC_USART0, UART_RS485CTRL_OINV_1     ); //Esto estaba en el sapi, hay que checkear si necesita
-	     	  //Se debería poner el pin de DE en 1 para que funcione como una uart normal
+	   if( uart == UART_485 )
+	   {
+	        Chip_UART_SetRS485Flags( LPC_USART0, UART_RS485CTRL_OINV_1 | UART_RS485CTRL_DCTRL_EN     ); //Esto estaba en el sapi, hay que checkear si necesita
+	     	  //Se debería oner el pin de DE en 1 para que funcione como una uart normal
+	        Chip_SCU_PinMux( lpcUart485DirPin.lpcScuPort,
+	                               lpcUart485DirPin.lpcScuPin,
+	                               MD_PDN,
+	                               lpcUart485DirPin.lpcScuFunc );
+	   }
 
    }
 }
