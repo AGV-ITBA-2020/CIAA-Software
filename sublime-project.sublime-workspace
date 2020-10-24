@@ -4,6 +4,54 @@
 		"selected_items":
 		[
 			[
+				"TIMER",
+				"TICK_TIMER_BASE"
+			],
+			[
+				"tick",
+				"tickPeriod"
+			],
+			[
+				"uin",
+				"uint8_t"
+			],
+			[
+				"MESS",
+				"DiagMessage"
+			],
+			[
+				"data",
+				"dataBuffer"
+			],
+			[
+				"uint",
+				"uint8_t"
+			],
+			[
+				"MS",
+				"MSG_ID_T"
+			],
+			[
+				"MSG",
+				"MSG_ORIGIN_T"
+			],
+			[
+				"ui",
+				"uint8_t"
+			],
+			[
+				"RXBUFF",
+				"RX_BUFFER_SIZE"
+			],
+			[
+				"main",
+				"MainTask"
+			],
+			[
+				"Agvdi",
+				"AgvDiag_MainTask"
+			],
+			[
 				"CMP",
 				"CMP_B"
 			],
@@ -52,10 +100,6 @@
 				"speedDes"
 			],
 			[
-				"uint",
-				"uint16_t"
-			],
-			[
 				"curr",
 				"currSpeed"
 			],
@@ -70,10 +114,6 @@
 			[
 				"TIMERIN",
 				"TIMER_INT_COUNT"
-			],
-			[
-				"uin",
-				"uint8_t"
 			],
 			[
 				"MSI",
@@ -110,10 +150,6 @@
 			[
 				"TIME",
 				"TIMER_BASE_FREQ"
-			],
-			[
-				"TIMER",
-				"SetTimer"
 			],
 			[
 				"curre",
@@ -478,81 +514,9 @@
 			[
 				"send",
 				"sendError"
-			],
-			[
-				"targ",
-				"targetMail"
-			],
-			[
-				"MAIL",
-				"MAIL_SUBJECT"
-			],
-			[
-				"MAILF",
-				"MAIL_FIFO_SIZE"
-			],
-			[
-				"M",
-				"M_NONE"
-			],
-			[
-				"adc",
-				"adcValue"
-			],
-			[
-				"rs23",
-				"rs232_dev"
-			],
-			[
-				"Save",
-				"SaveAccRuntime"
-			],
-			[
-				"std",
-				"std_logic"
-			],
-			[
-				"EV19",
-				"EV19_NOP"
 			]
 		]
 	},
-	"buffers":
-	[
-		{
-			"file": "/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Practica arduino/HMI_Panel/src/HMI.c",
-			"settings":
-			{
-				"buffer_size": 3711,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "projects/HMI_Panel/inc/HMI.h",
-			"settings":
-			{
-				"buffer_size": 619,
-				"encoding": "UTF-8",
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Practica arduino/HMI/HMI.h",
-			"settings":
-			{
-				"buffer_size": 619,
-				"line_ending": "Windows"
-			}
-		},
-		{
-			"file": "/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Practica arduino/HMI_Panel/inc/FreeRTOSConfig.h",
-			"settings":
-			{
-				"buffer_size": 9511,
-				"line_ending": "Windows"
-			}
-		}
-	],
 	"build_system": "",
 	"build_system_choices":
 	[
@@ -603,30 +567,40 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
-	"expanded_folders":
-	[
-		"/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Github/CIAA-Software",
-		"/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Github/CIAA-Software/libs",
-		"/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Github/CIAA-Software/projects",
-		"/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Github/CIAA-Software/projects/HMI_Panel",
-		"/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Github/CIAA-Software/projects/HMI_Panel/inc",
-		"/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Github/CIAA-Software/projects/HMI_Panel/src",
-		"/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Github/CIAA-Software/projects/test1",
-		"/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Github/CIAA-Software/projects/test1/inc",
-		"/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Github/CIAA-Software/projects/VL53L0X",
-		"/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Github/CIAA-Software/projects/VL53L0X/inc",
-		"/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Github/CIAA-Software/scripts",
-		"/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Github/CIAA-Software/scripts/board",
-		"/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Github/CIAA-Software/scripts/license",
-		"/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Github/CIAA-Software/scripts/program"
-	],
 	"file_history":
 	[
+		"/E/GitHub/CIAA-Software/projects/Communication/tests/MergeMC_CCO.cpp",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/Encoder.h",
+		"/E/GitHub/CIAA-Software/projects/VL53L0X/src/VL53L0X.c",
+		"/E/GitHub/CIAA-Software/projects/AGV_Diagnostics/inc/AgvDiagnostics.hpp",
+		"/E/GitHub/CIAA-Software/libs/sapi/sapi_v0.5.2/soc/peripherals/inc/sapi_uart.h",
+		"/E/GitHub/CIAA-Software/projects/AGV_Diagnostics/config.mk",
+		"/E/GitHub/CIAA-Software/Makefile",
+		"/E/GitHub/CIAA-Software/projects/AGV_Diagnostics/src/AgvDiagnostics.c",
+		"/E/GitHub/CIAA-Software/scripts/openocd/lpc4337_old.cfg",
+		"/E/GitHub/CIAA-Software/scripts/openocd/lpc4337.cfg",
+		"/E/GitHub/CIAA-Software/libs/lpc_open/lpc_chip_43xx/inc/adc_18xx_43xx.h",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/FreeRTOSConfig.h",
+		"/E/GitHub/CIAA-Software/libs/my_sapi/inc/my_sapi_uart.h",
+		"/E/GitHub/CIAA-Software/projects/AGV_Diagnostics/inc/config.h",
+		"/E/GitHub/CIAA-Software/libs/my_sapi/src/my_sapi_uart.c",
+		"/E/GitHub/CIAA-Software/libs/freertos/include/task.h",
+		"/E/GitHub/CIAA-Software/projects/AGV_Diagnostics/inc/FreeRTOSConfig.h",
+		"/E/GitHub/CIAA-Software/libs/lpc_open/lpc_chip_43xx/src/uart_18xx_43xx.c",
+		"/E/GitHub/CIAA-Software/libs/freertos/include/message_buffer.h",
+		"/E/GitHub/CIAA-Software/libs/lpc_open/boards/ciaa_nxp/src/board.c",
+		"/E/GitHub/CIAA-Software/libs/my_sapi/inc/my_sapi_peripheral_map.h",
+		"/E/GitHub/CIAA-Software/libs/tinyprintf/module.mk",
+		"/E/GitHub/CIAA-Software/libs/tinyprintf/include/printf.h",
+		"/E/GitHub/CIAA-Software/libs/freertos/include/FreeRTOS.h",
+		"/E/GitHub/CIAA-Software/libs/freertos/include/stream_buffer.h",
+		"/E/GitHub/CIAA-Software/projects/HMI_Panel/inc/HMI.h",
+		"/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Practica arduino/HMI_Panel/inc/FreeRTOSConfig.h",
+		"/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Practica arduino/HMI_Panel/src/HMI.c",
 		"/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Practica arduino/HMI/HMI.h",
 		"/E/GitHub/CIAA-Software/libs/my_sapi/inc/my_sapi.h",
 		"/E/GitHub/CIAA-Software/projects/AGV_MainApp/inc/FreeRTOSConfig.h",
 		"/E/GitHub/CIAA-Software/projects/HMI Task/inc/FreeRTOSConfig.h",
-		"/E/GitHub/CIAA-Software/libs/freertos/include/FreeRTOS.h",
 		"/E/GitHub/CIAA-Software/projects/ProcDeCamino/inc/FreeRTOSConfig.h",
 		"/C/CIAA/firmware_v3-r130/libs/sapi/sapi_v0.5.2/soc/peripherals/src/sapi_i2c.c",
 		"/C/CIAA/firmware_v3-r130/libs/sapi/sapi_v0.5.2/soc/peripherals/inc/sapi_i2c.h",
@@ -722,38 +696,11 @@
 		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/Documentacion/UpdateLog.txt",
 		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/CmpHandler.p",
 		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/ErrorCodes.inc",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/EmailDriver.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/info.json",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/ConfigReg1.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/UdpHandler.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/webserver/status.shtml",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/Adeclarations.inc",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/Hmi.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/SensorCheck.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/Sim.inc",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/Sim.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/EmailDriver.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/valoresUtiles.inc",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/PsiMuxDriver.inc",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/webserver/GWFxxii-aammdd.bin",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/RegDriver.inc",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/RegDriver.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/VirtualHmi.inc",
-		"/C/Users/mdevo/Desktop/ascope-master/x11/ascope-x11.c",
-		"/G/Mi unidad/Proyectos/ClimaRental/Workspace/VIN Extension/Prueba1ExtVINPawn/scripts/user/RegDriver.p",
-		"/G/Mi unidad/CV/Famar.txt",
-		"/G/Mi unidad/Proyectos/ClimaRental/Workspace/VIN Extension/Conexion DB9.txt",
-		"/G/Mi unidad/Proyectos/ClimaRental/Workspace/VIN Extension/Prueba1ExtVINPawn/scripts/user/PsiMuxDriver.inc",
-		"/G/Mi unidad/Proyectos/ClimaRental/Workspace/VIN Extension/Prueba1ExtVINPawn/scripts/user/PsiMuxDriver.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/ErrorHandler.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/VirtualHmi.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Workspace/VIN Extension/Prueba1ExtVINPawn/scripts/user/VirtualHmi.p",
-		"/G/Mi unidad/ITBA/2019/2do Cuatrimestre/Control Automatico/TP Eckecko/Cosas que andan/Control Arduino/controlSketch/myModel.h",
-		"/C/Users/mdevo/AppData/Local/Temp/FreeCommander12492/11/StateSpaceControl-master/StateSpaceControl.h"
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/EmailDriver.p"
 	],
 	"find":
 	{
-		"height": 27.0
+		"height": 28.0
 	},
 	"find_in_files":
 	{
@@ -768,6 +715,45 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"Lspd",
+			"Setting",
+			"DIAG_ID_MOD_START",
+			"xTimerHandle",
+			"timerCallbackFunc",
+			"timerHandle",
+			"mainTaskToNotify",
+			"JOYSTICK_TICK_TIMEOUT",
+			"\\n",
+			"printf",
+			"tempStr",
+			"id ==",
+			"msg.",
+			"d",
+			"if",
+			"compare",
+			"DIAG_",
+			"compare",
+			"MSG_ORIGIN_T",
+			"CCOMS",
+			"data",
+			"uint8_t",
+			"string",
+			"data",
+			"temp",
+			"dataBuffer",
+			"memory",
+			"diag_msg_t",
+			"agv_diag_t",
+			"periodicService_t",
+			"notifVal",
+			"notifValue",
+			"rxSize",
+			"configUSE_TASK_NOTIFICATIONS",
+			"callBackFuncPtr_t",
+			"uartEvents_t",
+			"uartMap_t",
+			"NVIC_SetPriority",
+			"configAssert",
 			"SET",
 			"Base",
 			"PROCDECAMINO",
@@ -856,46 +842,7 @@
 			"BYPASS_NOT_ENABLES_FAN1",
 			"NOT_BYPASS_ENABLES_FAN1",
 			"NOT_BYPASS_TAMB",
-			"DISABLE_CMP_A",
-			"difPSI",
-			"oilPSI",
-			"lowPSI",
-			"DISABLE_CMP_A",
-			"tandemB",
-			"tandemA",
-			"CMP_TB",
-			"CMP_TA",
-			"nextState",
-			"DISABLE_CMP_A",
-			"opMode",
-			"opState",
-			"DISABLE_CMP_A",
-			"DISABLE_CMP_B",
-			"ArgVal",
-			"CMP_A",
-			"BYPASS_ENABLES_FAN1",
-			"externalchec",
-			"$",
-			"\t$",
-			"$ ",
-			"\t$",
-			"DISABLE_TEMP_FILTER",
-			"mailServActive",
-			",",
-			"PwmDoutInit",
-			",",
-			"36441802978516e",
-			"5",
-			"CmdType_MenuKey",
-			"CmdCode",
-			"regA",
-			"LedOn",
-			"EH_SendError",
-			"OUTPUT_MAX",
-			"u",
-			"w_hat",
-			"outMax",
-			"integral"
+			"DISABLE_CMP_A"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -915,131 +862,9 @@
 		"whole_word": false,
 		"wrap": true
 	},
-	"groups":
-	[
-		{
-			"selected": 2,
-			"sheets":
-			[
-				{
-					"buffer": 0,
-					"file": "/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Practica arduino/HMI_Panel/src/HMI.c",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3711,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								183,
-								183
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 215.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "projects/HMI_Panel/inc/HMI.h",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 619,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								452,
-								452
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 279.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Practica arduino/HMI/HMI.h",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 619,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "/C/Users/Zeker/Documents/ITBA/2020/1er cuatri/Diseño/Practica arduino/HMI_Panel/inc/FreeRTOSConfig.h",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 9511,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3642,
-								3644
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 1178.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				}
-			]
-		}
-	],
 	"incremental_find":
 	{
-		"height": 27.0
+		"height": 28.0
 	},
 	"input":
 	{
@@ -1073,10 +898,9 @@
 		"height": 0.0
 	},
 	"pinned_build_system": "",
-	"project": "sublime-project.sublime-project",
 	"replace":
 	{
-		"height": 50.0
+		"height": 52.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -1618,7 +1442,6 @@
 		],
 		"width": 0.0
 	},
-	"selected_group": 0,
 	"settings":
 	{
 	},
@@ -1626,7 +1449,7 @@
 	"show_open_files": true,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 187.0,
+	"side_bar_width": 272.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{
