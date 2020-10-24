@@ -144,7 +144,7 @@ void MotorController_t::setMotorDirection(bool_t direction)
 void MotorController_t::getSpeed(void)
 {
 	for(int i = SPEED_INPUT_DATA_LENGTH - 1; i > 0; --i){
-		inputData[i] = inputData[i + 1];
+		inputData[i] = inputData[i - 1];
 	}
 	inputData[0] = calculateInputSpeed(Encoder_GetCount(encoderCh));
 	Encoder_ResetCount(encoderCh);
@@ -285,6 +285,19 @@ void MC_setLinearSpeed(double v)
 void MC_setAngularSpeed(double w)
 {
 	movementModule.setAngularSpeed(w);
+}
+
+/*
+ * @brief:	Sets the angular speed for the vehicle.
+ * @param:	w:   angular speed, as a double the sign defines if is clockwise or anti-clockwise.
+ * @note:	This value will be controlled by a PID, so settlement time must be taken into account.
+ */
+void MC_getWheelSpeeds(double * speeds)
+{
+	speeds[0] = movementModule.leftMotor.setpoint;
+	speeds[1] = movementModule.leftMotor.input;
+	speeds[2] = movementModule.rightMotor.setpoint;
+	speeds[3] = movementModule.rightMotor.input;
 }
 
 /*==================[end of file]============================================*/

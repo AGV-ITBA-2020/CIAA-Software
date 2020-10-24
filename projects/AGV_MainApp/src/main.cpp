@@ -5,6 +5,8 @@
 #include "MovementControlModule.hpp"
 #include "GlobalEventGroup.h"
 
+#include "AgvDiagnostics.hpp"
+
 #include "FreeRTOS.h"
 #include "task.h"
 #include "event_groups.h"
@@ -17,33 +19,33 @@
 EventGroupHandle_t xEventGroup;
 MISSION_T mission;
 
-void testComCenter(void * ptr);
+// void testComCenter(void * ptr);
 
-void testComCenter(void * ptr)
-{
-	const TickType_t errDelay = pdMS_TO_TICKS( 12000 );
-	while(!CCO_connected());
-	for( ;; )
-	{
-		EventBits_t ev = xEventGroupWaitBits( xEventGroup,1,pdTRUE,pdFALSE,errDelay);
-		if(ev & GEG_COMS_RX)
-		{
-			int debug =1;
-			//MSG_REC_HEADER_T type = CCO_getMsgType();
-//			if(type==CCO_SET_VEL)
-//			{
-				MC_setLinearSpeed(CCO_getLinSpeed());
-				MC_setAngularSpeed(CCO_getAngSpeed());
-//			}
-//			else
-//				assert(0);
-		}
-		else
-			assert(0);
+// void testComCenter(void * ptr)
+// {
+// 	const TickType_t errDelay = pdMS_TO_TICKS( 12000 );
+// 	while(!CCO_connected());
+// 	for( ;; )
+// 	{
+// 		EventBits_t ev = xEventGroupWaitBits( xEventGroup,1,pdTRUE,pdFALSE,errDelay);
+// 		if(ev & GEG_COMS_RX)
+// 		{
+// 			int debug =1;
+// 			//MSG_REC_HEADER_T type = CCO_getMsgType();
+// //			if(type==CCO_SET_VEL)
+// //			{
+// 				MC_setLinearSpeed(CCO_getLinSpeed());
+// 				MC_setAngularSpeed(CCO_getAngSpeed());
+// //			}
+// //			else
+// //				assert(0);
+// 		}
+// 		else
+// 			assert(0);
 
-	}
+// 	}
 
-}
+// }
 
 int main( void )
 {
@@ -54,16 +56,18 @@ int main( void )
 
 	bool_t initOk = true;
 
-	CC_init();
+	// CC_init();
 
 	// xEventGroup =  xEventGroupCreate();
 	// CCO_init(xEventGroup);
-	CCO_init();
+	// CCO_init();
+	AgvDiag_Init();
 
 	// initOk = PC_Init();
 	MC_Init();
 
-	BaseType_t ret = xTaskCreate(testComCenter, "CCO Test", 100	, NULL, 1, NULL ); //Task para debuggear lo enviado
+	// BaseType_t ret = xTaskCreate(testComCenter, "CCO Test", 100	, NULL, 1, NULL ); //Task para debuggear lo enviado
+	BaseType_t ret = pdPASS;
 	if(ret==pdPASS)
 	{
 		printf( "Starting RTOS...\r\n" );

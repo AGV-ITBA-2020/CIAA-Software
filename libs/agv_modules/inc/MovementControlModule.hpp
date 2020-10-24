@@ -98,7 +98,12 @@ void MC_setLinearSpeed(double v);
  */
 void MC_setAngularSpeed(double w);
 
-
+/*
+ * @brief:	Sets the angular speed for the vehicle.
+ * @param:	w:   angular speed, as a double the sign defines if is clockwise or anti-clockwise.
+ * @note:	This value will be controlled by a PID, so settlement time must be taken into account.
+ */
+void MC_getWheelSpeeds(double * speeds);
 
 #endif /* _MC */
 
