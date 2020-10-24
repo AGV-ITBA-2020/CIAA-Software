@@ -32,7 +32,8 @@ typedef enum
 	DIAG_ID_wRPID,
 	DIAG_ID_wLPID,
 	DIAG_ID_CMD,
-	DIAG_ID_VWSPD,
+	DIAG_ID_VWSPD,	// Vehicle Speed
+	DIAG_ID_WHSPD,	// Wheel Speed
 	DIAG_ID_MOD_STOP,
 	DIAG_ID_MOD_START
 } MSG_ID_T;

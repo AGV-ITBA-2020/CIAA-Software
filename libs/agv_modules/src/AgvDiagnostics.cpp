@@ -14,7 +14,7 @@
 #include "task.h"
 #include "timers.h"
 
-// #include "printf.h"
+#include "printf.h"
 
 using namespace std;
 
@@ -56,7 +56,7 @@ void AgvDiag_Init()
 	uartInterrupt(UART_USB, true);
 	uartCallbackSet(UART_USB, UART_RECEIVE, (callBackFuncPtr_t)uartRxCallback);
 
-	configASSERT(xTaskCreate(MainTask, "AGV_DIAG_TASK", 512, NULL, 1, &xMainTaskToNotify) == pdTRUE);
+	configASSERT(xTaskCreate(MainTask, "AGV_DIAG_TASK", 100, NULL, 1, &xMainTaskToNotify) == pdTRUE);
 
 	xDiagTimerHandle = xTimerCreate("DiagTimer", TICK_TIMER_BASE, pdTRUE, 0, xTimerCallbackFunc);
 	configASSERT(xDiagTimerHandle != NULL);

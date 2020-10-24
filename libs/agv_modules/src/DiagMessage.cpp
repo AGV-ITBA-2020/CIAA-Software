@@ -81,6 +81,8 @@ MSG_ID_T DiagMessage::ParseIdCode(string str)
 		id = DIAG_ID_CMD;
 	else if(str.compare("VWSPD") == 0)
 		id = DIAG_ID_VWSPD;
+    else if(str.compare("WHSPD") == 0)
+        id = DIAG_ID_WHSPD;
 	else if(str.compare("STOP") == 0)
 		id = DIAG_ID_MOD_STOP;
 	else if(str.compare("START") == 0)

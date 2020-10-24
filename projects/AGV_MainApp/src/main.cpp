@@ -19,14 +19,15 @@
 EventGroupHandle_t xEventGroup;
 MISSION_T mission;
 
-// void testComCenter(void * ptr);
+ void testComCenter(void * ptr);
 
-// void testComCenter(void * ptr)
-// {
-// 	const TickType_t errDelay = pdMS_TO_TICKS( 12000 );
-// 	while(!CCO_connected());
-// 	for( ;; )
-// 	{
+ void testComCenter(void * ptr)
+ {
+ 	const TickType_t errDelay = pdMS_TO_TICKS( 12000 );
+	const TickType_t xDelay50ms = pdMS_TO_TICKS( 50 );
+ //	while(!CCO_connected());
+ 	for( ;; )
+ 	{
 // 		EventBits_t ev = xEventGroupWaitBits( xEventGroup,1,pdTRUE,pdFALSE,errDelay);
 // 		if(ev & GEG_COMS_RX)
 // 		{
@@ -42,10 +43,11 @@ MISSION_T mission;
 // 		}
 // 		else
 // 			assert(0);
+		vTaskDelay(xDelay50ms);
 
-// 	}
+ 	}
 
-// }
+ }
 
 int main( void )
 {
@@ -66,13 +68,9 @@ int main( void )
 	// initOk = PC_Init();
 	MC_Init();
 
-	// BaseType_t ret = xTaskCreate(testComCenter, "CCO Test", 100	, NULL, 1, NULL ); //Task para debuggear lo enviado
-	BaseType_t ret = pdPASS;
-	if(ret==pdPASS)
-	{
-		printf( "Starting RTOS...\r\n" );
-		vTaskStartScheduler();
-	}
+//	 BaseType_t ret = xTaskCreate(testComCenter, "CCO Test", 100	, NULL, 1, NULL ); //Task para debuggear lo enviado
+//	printf( "Starting RTOS...\r\n" );
+	vTaskStartScheduler();
 
 	// if(initOk == true)
 	// {
