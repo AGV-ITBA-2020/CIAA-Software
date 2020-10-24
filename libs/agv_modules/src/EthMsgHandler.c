@@ -60,6 +60,7 @@ void uartCallback(void* a) //Se llama cada vez que hubo 8 bytes entrando o un ti
 		connected=1;
 		uartReadByte(EMH_UART, &recievedByte ); //Lee el caracter
 		uartWriteString( EMH_UART, EMH_ESP_HEADER); //Le manda el header
+		uartWriteByte( EMH_UART, 0  );
 	}
 
 	while(uartReadByte(EMH_UART, &recBuffer.array[recBufCount])) //Lee la UART hasta vaciarla
