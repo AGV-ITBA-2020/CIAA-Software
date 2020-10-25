@@ -6,14 +6,17 @@ void mainTask(void * ptr);
 
 void mainTask(void * ptr)
 {
-	const TickType_t xDelay5s = pdMS_TO_TICKS( 5000 );
+	const TickType_t xDelay50ms = pdMS_TO_TICKS( 50 );
 	for( ;; )
 	{
-		uint32_t simpleCount = EncoderV2_GetCount(ENCODER_LEFT);
-		uint32_t filteredCount =EncoderV2_GetCountFiltered(ENCODER_LEFT,SEC_TO_COUNT(2e-3),SEC_TO_COUNT(50e-3));
-		printf("sC= %d, fC=%d",simpleCount ,filteredCount );
-		//printf("sCHz= %f, fCHz=%f",1/COUNT_TO_SECS(simpleCount) ,1/COUNT_TO_SECS(filteredCount) );
-		vTaskDelay( xDelay5s );
+		//uint32_t simpleCount = EncoderV2_GetCount(ENCODER_LEFT);
+		//uint32_t simpleCount = EncoderV2_GetCountFiltered(ENCODER_LEFT ,SEC_TO_COUNT(2e-3),SEC_TO_COUNT(50e-3));
+		uint32_t simpleCount = EncoderV2_GetCountMedian(ENCODER_LEFT);
+		//uint32_t filteredCount =EncoderV2_GetCountFiltered(ENCODER_LEFT,SEC_TO_COUNT(2e-3),SEC_TO_COUNT(50e-3));
+		//printf("sC= %d, fC=%d",simpleCount ,filteredCount );
+		float test = (float)simpleCount / 2.04e6;
+		printf("sCHz %d \n",int(10000.0* test)  );
+		vTaskDelay( xDelay50ms );
 	}
 }
 
