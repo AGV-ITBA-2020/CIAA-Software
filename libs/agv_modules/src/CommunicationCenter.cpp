@@ -77,6 +77,8 @@ MSG_REC_HEADER_T CCO_getMsgType()
 		retVal=CCO_PAUSE_MISSION;
 	else if(header =="Fixed speed")
 		retVal=CCO_SET_VEL;
+	else if(header =="Set K PID")
+		retVal=CCO_SET_K_PID;
 	else
 		retVal=CCO_NOT_DEF;
 
@@ -175,6 +177,18 @@ double CCO_getAngSpeed()
 	string auxStr = auxRecMsg.array;
 	auxStr=getData(auxStr);
 	return stoi(auxStr.substr(auxStr.find_first_of(' ')+1))*0.1;
+}
+PID_KS CCO_GetPIDKs()
+{
+	PID_KS retVal;
+	string auxStr = auxRecMsg.array;
+	auxStr=getData(auxStr);
+	retVal.Kp = stof(auxStr);
+	auxStr=auxStr.substr(auxStr.find_first_of(' ')+1);
+	retVal.Ki = stof(auxStr);
+	auxStr=auxStr.substr(auxStr.find_first_of(' ')+1);
+	retVal.Kd = stof(auxStr);
+	return retVal;
 }
 
 bool_t CCO_sendMsgWithoutData(MSG_SEND_HEADER_T msg)
