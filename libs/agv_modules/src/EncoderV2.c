@@ -4,6 +4,10 @@
  *  Created on: 3 sep. 2020
  *      Author: mdevo
  */
+#include "Encoder.h"
+
+#if(ENCODER_VERSION == 2)
+
 #include "EncoderV2.h"
 #include "scu_18xx_43xx.h"
 #include "gima_18xx_43xx.h"
@@ -156,3 +160,5 @@ void interruptRoutine(ENCODER_CHANNEL_T ch)
 	Chip_TIMER_ClearCapture(encoder->timer, encoder->captureNum);
 	//Acá se podría poner disable del interrupt en caso de solo tomar una medición en vez de un promedio
 }
+
+#endif

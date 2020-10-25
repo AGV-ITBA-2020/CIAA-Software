@@ -71,7 +71,8 @@ void mcmMainTask(void * ptr);
  * @param:	Placeholder
  * @note:	The MC is in charge of controlling the speed and direction of the vehicle.
  */
-double calculateInputSpeed(uint32_t value);
+// double calculateInputSpeed(uint32_t value);
+double calculateInputSpeed(double timeBetweenSteps);
 
 /*
  * @brief:	Initialize the MC module
@@ -113,7 +114,8 @@ void MotorController_t::init(void){
 	gpioWrite(in1,1);
 	gpioWrite(in2,0);
 
-	Encoder_Init(encoderCh);
+	// Encoder_Init(encoderCh);
+	EncoderV2_Init(encoderCh);
 
 	// Turn the PID on
   	pidController.SetMode(AUTOMATIC);	
@@ -155,8 +157,10 @@ void MotorController_t::getSpeed(void)
 	// for(int i = SPEED_INPUT_DATA_LENGTH - 1; i > 0; --i){
 	// 	inputData[i] = inputData[i - 1];
 	// }
-	inputData = (float32_t)calculateInputSpeed(Encoder_GetCount(encoderCh));
-	Encoder_ResetCount(encoderCh);
+	// inputData = (float32_t)calculateInputSpeed(Encoder_GetCount(encoderCh));
+	inputData = (float32_t)calculateInputSpeed(COUNT_TO_SECS(EncoderV2_GetCountMedian(encoderCh)));
+	// Encoder_ResetCount(encoderCh);
+	EncoderV2_ResetCount(encoderCh);
 }
 
 /*
@@ -250,9 +254,11 @@ void mcmMainTask(void * ptr)
  * @param:	Placeholder
  * @note:	The MC is in charge of controlling the speed and direction of the vehicle.
  */
-double calculateInputSpeed(uint32_t value)
+// double calculateInputSpeed(uint32_t value)
+double calculateInputSpeed(double timeBetweenSteps)
 {
-	double speed = (double) value/(ENCODER_STEPS_PER_REVOLUTION * CONTROL_SAMPLE_PERIOD_MS * 0.001 * REDUCTION_FACTOR)*2.0*3.1415; // Velocidad angular del eje de las ruedas
+	// double speed = (double) value/(ENCODER_STEPS_PER_REVOLUTION * CONTROL_SAMPLE_PERIOD_MS * 0.001 * REDUCTION_FACTOR)*2.0*3.1415; // Velocidad angular del eje de las ruedas
+	double speed = 1.0/(ENCODER_STEPS_PER_REVOLUTION * timeBetweenSteps * REDUCTION_FACTOR)*2.0*3.1415; // Velocidad angular del eje de las ruedas
 	
 	return (speed >= 2*MAX_ANGULAR_SPEED) ? MAX_ANGULAR_SPEED : speed; // Esto es para filtrar el ruido de medida (mediciones absurdas del encoder las saturamos)
 }

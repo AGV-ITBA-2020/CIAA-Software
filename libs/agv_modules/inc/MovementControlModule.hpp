@@ -16,7 +16,8 @@
 
 /*==================[inclusions]=============================================*/
 #include "PID_v1.hpp"
-#include "Encoder.h"
+// #include "Encoder.h"
+#include "EncoderV2.h"
 #include "arm_math.h"
 
 using namespace pid;

@@ -12,6 +12,10 @@
 extern "C" {
 #endif
 
+#include "Encoder.h"
+#if(ENCODER_VERSION == 2)
+
+
 #include "my_sapi.h"
 #include "chip.h"
 
@@ -32,6 +36,9 @@ uint32_t EncoderV2_GetCount(ENCODER_CHANNEL_T ch);
 uint32_t EncoderV2_GetCountFiltered(ENCODER_CHANNEL_T ch,uint32_t minCount,uint32_t maxCount);
 void EncoderV2_ResetCount(ENCODER_CHANNEL_T ch);
 uint32_t EncoderV2_GetCountMedian(ENCODER_CHANNEL_T ch);
+
+
+#endif
 
 #ifdef __cplusplus
 }
