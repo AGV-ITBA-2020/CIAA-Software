@@ -34,7 +34,10 @@ using namespace pid;
 
 #define MAX_ANGULAR_SPEED	5.4	// rad/s Midiendo la salida del eje de las ruedas con la fuente de 12 V sobre el motor DERECHO
 #define MAX_DUTY_CYCLE		100.0
-#define MAX_SCT_DUTY_CYCLE	250.0
+#define MAX_SCT_DUTY_CYCLE	255.0
+#define MIN_SCT_DUTY_CYCLE 104.0
+#define TRUNCATE_SCT_DUTY_CYCLE 130.0
+#define DC_TO_SCT_MAPPING_ALPHA ((MAX_SCT_DUTY_CYCLE-MIN_SCT_DUTY_CYCLE)/MAX_DUTY_CYCLE)
 #define REDUCTION_FACTOR	60.06
 
 #define CONTROL_SAMPLE_PERIOD_MS 50.0
@@ -55,7 +58,7 @@ const float32_t firCoeffs32[ FILTER_ORDER ] =
 
 /*==================[internal data declaration]==============================*/
 AGVMovementModule_t movementModule;
-
+bool_t useFilter = true;
 
 /*==================[internal functions declaration]=========================*/
 /*******Tasks*********/
@@ -170,10 +173,10 @@ void MotorController_t::getSpeed(void)
  */
 void MotorController_t::setSpeed(void)
 {
+	uint8_t sctDuty = DC_TO_SCT_MAPPING_ALPHA * output + MIN_SCT_DUTY_CYCLE;
+	if(sctDuty <= TRUNCATE_SCT_DUTY_CYCLE )
+		sctDuty = 0;
 
-	uint8_t sctDuty = output*MAX_SCT_DUTY_CYCLE/MAX_DUTY_CYCLE;
-	if(sctDuty > MAX_SCT_DUTY_CYCLE)
-		sctDuty = MAX_SCT_DUTY_CYCLE;
 	if(sctDuty < 0){
 		setMotorDirection(true);
 	}else{
@@ -189,8 +192,27 @@ void MotorController_t::setSpeed(void)
  */
 void MotorController_t::filterInput(void)
 {
-	arm_fir_f32(&S, &inputData, &inputFiltered, BLOCK_SIZE);
-	input = USE_FILTER ? (double)inputFiltered : (double)inputData;
+	if(useFilter)
+		arm_fir_f32(&S, &inputData, &inputFiltered, BLOCK_SIZE);
+	input = useFilter ? (double)inputFiltered : (double)inputData;
+}
+
+/*
+ * @brief:	calculateSpeeds output values
+ * @param:	Placeholder
+ * @note:	Is just a testing function for now.
+ */
+void MotorController_t::Compute(void)
+{
+	if(setpoint == 0)	// Si llega unsetpoint 0, queremos pasar a modo manual para controlar el ouput y ponerlo en 0
+	{
+		pidController.SetMode(MANUAL);
+		output = 0;
+	}
+	else if(!pidController.Compute()){	// Sino tratamos de computar/computamos el PID
+		pidController.SetMode(AUTOMATIC);	// Si todav[ia esta en modo manual, lo pasamos a modo automatico y computamos
+		pidController.Compute();
+	}
 }
 
 /*
@@ -239,8 +261,10 @@ void mcmMainTask(void * ptr)
 		movementModule.leftMotor.filterInput();
 		movementModule.rightMotor.filterInput();
 		
-		movementModule.rightMotor.pidController.Compute();
-		movementModule.leftMotor.pidController.Compute();
+		movementModule.rightMotor.Compute();
+		movementModule.leftMotor.Compute();
+
+
 
 		movementModule.leftMotor.setSpeed();
 		movementModule.rightMotor.setSpeed();
@@ -364,4 +388,14 @@ void MC_getLeftPIDTunings(double * Kp, double * Ki, double * Kd)
 	*Ki = movementModule.leftMotor.pidController.GetKi();
 	*Kd = movementModule.leftMotor.pidController.GetKd();
 }
+
+void MC_SetFilterState(bool_t state)
+{
+	useFilter = state;
+}
+bool_t MC_GetFilterState()
+{
+	return useFilter;
+}
+
 /*==================[end of file]============================================*/

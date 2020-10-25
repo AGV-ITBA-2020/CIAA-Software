@@ -4,6 +4,34 @@
 		"selected_items":
 		[
 			[
+				"Set",
+				"SetTunings"
+			],
+			[
+				"MAX",
+				"MAX_DUTY_CYCLE"
+			],
+			[
+				"MA",
+				"MAX_SCT_DUTY_CYCLE"
+			],
+			[
+				"meas",
+				"measAverage"
+			],
+			[
+				"bool",
+				"bool_t"
+			],
+			[
+				"pid",
+				"pidController"
+			],
+			[
+				"movem",
+				"movementModule"
+			],
+			[
 				"TIMER",
 				"TICK_TIMER_BASE"
 			],
@@ -102,10 +130,6 @@
 			[
 				"curr",
 				"currSpeed"
-			],
-			[
-				"MAX",
-				"MAX_SPEED"
 			],
 			[
 				"MIN",
@@ -490,30 +514,6 @@
 			[
 				"MAIL_MAX",
 				"MAIL_MAX_CONSECUTIVE_ATTEMPTS"
-			],
-			[
-				"timeout",
-				"timeoutTick"
-			],
-			[
-				"ME",
-				"ME_FIFO_FULL"
-			],
-			[
-				"syst",
-				"systemErrorCode"
-			],
-			[
-				"err",
-				"errorCount"
-			],
-			[
-				"sys",
-				"systemErrorCode"
-			],
-			[
-				"send",
-				"sendError"
 			]
 		]
 	},
@@ -569,14 +569,15 @@
 	},
 	"file_history":
 	[
+		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/PID_v1.hpp",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/Encoder.h",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/src/DiagMessage.cpp",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/DiagMessage.h",
 		"/E/GitHub/CIAA-Software/libs/agv_modules/src/CommunicationCenter.cpp",
 		"/F/MATLAB R2018a/MATLAB R2018a Win/MATLAB R2018a Win64 Crack/readme.txt",
 		"/E/Setups/MATLAB R2018a/MATLAB R2018a Win/MATLAB R2018a Win64 Crack/readme.txt",
 		"/E/GitHub/CIAA-Software/libs/agv_modules/src/MovementControlModule.cpp",
-		"/E/GitHub/CIAA-Software/libs/agv_modules/src/DiagMessage.cpp",
-		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/DiagMessage.h",
 		"/E/GitHub/CIAA-Software/projects/Communication/tests/MergeMC_CCO.cpp",
-		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/Encoder.h",
 		"/E/GitHub/CIAA-Software/projects/VL53L0X/src/VL53L0X.c",
 		"/E/GitHub/CIAA-Software/projects/AGV_Diagnostics/inc/AgvDiagnostics.hpp",
 		"/E/GitHub/CIAA-Software/libs/sapi/sapi_v0.5.2/soc/peripherals/inc/sapi_uart.h",
@@ -695,12 +696,11 @@
 		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/control.json",
 		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/RegDriver.p",
 		"/C/Users/mdevo/AppData/Local/Temp/_tc/scripts/user/RegDriver.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Sim.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Sim.inc"
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Sim.p"
 	],
 	"find":
 	{
-		"height": 27.0
+		"height": 39.0
 	},
 	"find_in_files":
 	{
@@ -715,6 +715,17 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"AUTOMATIC",
+			"inAuto",
+			"pone",
+			"HISTERESIS_SCT_DUTY_CYCLE",
+			"useFilter",
+			"USE_FILTER",
+			"kpid",
+			"speeds",
+			"kpid",
+			"leftMotor",
+			"Kp",
 			"    ",
 			"   ",
 			"speeds",
@@ -831,18 +842,7 @@
 			"str_opEn",
 			"DISABLE_MAIL_WARNINGS",
 			"DISABLE_OP_AUTO_RESTORE",
-			"sim_",
-			"StartFan",
-			"CheckFanOverload",
-			"sensorsOk",
-			"cmpA[mileage]",
-			"cmpA[timeOn]",
-			"SAVED_OP_STATE",
-			"DISABLE_CMP_B",
-			"DISABLE_CMP_A",
-			"formStopOperation",
-			"DISABLE_CMP_B",
-			"BYPASS_NOT_ENABLES_FAN1"
+			"sim_"
 		],
 		"highlight": true,
 		"in_selection": false,

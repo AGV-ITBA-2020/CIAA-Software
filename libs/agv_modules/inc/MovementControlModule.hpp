@@ -26,7 +26,7 @@ using namespace pid;
 /*==================[macros and definitions]=================================*/
 #define BLOCK_SIZE          1
 #define FILTER_ORDER        21
-#define USE_FILTER          0
+
 
 #define AGV_AXIS_LONGITUDE 0.5
 #define AGV_WHEEL_DIAMETER 0.25
@@ -49,6 +49,7 @@ class MotorController_t{
         void getSpeed(void);
         void setSpeed(void);
         void filterInput(void);
+        void Compute(void);
 
         PID pidController;
         gpioMap_t in1, in2;
@@ -135,6 +136,14 @@ void MC_setLeftPIDTunings(double Kp, double Ki, double Kd);
  */
 void MC_getLeftPIDTunings(double * Kp, double * Ki, double * Kd);
 void MC_getRightPIDTunings(double * Kp, double * Ki, double * Kd);
+
+/*
+ * @brief:  
+ * @param:  
+ * @note:   
+ */
+void MC_SetFilterState(bool_t state);
+bool_t MC_GetFilterState();
 
 #endif /* _MC */
 

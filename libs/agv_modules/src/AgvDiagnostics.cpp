@@ -21,7 +21,7 @@ using namespace std;
 
 #define RX_BUFFER_SIZE 128
 #define TICK_TIMER_BASE pdMS_TO_TICKS(200)
-#define JOYSTICK_DEFAULT_TICK_TIMEOUT 5
+#define JOYSTICK_DEFAULT_TICK_TIMEOUT 10
 #define PID_DEFAULT_TICK_PERIOD 2
 
 #define TO_PRINT(x) ((int)(x*100.0))
@@ -121,6 +121,8 @@ static void RunModuleServices()
 		// Joystick currTick resets when message is received. Therefore, tickPeriod means timeout and service shutdown
 		if(++info.joystick.currTick == info.joystick.tickPeriod)
 		{
+			MC_setLinearSpeed(0.0);
+			MC_setAngularSpeed(0.0);
 			info.joystick.currTick = 0;
 			info.joystick.on = false;
 			printf("DIAG>MSG;Joystick timeout!! \r\n");
@@ -168,6 +170,12 @@ static bool ProcessMessage()
 					if(info.joystick.on == false)	// Then timer must be stopped
 						configASSERT(xTimerStop(xDiagTimerHandle, 0) == pdPASS);
 					info.pidViewer.on = false;
+				}
+				else if(msg->id == DIAG_ID_FILT)
+				{
+					MC_SetFilterState((msg->values[0] == 1.0) ? true : false);
+					printf("CM>FILT;%s\r\n", (MC_GetFilterState() ? "1.0" : "0.0"));
+					fflush(stdout);
 				}
 
 			}

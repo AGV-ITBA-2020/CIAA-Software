@@ -86,6 +86,8 @@ MSG_ID_T DiagMessage::ParseIdCode(string str)
 		id = DIAG_ID_MOD_STOP;
 	else if(str.compare("START") == 0)
 		id = DIAG_ID_MOD_START;
+    else if(str.compare("FILT") == 0)
+        id = DIAG_ID_FILT;
 
 	return id;
 }

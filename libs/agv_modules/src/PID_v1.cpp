@@ -189,6 +189,7 @@ void PID::Initialize()
    else if(outputSum < outMin) outputSum = outMin;
 }
 
+
 /* SetControllerDirection(...)*************************************************
  * The PID will either be connected to a DIRECT acting process (+Output leads
  * to +Input) or a REVERSE acting process(+Output leads to -Input.)  we need to

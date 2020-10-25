@@ -15,8 +15,6 @@
 
 #define MAX_ENC_SAMPLES 10 //Cantidad máxima de flancos positivos que hay entre cada período de control
 
-
-
 typedef struct {
 	int gpioPort;
 	int gpioPin;
@@ -128,6 +126,8 @@ uint32_t EncoderV2_GetCountMedian(ENCODER_CHANNEL_T ch)
 	}
 	if(totalCount>0)
 		measAverage = arrangedArray[(int)(totalCount/2)];
+	else
+		measAverage = SEC_TO_COUNT(1);	// Asumir que el tiempo entre counts es muy alto.
 	encoder->measCount=0;
 	NVIC_EnableIRQ( encoder->timerIrqAddr); //Habilita interrupción de vuelta
 	return measAverage;
