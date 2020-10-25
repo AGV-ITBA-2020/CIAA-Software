@@ -17,12 +17,15 @@
 /*==================[inclusions]=============================================*/
 #include "PID_v1.hpp"
 #include "Encoder.h"
+#include "arm_math.h"
 
 using namespace pid;
 // using namespace std;
 
 /*==================[macros and definitions]=================================*/
-#define FILTER_ORDER 25
+#define BLOCK_SIZE          1
+#define FILTER_ORDER        21
+#define USE_FILTER          0
 
 #define AGV_AXIS_LONGITUDE 0.5
 #define AGV_WHEEL_DIAMETER 0.25
@@ -44,13 +47,21 @@ class MotorController_t{
         uint8_t outputDutyToPeripheralPWM(double duty);
         void getSpeed(void);
         void setSpeed(void);
+        void filterInput(void);
 
         PID pidController;
         gpioMap_t in1, in2;
         uint8_t enableSCTOut;
         ENCODER_CHANNEL_T encoderCh;
         double input, output, setpoint;
-        double inputData[SPEED_INPUT_DATA_LENGTH];
+
+        /* -------------------------------------------------------------------
+        * Declare State buffer of size (numTaps + blockSize - 1)
+        * ------------------------------------------------------------------- */
+        float32_t firStateF32[BLOCK_SIZE + FILTER_ORDER - 1];
+        // float32_t input, inputData[SPEED_INPUT_DATA_LENGTH];
+        float32_t inputFiltered, inputData;
+        arm_fir_instance_f32 S;
 
     private:
 };

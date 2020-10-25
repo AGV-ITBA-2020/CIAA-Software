@@ -41,11 +41,16 @@ using namespace pid;
 
 #define abs(x)  ( (x<0) ? -(x) : x )
 
-
-double coeffs[ FILTER_ORDER ] =
+const float32_t firCoeffs32[ FILTER_ORDER ] =
 {
+	// Filtro minimax orden 20:
+	0.0182,    0.0041,   -0.0176,   -0.0436,   -0.0555,   -0.0407,    0.0037,    0.0729,    0.1532,    0.2201,
+	0.2465,    0.2201,    0.1532,    0.0729,    0.0037,   -0.0407,   -0.0555,   -0.0436,   -0.0176,    0.0041,
+	0.0182
+
+	// Filtro messi orden 10
 //	0.0035, -0.0214, 0.0630, -0.1249, 0.1834, 0.7923, 0.1834, -0.1249, 0.0630, -0.0214
-		0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1
+		// 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1
 };
 
 /*==================[internal data declaration]==============================*/
@@ -114,6 +119,9 @@ void MotorController_t::init(void){
   	pidController.SetMode(AUTOMATIC);	
   	pidController.SetOutputLimits(0, MAX_DUTY_CYCLE);
 	pidController.SetSampleTime(CONTROL_SAMPLE_PERIOD_MS);
+
+	/* Call FIR init function to initialize the instance structure. */
+  	arm_fir_init_f32(&S, FILTER_ORDER, (float32_t *)&firCoeffs32[0], &firStateF32[0], BLOCK_SIZE);
 }
 
 /*
@@ -144,10 +152,10 @@ void MotorController_t::setMotorDirection(bool_t direction)
  */
 void MotorController_t::getSpeed(void)
 {
-	for(int i = SPEED_INPUT_DATA_LENGTH - 1; i > 0; --i){
-		inputData[i] = inputData[i - 1];
-	}
-	inputData[0] = calculateInputSpeed(Encoder_GetCount(encoderCh));
+	// for(int i = SPEED_INPUT_DATA_LENGTH - 1; i > 0; --i){
+	// 	inputData[i] = inputData[i - 1];
+	// }
+	inputData = (float32_t)calculateInputSpeed(Encoder_GetCount(encoderCh));
 	Encoder_ResetCount(encoderCh);
 }
 
@@ -168,6 +176,17 @@ void MotorController_t::setSpeed(void)
 		setMotorDirection(false);
 	}
 	setMotorDutyCtcle(abs(sctDuty));
+}
+
+/*
+ * @brief:	calculateSpeeds output values
+ * @param:	Placeholder
+ * @note:	Is just a testing function for now.
+ */
+void MotorController_t::filterInput(void)
+{
+	arm_fir_f32(&S, &inputData, &inputFiltered, BLOCK_SIZE);
+	input = USE_FILTER ? (double)inputFiltered : (double)inputData;
 }
 
 /*
@@ -197,7 +216,6 @@ void AGVMovementModule_t::calculateSetpoints(void)
 	rightMotor.setpoint = setRight > MAX_ANGULAR_SPEED ? MAX_ANGULAR_SPEED : setRight;
 }
 
-
 /*******Tasks*********/
 /*
  * @brief:	Main task for the movement control module
@@ -212,8 +230,10 @@ void mcmMainTask(void * ptr)
 	{
 		movementModule.leftMotor.getSpeed();
 		movementModule.rightMotor.getSpeed();
-		movementModule.leftMotor.input = filter(movementModule.leftMotor.inputData);
-		movementModule.rightMotor.input = filter(movementModule.rightMotor.inputData);
+		// movementModule.leftMotor.input = filter(movementModule.leftMotor.inputData);
+		// movementModule.rightMotor.input = filter(movementModule.rightMotor.inputData);
+		movementModule.leftMotor.filterInput();
+		movementModule.rightMotor.filterInput();
 		
 		movementModule.rightMotor.pidController.Compute();
 		movementModule.leftMotor.pidController.Compute();
@@ -301,9 +321,9 @@ void MC_setAngularSpeed(double w)
 void MC_getWheelSpeeds(double * speeds)
 {
 	speeds[0] = movementModule.leftMotor.setpoint;
-	speeds[1] = movementModule.leftMotor.input;
+	speeds[1] = movementModule.leftMotor.inputFiltered;
 	speeds[2] = movementModule.rightMotor.setpoint;
-	speeds[3] = movementModule.rightMotor.input;
+	speeds[3] = movementModule.rightMotor.inputFiltered;
 }
 
 /*
