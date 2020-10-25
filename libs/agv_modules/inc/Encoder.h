@@ -12,6 +12,9 @@
 extern "C" {
 #endif
 
+#define ENCODER_VERSION 2
+#if(ENCODER_VERSION == 1)
+
 #include "my_sapi.h"
 #include "chip.h"
 
@@ -25,6 +28,8 @@ typedef enum {
 void Encoder_Init(ENCODER_CHANNEL_T ch);
 uint32_t Encoder_GetCount(ENCODER_CHANNEL_T ch);
 void Encoder_ResetCount(ENCODER_CHANNEL_T ch);
+
+#endif
 
 #ifdef __cplusplus
 }

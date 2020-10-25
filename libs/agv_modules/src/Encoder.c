@@ -4,7 +4,11 @@
  *  Created on: 3 sep. 2020
  *      Author: mdevo
  */
+
 #include "Encoder.h"
+
+#if(ENCODER_VERSION == 1)
+
 #include "scu_18xx_43xx.h"
 #include "gima_18xx_43xx.h"
 #include "timer_18xx_43xx.h"
@@ -58,3 +62,5 @@ void Encoder_ResetCount(ENCODER_CHANNEL_T ch)
 {
 	Chip_TIMER_Reset( ch == ENCODER_RIGHT ? encR.timer : encL.timer);
 }
+
+#endif
