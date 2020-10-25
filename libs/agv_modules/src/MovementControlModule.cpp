@@ -30,12 +30,12 @@ using namespace pid;
 #define LEFT_MOTOR_OUTPUT	CTOUT9
 #define RIGHT_MOTOR_OUTPUT	CTOUT8
 
-#define PWM_FREQUENCY 10000
+#define PWM_FREQUENCY 20000
 
-#define MAX_ANGULAR_SPEED 4.0
-#define MAX_DUTY_CYCLE 100.0
-#define MAX_SCT_DUTY_CYCLE 250.0
-#define REDUCTION_FACTOR 60.06
+#define MAX_ANGULAR_SPEED	5.4	// rad/s Midiendo la salida del eje de las ruedas con la fuente de 12 V sobre el motor DERECHO
+#define MAX_DUTY_CYCLE		100.0
+#define MAX_SCT_DUTY_CYCLE	250.0
+#define REDUCTION_FACTOR	60.06
 
 #define CONTROL_SAMPLE_PERIOD_MS 50.0
 
@@ -44,7 +44,8 @@ using namespace pid;
 
 double coeffs[ FILTER_ORDER ] =
 {
-	0.0035, -0.0214, 0.0630, -0.1249, 0.1834, 0.7923, 0.1834, -0.1249, 0.0630, -0.0214
+//	0.0035, -0.0214, 0.0630, -0.1249, 0.1834, 0.7923, 0.1834, -0.1249, 0.0630, -0.0214
+		0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1
 };
 
 /*==================[internal data declaration]==============================*/
@@ -151,7 +152,7 @@ void MotorController_t::getSpeed(void)
 }
 
 /*
- * @brief:	cconvertRPM to dutyCycle
+ * @brief:	cconvert percentage to dutyCycle
  * @param:	w es la velocidad angular medida en la rueda
  * @note:	Converts RPM speed to dutyCycle value.
  */
@@ -187,8 +188,13 @@ rightMotor(DO4, DO5, RIGHT_MOTOR_OUTPUT, ENCODER_RIGHT) {
  */
 void AGVMovementModule_t::calculateSetpoints(void)
 {
-	leftMotor.setpoint = (linearSpeed + angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;		// Velocidad angular de las ruedas
-	rightMotor.setpoint = (linearSpeed - angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
+	static double setLeft, setRight;
+
+	setLeft = (linearSpeed + angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS; 		// Velocidad angular de las ruedas
+	setRight = (linearSpeed - angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
+
+	leftMotor.setpoint = setLeft > MAX_ANGULAR_SPEED ? MAX_ANGULAR_SPEED : setLeft;
+	rightMotor.setpoint = setRight > MAX_ANGULAR_SPEED ? MAX_ANGULAR_SPEED : setRight;
 }
 
 
@@ -204,7 +210,6 @@ void mcmMainTask(void * ptr)
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 	for( ;; )
 	{
-		movementModule.calculateSetpoints();
 		movementModule.leftMotor.getSpeed();
 		movementModule.rightMotor.getSpeed();
 		movementModule.leftMotor.input = filter(movementModule.leftMotor.inputData);
@@ -227,9 +232,9 @@ void mcmMainTask(void * ptr)
  */
 double calculateInputSpeed(uint32_t value)
 {
-	double speed = (double) value/(ENCODER_STEPS_PER_REVOLUTION * CONTROL_SAMPLE_PERIOD_MS * 0.001 * REDUCTION_FACTOR)*2.0*3.1415;
+	double speed = (double) value/(ENCODER_STEPS_PER_REVOLUTION * CONTROL_SAMPLE_PERIOD_MS * 0.001 * REDUCTION_FACTOR)*2.0*3.1415; // Velocidad angular del eje de las ruedas
 	
-	return (speed >= 2*MAX_ANGULAR_SPEED) ? MAX_ANGULAR_SPEED : speed;
+	return (speed >= 2*MAX_ANGULAR_SPEED) ? MAX_ANGULAR_SPEED : speed; // Esto es para filtrar el ruido de medida (mediciones absurdas del encoder las saturamos)
 }
 
 /*
@@ -242,9 +247,10 @@ double filter(double inputData[])
 	static double ret;
 	ret = 0;
 	for(int i = 0; i < FILTER_ORDER; ++i){
-		ret +=  coeffs[i]*inputData[i];
+//		ret +=  coeffs[i]*inputData[i];
+		ret +=  inputData[i];
 	}
-	
+	ret = ret/((double)FILTER_ORDER);
 	return ret;
 }
 
@@ -273,6 +279,7 @@ void MC_Init(void)
 void MC_setLinearSpeed(double v)
 {
 	movementModule.setLinerSpeed(v);	// Recibe unvalor entre 0 y 1, tenemos que multiplicar por setpoint maximo
+	movementModule.calculateSetpoints();
 }
 
 /*
@@ -283,6 +290,7 @@ void MC_setLinearSpeed(double v)
 void MC_setAngularSpeed(double w)
 {
 	movementModule.setAngularSpeed(w);
+	movementModule.calculateSetpoints();
 }
 
 /*
@@ -305,8 +313,8 @@ void MC_getWheelSpeeds(double * speeds)
  */
 void MC_setPIDTunings(double Kp, double Ki, double Kd)
 {
-	movementModule.leftMotor.pidController.(Kp, Ki, Kd, 1);
-	movementModule.rightMotor.pidController.(Kp, Ki, Kd, 1);
+	movementModule.leftMotor.pidController.SetTunings(Kp, Ki, Kd, 1);
+	movementModule.rightMotor.pidController.SetTunings(Kp, Ki, Kd, 1);
 }
 
 /*==================[end of file]============================================*/

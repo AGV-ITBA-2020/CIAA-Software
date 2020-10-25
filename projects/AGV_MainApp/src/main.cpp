@@ -18,6 +18,7 @@
 
 EventGroupHandle_t xEventGroup;
 MISSION_T mission;
+PID_KS constants;
 
  void testComCenter(void * ptr);
 
@@ -38,6 +39,11 @@ MISSION_T mission;
  				MC_setLinearSpeed(CCO_getLinSpeed());
  				MC_setAngularSpeed(CCO_getAngSpeed());
  			}
+ 			else if(type==CCO_SET_K_PID)
+			{
+ 				constants = CCO_GetPIDKs();
+ 				MC_setPIDTunings(constants.Kp, constants.Ki, constants.Kd);
+			}
  			else
  				assert(0);
  		}
@@ -73,7 +79,7 @@ int main( void )
 	// initOk = PC_Init();
 	MC_Init();
 
-	BaseType_t ret = xTaskCreate(testComCenter, "CCO Test", 50	, NULL, 1, NULL ); //Task para debuggear lo enviado
+	BaseType_t ret = xTaskCreate(testComCenter, "CCO Test", 150	, NULL, 1, NULL ); //Task para debuggear lo enviado
 //	printf( "Starting RTOS...\r\n" );
 	vTaskStartScheduler();
 

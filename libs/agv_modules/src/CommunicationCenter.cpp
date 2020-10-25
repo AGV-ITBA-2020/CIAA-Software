@@ -169,14 +169,14 @@ double CCO_getLinSpeed()
 {
 	string auxStr = auxRecMsg.array;
 	auxStr=getData(auxStr);
-	return stoi(auxStr)*0.1;
+	return stoi(auxStr)*0.01;
 }
 
 double CCO_getAngSpeed()
 {
 	string auxStr = auxRecMsg.array;
 	auxStr=getData(auxStr);
-	return stoi(auxStr.substr(auxStr.find_first_of(' ')+1))*0.1;
+	return stoi(auxStr.substr(auxStr.find_first_of(' ')+1))*0.01;
 }
 PID_KS CCO_GetPIDKs()
 {

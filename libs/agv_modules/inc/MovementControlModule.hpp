@@ -22,13 +22,14 @@ using namespace pid;
 // using namespace std;
 
 /*==================[macros and definitions]=================================*/
-#define FILTER_ORDER 10
+#define FILTER_ORDER 25
 
 #define AGV_AXIS_LONGITUDE 0.5
 #define AGV_WHEEL_DIAMETER 0.25
 #define AGV_WHEEL_RADIUS (AGV_WHEEL_DIAMETER/2.0)
-#define PID_KP 5.0
-#define PID_KI 0.0
+// Los valores medios que conseguimos son Kp=3 Ki=5 Kd=0
+#define PID_KP 3.0
+#define PID_KI 5.0
 #define PID_KD 0.0
 #define SPEED_INPUT_DATA_LENGTH FILTER_ORDER
 
@@ -106,6 +107,13 @@ void MC_setAngularSpeed(double w);
  * @note:	This value will be controlled by a PID, so settlement time must be taken into account.
  */
 void MC_getWheelSpeeds(double * speeds);
+
+/*
+ * @brief:	Sets the angular speed for the vehicle.
+ * @param:	w:   angular speed, as a double the sign defines if is clockwise or anti-clockwise.
+ * @note:	This value will be controlled by a PID, so settlement time must be taken into account.
+ */
+void MC_setPIDTunings(double Kp, double Ki, double Kd);
 
 #endif /* _MC */
 
