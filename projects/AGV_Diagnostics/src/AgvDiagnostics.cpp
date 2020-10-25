@@ -5,13 +5,17 @@
  *      Author: mdevo
  */
 
-#include "../inc/AgvDiagnostics.hpp"
+#include "AgvDiagnostics.hpp"
+#include <stdio.h>
+#include "DiagMessage.h"
+#include "MovementControlModule.hpp"
 
-#include "../inc/DiagMessage.h"
 #include "my_sapi_uart.h"
+
 #include "task.h"
 #include "timers.h"
-#include "printf.h"
+
+//#include "printf.h"
 
 using namespace std;
 
@@ -53,13 +57,15 @@ void AgvDiag_Init()
 	uartInterrupt(UART_USB, true);
 	uartCallbackSet(UART_USB, UART_RECEIVE, (callBackFuncPtr_t)uartRxCallback);
 
-	configASSERT(xTaskCreate(MainTask, "AGV_DIAG_TASK", 512, NULL, 1, &xMainTaskToNotify) == pdTRUE);
+	configASSERT(xTaskCreate(MainTask, "AGV_DIAG_TASK", 100, NULL, 1, &xMainTaskToNotify) == pdTRUE);
 
 	xDiagTimerHandle = xTimerCreate("DiagTimer", TICK_TIMER_BASE, pdTRUE, 0, xTimerCallbackFunc);
 	configASSERT(xDiagTimerHandle != NULL);
 
-	info.diagOn = false;
+	info.diagOn = true;
 	info.pidViewer.tickPeriod = PID_DEFAULT_TICK_PERIOD;
+//	info.pidViewer.on = true;
+//	configASSERT(xTimerReset(xDiagTimerHandle, 0) == pdPASS);
 }
 
 static void xTimerCallbackFunc( TimerHandle_t xTimer )
@@ -90,12 +96,13 @@ static void MainTask(void *pvParameters)
 
 static void SendSpeedValues()
 {
-	uint32_t Lspd = Encoder_GetCount(ENCODER_LEFT);
-	Encoder_ResetCount(ENCODER_LEFT);
-	uint32_t Rspd = Encoder_GetCount(ENCODER_RIGHT);
-	Encoder_ResetCount(ENCODER_RIGHT);
-	printf("CM>SPD;%.1f;%.1f;%.1f;%.1f\r\n", Rspd/2, Rspd/2*1.1, Lspd/2, Lspd/2*1.1);
+	double speeds[4];
+	MC_getWheelSpeeds(speeds);
 
+	taskENTER_CRITICAL();
+	printf("CM>SPD;%d;%d;%d;%d\r\n", (int)(speeds[2]*100.0), (int)(speeds[3]*100.0), (int)(speeds[0]*100.0), (int)(speeds[1]*100.0));
+	fflush(stdout);
+	taskEXIT_CRITICAL();
 }
 static void RunModuleServices()
 {
@@ -169,7 +176,9 @@ static bool ProcessMessage()
 			{
 				if(msg->id == DIAG_ID_VWSPD)
 				{
-					printf("CM>MSG;Setting V=%.1f W=%.1f\r\n", msg->values[0], msg->values[1]);
+					// printf("CM>MSG;Setting V=%.1f W=%.1f\r\n", msg->values[0], msg->values[1]);
+					MC_setLinearSpeed(msg->values[0]);
+					MC_setAngularSpeed(msg->values[1]);
 					info.joystick.currTick = 0;
 				}
 				else if(msg->id == DIAG_ID_MOD_STOP)

@@ -316,5 +316,26 @@ void MC_setPIDTunings(double Kp, double Ki, double Kd)
 	movementModule.leftMotor.pidController.SetTunings(Kp, Ki, Kd, 1);
 	movementModule.rightMotor.pidController.SetTunings(Kp, Ki, Kd, 1);
 }
+void MC_setRightPIDTunings(double Kp, double Ki, double Kd)
+{
+	movementModule.rightMotor.pidController.SetTunings(Kp, Ki, Kd, 1);
+}
+void MC_setLeftPIDTunings(double Kp, double Ki, double Kd)
+{
+	movementModule.leftMotor.pidController.SetTunings(Kp, Ki, Kd, 1);
+}
 
+void MC_getRightPIDTunings(double * Kp, double * Ki, double * Kd)
+{
+	*Kp = movementModule.rightMotor.pidController.GetKp();
+	*Ki = movementModule.rightMotor.pidController.GetKi();
+	*Kd = movementModule.rightMotor.pidController.GetKd();
+}
+
+void MC_getLeftPIDTunings(double * Kp, double * Ki, double * Kd)
+{
+	*Kp = movementModule.leftMotor.pidController.GetKp();
+	*Ki = movementModule.leftMotor.pidController.GetKi();
+	*Kd = movementModule.leftMotor.pidController.GetKd();
+}
 /*==================[end of file]============================================*/

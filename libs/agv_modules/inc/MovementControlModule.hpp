@@ -114,6 +114,15 @@ void MC_getWheelSpeeds(double * speeds);
  * @note:	This value will be controlled by a PID, so settlement time must be taken into account.
  */
 void MC_setPIDTunings(double Kp, double Ki, double Kd);
+void MC_setRightPIDTunings(double Kp, double Ki, double Kd);
+void MC_setLeftPIDTunings(double Kp, double Ki, double Kd);
+/*
+ * @brief:	Get PID constants
+ * @param:	
+ * @note:	
+ */
+void MC_getLeftPIDTunings(double * Kp, double * Ki, double * Kd);
+void MC_getRightPIDTunings(double * Kp, double * Ki, double * Kd);
 
 #endif /* _MC */
 

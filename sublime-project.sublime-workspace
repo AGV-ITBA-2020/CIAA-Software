@@ -569,6 +569,12 @@
 	},
 	"file_history":
 	[
+		"/E/GitHub/CIAA-Software/libs/agv_modules/src/CommunicationCenter.cpp",
+		"/F/MATLAB R2018a/MATLAB R2018a Win/MATLAB R2018a Win64 Crack/readme.txt",
+		"/E/Setups/MATLAB R2018a/MATLAB R2018a Win/MATLAB R2018a Win64 Crack/readme.txt",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/src/MovementControlModule.cpp",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/src/DiagMessage.cpp",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/DiagMessage.h",
 		"/E/GitHub/CIAA-Software/projects/Communication/tests/MergeMC_CCO.cpp",
 		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/Encoder.h",
 		"/E/GitHub/CIAA-Software/projects/VL53L0X/src/VL53L0X.c",
@@ -690,17 +696,11 @@
 		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/RegDriver.p",
 		"/C/Users/mdevo/AppData/Local/Temp/_tc/scripts/user/RegDriver.p",
 		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Sim.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Sim.inc",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/VirtualHmi.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/sysInfo.json",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/Documentacion/UpdateLog.txt",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/CmpHandler.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-90TR-W/GWF-90TR-W-git/scripts/user/ErrorCodes.inc",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/EmailDriver.p"
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Sim.inc"
 	],
 	"find":
 	{
-		"height": 28.0
+		"height": 27.0
 	},
 	"find_in_files":
 	{
@@ -715,6 +715,9 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"    ",
+			"   ",
+			"speeds",
 			"Lspd",
 			"Setting",
 			"DIAG_ID_MOD_START",
@@ -839,10 +842,7 @@
 			"DISABLE_CMP_A",
 			"formStopOperation",
 			"DISABLE_CMP_B",
-			"BYPASS_NOT_ENABLES_FAN1",
-			"NOT_BYPASS_ENABLES_FAN1",
-			"NOT_BYPASS_TAMB",
-			"DISABLE_CMP_A"
+			"BYPASS_NOT_ENABLES_FAN1"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -864,7 +864,7 @@
 	},
 	"incremental_find":
 	{
-		"height": 28.0
+		"height": 27.0
 	},
 	"input":
 	{
@@ -900,7 +900,7 @@
 	"pinned_build_system": "",
 	"replace":
 	{
-		"height": 52.0
+		"height": 50.0
 	},
 	"save_all_on_build": true,
 	"select_file":

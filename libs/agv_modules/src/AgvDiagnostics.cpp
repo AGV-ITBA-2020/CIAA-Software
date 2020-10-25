@@ -6,6 +6,7 @@
  */
 
 #include "AgvDiagnostics.hpp"
+#include <stdio.h>
 #include "DiagMessage.h"
 #include "MovementControlModule.hpp"
 
@@ -22,6 +23,8 @@ using namespace std;
 #define TICK_TIMER_BASE pdMS_TO_TICKS(200)
 #define JOYSTICK_DEFAULT_TICK_TIMEOUT 5
 #define PID_DEFAULT_TICK_PERIOD 2
+
+#define TO_PRINT(x) ((int)(x*100.0))
 
 typedef struct {
 	bool on;
@@ -97,7 +100,11 @@ static void SendSpeedValues()
 {
 	double speeds[4];
 	MC_getWheelSpeeds(speeds);
-	printf("CM>SPD;%d;%d;%d;%d\r\n", (int)(speeds[2]*100.0), (int)(speeds[3]*100.0), (int)(speeds[0]*100.0), (int)(speeds[1]*100.0));
+
+	//taskENTER_CRITICAL();
+	printf("CM>SPD;%d;%d;%d;%d\r\n", TO_PRINT(speeds[2]), TO_PRINT(speeds[3]), TO_PRINT(speeds[0]), TO_PRINT(speeds[1]));
+	fflush(stdout);
+	//taskEXIT_CRITICAL();
 }
 static void RunModuleServices()
 {
@@ -117,6 +124,7 @@ static void RunModuleServices()
 			info.joystick.currTick = 0;
 			info.joystick.on = false;
 			printf("DIAG>MSG;Joystick timeout!! \r\n");
+			fflush(stdout);
 		}
 	}
 }
@@ -134,19 +142,26 @@ static bool ProcessMessage()
 			{
 				if(msg->id == DIAG_ID_rRPID)
 				{
-					printf("CM>RPID;1.1;2.2;3.3\r\n");
+					double kpid[3];
+					MC_getRightPIDTunings(kpid, kpid+1, kpid+2);
+					printf("CM>RPID;%d;%d;%d\r\n", TO_PRINT(kpid[0]), TO_PRINT(kpid[1]), TO_PRINT(kpid[2]));
+					fflush(stdout);
 				}
 				else if(msg->id == DIAG_ID_rLPID)
 				{
-					printf("CM>LPID;10.1;20.2;30.3\r\n");
+					double kpid[3];
+					MC_getLeftPIDTunings(kpid, kpid+1, kpid+2);
+					printf("CM>LPID;%d;%d;%d\r\n", TO_PRINT(kpid[0]), TO_PRINT(kpid[1]), TO_PRINT(kpid[2]));
+					fflush(stdout);
 				}
 				else if(msg->id == DIAG_ID_wRPID)
 				{
-					printf("CM>MSG;Setting RPID: %.1f, %.1f, %.1f\r\n", msg->values[0], msg->values[1], msg->values[2]);
+					MC_setRightPIDTunings(msg->values[0], msg->values[1], msg->values[2]);
+					//printf("CM>MSG;Setting RPID: %.1f, %.1f, %.1f\r\n", msg->values[0], msg->values[1], msg->values[2]);
 				}
 				else if(msg->id == DIAG_ID_wLPID)
 				{
-					printf("CM>MSG;Setting LPID: %.1f, %.1f, %.1f\r\n", msg->values[0], msg->values[1], msg->values[2]);
+					MC_setLeftPIDTunings(msg->values[0], msg->values[1], msg->values[2]);
 				}
 				else if(msg->id == DIAG_ID_MOD_STOP)
 				{
