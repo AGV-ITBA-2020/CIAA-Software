@@ -14,7 +14,7 @@
 #include "task.h"
 #include "timers.h"
 
-#include "printf.h"
+//#include "printf.h"
 
 using namespace std;
 
@@ -61,8 +61,10 @@ void AgvDiag_Init()
 	xDiagTimerHandle = xTimerCreate("DiagTimer", TICK_TIMER_BASE, pdTRUE, 0, xTimerCallbackFunc);
 	configASSERT(xDiagTimerHandle != NULL);
 
-	info.diagOn = false;
+	info.diagOn = true;
 	info.pidViewer.tickPeriod = PID_DEFAULT_TICK_PERIOD;
+//	info.pidViewer.on = true;
+//	configASSERT(xTimerReset(xDiagTimerHandle, 0) == pdPASS);
 }
 
 static void xTimerCallbackFunc( TimerHandle_t xTimer )
@@ -95,8 +97,7 @@ static void SendSpeedValues()
 {
 	double speeds[4];
 	MC_getWheelSpeeds(speeds);
-	printf("CM>SPD;%.1f;%.1f;%.1f;%.1f\r\n", speeds[2], speeds[3], speeds[0], speeds[1]);
-
+	printf("CM>SPD;%d;%d;%d;%d\r\n", (int)(speeds[2]*100.0), (int)(speeds[3]*100.0), (int)(speeds[0]*100.0), (int)(speeds[1]*100.0));
 }
 static void RunModuleServices()
 {

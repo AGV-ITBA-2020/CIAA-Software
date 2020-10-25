@@ -96,7 +96,7 @@ void mainFSM(EventBits_t ev)
 
 void idleParseEv(EventBits_t ev)
 {
-	if(ev & GEG_MISSION_STARTED)
+	if(ev & GEG_MISSION_BLOCK_STARTED)
 	{
 		PCP_startNewMissionBlock(missionBlock);
 	}
@@ -130,5 +130,5 @@ void PC_Init(void)
 void PC_setMissionBlock(MISSION_BLOCK_T * mb)
 {
 	missionBlock = mb;
-	xEventGroupSetBits( xEventGroup, GEG_MISSION_STARTED );
+	xEventGroupSetBits( xEventGroup, GEG_MISSION_BLOCK_STARTED );
 }

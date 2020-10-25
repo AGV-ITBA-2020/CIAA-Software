@@ -25,28 +25,34 @@ MISSION_T mission;
  {
  	const TickType_t errDelay = pdMS_TO_TICKS( 12000 );
 	const TickType_t xDelay50ms = pdMS_TO_TICKS( 50 );
- //	while(!CCO_connected());
+ 	while(!CCO_connected());
  	for( ;; )
  	{
-// 		EventBits_t ev = xEventGroupWaitBits( xEventGroup,1,pdTRUE,pdFALSE,errDelay);
-// 		if(ev & GEG_COMS_RX)
-// 		{
-// 			int debug =1;
-// 			//MSG_REC_HEADER_T type = CCO_getMsgType();
-// //			if(type==CCO_SET_VEL)
-// //			{
-// 				MC_setLinearSpeed(CCO_getLinSpeed());
-// 				MC_setAngularSpeed(CCO_getAngSpeed());
-// //			}
-// //			else
-// //				assert(0);
-// 		}
-// 		else
-// 			assert(0);
+ 		EventBits_t ev = xEventGroupWaitBits( xEventGroup,GEG_COMS_RX,pdTRUE,pdFALSE,portMAX_DELAY);
+ 		if(ev & GEG_COMS_RX)
+ 		{
+ 			int debug =1;
+ 			MSG_REC_HEADER_T type = CCO_getMsgType();
+ 			if(type==CCO_SET_VEL)
+ 			{
+ 				MC_setLinearSpeed(CCO_getLinSpeed());
+ 				MC_setAngularSpeed(CCO_getAngSpeed());
+ 			}
+ 			else
+ 				assert(0);
+ 		}
+ 		else
+ 			assert(0);
 		vTaskDelay(xDelay50ms);
 
  	}
 
+ }
+
+ void vApplicaationMallocFailedHook(void)
+ {
+	 while(1)
+		 printf("MALLOC_FAILED");
  }
 
 int main( void )
@@ -60,15 +66,14 @@ int main( void )
 
 	// CC_init();
 
-	// xEventGroup =  xEventGroupCreate();
-	// CCO_init(xEventGroup);
-	// CCO_init();
+	 xEventGroup =  xEventGroupCreate();
+	CCO_init();
 	AgvDiag_Init();
 
 	// initOk = PC_Init();
 	MC_Init();
 
-//	 BaseType_t ret = xTaskCreate(testComCenter, "CCO Test", 100	, NULL, 1, NULL ); //Task para debuggear lo enviado
+	BaseType_t ret = xTaskCreate(testComCenter, "CCO Test", 50	, NULL, 1, NULL ); //Task para debuggear lo enviado
 //	printf( "Starting RTOS...\r\n" );
 	vTaskStartScheduler();
 

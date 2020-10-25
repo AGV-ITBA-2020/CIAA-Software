@@ -19,7 +19,6 @@
 #include "assert.h"
 #include "my_sapi.h"
 #include "event_groups.h"
-#include "MovementControlModule.h"
 #include "GlobalEventGroup.h"
 
 EventGroupHandle_t xEventGroup;

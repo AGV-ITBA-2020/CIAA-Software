@@ -98,7 +98,6 @@
 // FreeRTOS includes.
 #include "FreeRTOS.h"
 #include "task.h"
-#include "printf.h"
 
 // If this variable is true then pressing a key will end the application.  Some
 // examples set this to pdFALSE to allow key presses to be used by the

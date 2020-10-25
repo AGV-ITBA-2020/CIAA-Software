@@ -7,7 +7,6 @@
 
 #include "DiagMessage.h"
 
-#include "printf.h"
 
 DiagMessage::DiagMessage(char * buffer, uint32_t size)
 {

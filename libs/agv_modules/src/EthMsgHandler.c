@@ -77,7 +77,7 @@ void uartCallback(void* a) //Se llama cada vez que hubo 8 bytes entrando o un ti
 /*==================[external functions declaration]=========================*/
 
 
-bool_t EMH_init(callBackFuncPtr_t msgRecCallback,callBackFuncPtr_t connectionCallback)
+void EMH_init(callBackFuncPtr_t msgRecCallback,callBackFuncPtr_t connectionCallback)
 {
 	uartInit( EMH_UART, EMH_UART_BAUDRATE, LOOPBACK_MODE );
 	outCallback = msgRecCallback;

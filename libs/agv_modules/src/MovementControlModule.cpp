@@ -41,10 +41,10 @@ using namespace pid;
 
 #define abs(x)  ( (x<0) ? -(x) : x )
 
-#define FILTER_ORDER 2
+
 double coeffs[ FILTER_ORDER ] =
 {
-  0.5,  0.5
+	0.0035, -0.0214, 0.0630, -0.1249, 0.1834, 0.7923, 0.1834, -0.1249, 0.0630, -0.0214
 };
 
 /*==================[internal data declaration]==============================*/
@@ -187,7 +187,7 @@ rightMotor(DO4, DO5, RIGHT_MOTOR_OUTPUT, ENCODER_RIGHT) {
  */
 void AGVMovementModule_t::calculateSetpoints(void)
 {
-	leftMotor.setpoint = (linearSpeed + angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
+	leftMotor.setpoint = (linearSpeed + angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;		// Velocidad angular de las ruedas
 	rightMotor.setpoint = (linearSpeed - angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
 }
 
@@ -272,7 +272,7 @@ void MC_Init(void)
  */
 void MC_setLinearSpeed(double v)
 {
-	movementModule.setLinerSpeed(v);
+	movementModule.setLinerSpeed(v);	// Recibe unvalor entre 0 y 1, tenemos que multiplicar por setpoint maximo
 }
 
 /*
@@ -296,6 +296,17 @@ void MC_getWheelSpeeds(double * speeds)
 	speeds[1] = movementModule.leftMotor.input;
 	speeds[2] = movementModule.rightMotor.setpoint;
 	speeds[3] = movementModule.rightMotor.input;
+}
+
+/*
+ * @brief:	Sets the angular speed for the vehicle.
+ * @param:	w:   angular speed, as a double the sign defines if is clockwise or anti-clockwise.
+ * @note:	This value will be controlled by a PID, so settlement time must be taken into account.
+ */
+void MC_setPIDTunings(double Kp, double Ki, double Kd)
+{
+	movementModule.leftMotor.pidController.(Kp, Ki, Kd, 1);
+	movementModule.rightMotor.pidController.(Kp, Ki, Kd, 1);
 }
 
 /*==================[end of file]============================================*/
