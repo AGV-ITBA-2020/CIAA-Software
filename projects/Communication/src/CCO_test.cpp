@@ -37,6 +37,7 @@ void testComCenter(void * ptr)
 		{
 			int debug =1;
 			MSG_REC_HEADER_T type = CCO_getMsgType();
+			CCO_GetPIDKs();
 		}
 		else
 			assert(0);
