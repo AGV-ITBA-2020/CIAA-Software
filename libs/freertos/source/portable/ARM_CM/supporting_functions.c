@@ -114,7 +114,7 @@ void vAssertCalled( const char *pcFile, uint32_t ulLine )
 	before the following infinite loop is entered. */
 	taskENTER_CRITICAL();
 	{
-		printf("\r\nRTOS ASSERT!! Ln=%d ; File=%s \r\n", ulLine, pcFile);
+		printf("\r\nASSERT> Ln=%d ; File=%s \r\n", ulLine, pcFile);
 	    fflush( stdout );
 	}
 	taskEXIT_CRITICAL();

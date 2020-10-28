@@ -66,7 +66,7 @@ extern int DbgConsole_Printf( const char *fmt_s, ... );
 #define configTICK_RATE_HZ                           ( ( TickType_t ) 1000 ) // 1000 ticks per second => 1ms tick rate
 #define configMAX_PRIORITIES                         ( 7 )
 #define configMINIMAL_STACK_SIZE                     ( ( uint16_t ) 100 )
-#define configTOTAL_HEAP_SIZE                        ( ( size_t ) ( 8 * 1024 ) )    /* 85 Kbytes. */
+#define configTOTAL_HEAP_SIZE                        ( ( size_t ) ( 10 * 1024 ) )    /* 85 Kbytes. */
 #define configMAX_TASK_NAME_LEN                      ( 16 )
 #define configUSE_TRACE_FACILITY                     1
 #define configUSE_16_BIT_TICKS                       0
@@ -92,8 +92,9 @@ extern int DbgConsole_Printf( const char *fmt_s, ... );
 /* Software timer definitions. */
 #define configUSE_TIMERS                             1
 #define configTIMER_TASK_PRIORITY                    ( configMAX_PRIORITIES - 1 )
-#define configTIMER_QUEUE_LENGTH                     2
+#define configTIMER_QUEUE_LENGTH                     5
 #define configTIMER_TASK_STACK_DEPTH                 ( configMINIMAL_STACK_SIZE * 4 )
+#define configUSE_TASK_NOTIFICATIONS					  1
 
 /* Set the following definitions to 1 to include the API function, or zero
  * to exclude the API function. */

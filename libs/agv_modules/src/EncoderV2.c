@@ -4,14 +4,16 @@
  *  Created on: 3 sep. 2020
  *      Author: mdevo
  */
+#include "Encoder.h"
+
+#if(ENCODER_VERSION == 2)
+
 #include "EncoderV2.h"
 #include "scu_18xx_43xx.h"
 #include "gima_18xx_43xx.h"
 #include "timer_18xx_43xx.h"
 
 #define MAX_ENC_SAMPLES 10 //Cantidad máxima de flancos positivos que hay entre cada período de control
-
-
 
 typedef struct {
 	int gpioPort;
@@ -124,6 +126,8 @@ uint32_t EncoderV2_GetCountMedian(ENCODER_CHANNEL_T ch)
 	}
 	if(totalCount>0)
 		measAverage = arrangedArray[(int)(totalCount/2)];
+	else
+		measAverage = SEC_TO_COUNT(1);	// Asumir que el tiempo entre counts es muy alto.
 	encoder->measCount=0;
 	NVIC_EnableIRQ( encoder->timerIrqAddr); //Habilita interrupción de vuelta
 	return measAverage;
@@ -156,3 +160,5 @@ void interruptRoutine(ENCODER_CHANNEL_T ch)
 	Chip_TIMER_ClearCapture(encoder->timer, encoder->captureNum);
 	//Acá se podría poner disable del interrupt en caso de solo tomar una medición en vez de un promedio
 }
+
+#endif

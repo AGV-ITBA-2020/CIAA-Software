@@ -7,4 +7,3 @@ int main( void )
 	CC_init();
 	return 0;
 }
-

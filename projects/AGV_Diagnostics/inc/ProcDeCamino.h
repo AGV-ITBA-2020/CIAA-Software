@@ -20,6 +20,5 @@ enum PC_INPUT{
 #define PC_INPUT_TYPE PC_ADC
 #define TRACK_SAMPLE_PERIOD 500	// MS. Period between track info sampling.
 
-bool_t PC_Init();
 
 #endif /* PROCDECAMINO_H_ */

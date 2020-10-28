@@ -16,17 +16,26 @@
 
 /*==================[inclusions]=============================================*/
 #include "PID_v1.hpp"
-#include "Encoder.h"
+// #include "Encoder.h"
+#include "EncoderV2.h"
+#include "arm_math.h"
 
 using namespace pid;
+// using namespace std;
 
 /*==================[macros and definitions]=================================*/
+#define BLOCK_SIZE          1
+#define FILTER_ORDER        21
+
+
 #define AGV_AXIS_LONGITUDE 0.5
 #define AGV_WHEEL_DIAMETER 0.25
 #define AGV_WHEEL_RADIUS (AGV_WHEEL_DIAMETER/2.0)
-#define PID_KP 20.0
-#define PID_KI 1.5
+// Los valores medios que conseguimos son Kp=3 Ki=5 Kd=0
+#define PID_KP 3.0
+#define PID_KI 5.0
 #define PID_KD 0.0
+#define SPEED_INPUT_DATA_LENGTH FILTER_ORDER
 
 
 class MotorController_t{
@@ -39,6 +48,8 @@ class MotorController_t{
         uint8_t outputDutyToPeripheralPWM(double duty);
         void getSpeed(void);
         void setSpeed(void);
+        void filterInput(void);
+        void Compute(void);
 
         PID pidController;
         gpioMap_t in1, in2;
@@ -46,16 +57,28 @@ class MotorController_t{
         ENCODER_CHANNEL_T encoderCh;
         double input, output, setpoint;
 
+        /* -------------------------------------------------------------------
+        * Declare State buffer of size (numTaps + blockSize - 1)
+        * ------------------------------------------------------------------- */
+        float32_t firStateF32[BLOCK_SIZE + FILTER_ORDER - 1];
+        // float32_t input, inputData[SPEED_INPUT_DATA_LENGTH];
+        float32_t inputFiltered, inputData;
+        arm_fir_instance_f32 S;
+
     private:
 };
 
 class AGVMovementModule_t {
     public:
         AGVMovementModule_t();
-        void calculateSetpoints();
+        void calculateSetpoints();    
+        void setLinerSpeed(double v){ linearSpeed = v; };
+        void setAngularSpeed(double w){ angularSpeed = w; };
 
-        MotorController_t leftMotor;
-        MotorController_t rightMotor;
+        MotorController_t leftMotor, rightMotor;
+    
+    private:
+        double linearSpeed, angularSpeed;
 };
 
 /*==================[internal data declaration]==============================*/
@@ -91,7 +114,36 @@ void MC_setLinearSpeed(double v);
  */
 void MC_setAngularSpeed(double w);
 
+/*
+ * @brief:	Sets the angular speed for the vehicle.
+ * @param:	w:   angular speed, as a double the sign defines if is clockwise or anti-clockwise.
+ * @note:	This value will be controlled by a PID, so settlement time must be taken into account.
+ */
+void MC_getWheelSpeeds(double * speeds);
 
+/*
+ * @brief:	Sets the angular speed for the vehicle.
+ * @param:	w:   angular speed, as a double the sign defines if is clockwise or anti-clockwise.
+ * @note:	This value will be controlled by a PID, so settlement time must be taken into account.
+ */
+void MC_setPIDTunings(double Kp, double Ki, double Kd);
+void MC_setRightPIDTunings(double Kp, double Ki, double Kd);
+void MC_setLeftPIDTunings(double Kp, double Ki, double Kd);
+/*
+ * @brief:	Get PID constants
+ * @param:	
+ * @note:	
+ */
+void MC_getLeftPIDTunings(double * Kp, double * Ki, double * Kd);
+void MC_getRightPIDTunings(double * Kp, double * Ki, double * Kd);
+
+/*
+ * @brief:  
+ * @param:  
+ * @note:   
+ */
+void MC_SetFilterState(bool_t state);
+bool_t MC_GetFilterState();
 
 #endif /* _MC */
 

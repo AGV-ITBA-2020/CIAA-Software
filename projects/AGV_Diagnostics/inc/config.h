@@ -9,7 +9,7 @@
 #include "supporting_functions.h"
 
 // App specific includes
-#include "ProcDeCamino.h"
+
 
 #endif /* _CONFIG_H_ */
 

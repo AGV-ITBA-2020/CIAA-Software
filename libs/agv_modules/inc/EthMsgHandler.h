@@ -33,7 +33,7 @@ typedef struct{ char array[ETHERNET_MCU]; } EthMsg;
  * 			connectionCallback:   (Not implemented yet)
  * @note:
  */
-bool_t EMH_init(callBackFuncPtr_t msgRecCallback,callBackFuncPtr_t connectionCallback); //Inicializa el centro de comunicaciones
+void EMH_init(callBackFuncPtr_t msgRecCallback,callBackFuncPtr_t connectionCallback); //Inicializa el centro de comunicaciones
 /*
  * @brief:	Returns if its connected to the internet
  * @param:

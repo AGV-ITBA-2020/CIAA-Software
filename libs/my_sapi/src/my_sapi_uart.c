@@ -136,7 +136,7 @@ void uartInit( uartMap_t uart, uint32_t baudRate, bool_t loopback )
                          UART_FCR_FIFO_EN |
                          UART_FCR_TX_RS   |
                          UART_FCR_RX_RS   |
-                         UART_FCR_TRG_LEV1 );
+						 UART_FCR_TRG_LEV3 );
    if(uart == UART_232 ) //Esto deberíamos hacerlo fuera del driver
 	   Chip_UART_SetupFIFOS( lpcUarts[uart].uartAddr,
 	                            UART_FCR_FIFO_EN |
