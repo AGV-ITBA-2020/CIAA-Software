@@ -21,7 +21,7 @@
 #include "event_groups.h"
 #include "MovementControlModule.h"
 #include "GlobalEventGroup.h"
-
+/*
 EventGroupHandle_t xEventGroup;
 MISSION_T mission;
 
@@ -56,5 +56,5 @@ int main(void)
 	BaseType_t ret = xTaskCreate(testComCenter, "CCO Test", 100	, NULL, 1, NULL ); //Task para debuggear lo enviado
 	if(ret==pdPASS)
 		vTaskStartScheduler();
-}
+}*/
 
