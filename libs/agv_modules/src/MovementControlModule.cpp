@@ -14,13 +14,15 @@
 #ifdef __DEBUG__
 // #include "lpc43xx_libcfg.h"
 #else
-#include "MovementControlModule.h"
-#include <math.h>
+#include "MovementControlModule.hpp"
+// #include <iostream>
+// #include <math.h>
+
 // #include <stdlib.h>
 // #include <stdio.h>
-// #include <iostream>
 
-// using namespace std;
+
+using namespace pid;
 
 #endif /* __DEBUG__ */
 
@@ -28,24 +30,35 @@
 #define LEFT_MOTOR_OUTPUT	CTOUT9
 #define RIGHT_MOTOR_OUTPUT	CTOUT8
 
-#define PWM_FREQUENCY 10000
+#define PWM_FREQUENCY 20000
 
-#define MAX_ANGULAR_SPEED 4.0
-#define MAX_DUTY_CYCLE 100.0
-#define MAX_SCT_DUTY_CYCLE 250.0
-#define REDUCTION_FACTOR 60.06
+#define MAX_ANGULAR_SPEED	5.4	// rad/s Midiendo la salida del eje de las ruedas con la fuente de 12 V sobre el motor DERECHO
+#define MAX_DUTY_CYCLE		100.0
+#define MAX_SCT_DUTY_CYCLE	255.0
+#define MIN_SCT_DUTY_CYCLE 104.0
+#define TRUNCATE_SCT_DUTY_CYCLE 130.0
+#define DC_TO_SCT_MAPPING_ALPHA ((MAX_SCT_DUTY_CYCLE-MIN_SCT_DUTY_CYCLE)/MAX_DUTY_CYCLE)
+#define REDUCTION_FACTOR	60.06
 
 #define CONTROL_SAMPLE_PERIOD_MS 50.0
 
 #define abs(x)  ( (x<0) ? -(x) : x )
 
-using namespace pid;
+const float32_t firCoeffs32[ FILTER_ORDER ] =
+{
+	// Filtro minimax orden 20:
+	0.0182,    0.0041,   -0.0176,   -0.0436,   -0.0555,   -0.0407,    0.0037,    0.0729,    0.1532,    0.2201,
+	0.2465,    0.2201,    0.1532,    0.0729,    0.0037,   -0.0407,   -0.0555,   -0.0436,   -0.0176,    0.0041,
+	0.0182
+
+	// Filtro messi orden 10
+//	0.0035, -0.0214, 0.0630, -0.1249, 0.1834, 0.7923, 0.1834, -0.1249, 0.0630, -0.0214
+		// 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1
+};
 
 /*==================[internal data declaration]==============================*/
-uint8_t leftMotorOutput = 0, rightMotorOutput = 0;
-double linearSpeed, angularSpeed;
-
 AGVMovementModule_t movementModule;
+bool_t useFilter = true;
 
 /*==================[internal functions declaration]=========================*/
 /*******Tasks*********/
@@ -61,7 +74,15 @@ void mcmMainTask(void * ptr);
  * @param:	Placeholder
  * @note:	The MC is in charge of controlling the speed and direction of the vehicle.
  */
-double calculateInputSpeed(uint32_t value);
+// double calculateInputSpeed(uint32_t value);
+double calculateInputSpeed(double timeBetweenSteps);
+
+/*
+ * @brief:	Initialize the MC module
+ * @param:	Placeholder
+ * @note:	The MC is in charge of controlling the speed and direction of the vehicle.
+ */
+double filter(double inputData[]);
 
 
 /*==================[internal data definition]===============================*/
@@ -74,7 +95,8 @@ double calculateInputSpeed(uint32_t value);
  * @param:	Placeholder
  * @note:	It basically sets the value of the pwm for both motors.
  */
-MotorController_t::MotorController_t(gpioMap_t in1Pin, gpioMap_t in2Pin, uint8_t enableSCTOutPin, ENCODER_CHANNEL_T ch): pidController(&input, &output, &setpoint, PID_KP, PID_KI, PID_KD, DIRECT) {
+MotorController_t::MotorController_t(gpioMap_t in1Pin, gpioMap_t in2Pin, uint8_t enableSCTOutPin, ENCODER_CHANNEL_T ch):
+	pidController(&input, &output, &setpoint, PID_KP, PID_KI, PID_KD, DIRECT) {	
 	in1 = in1Pin;
 	in2 = in2Pin;
 	enableSCTOut = enableSCTOutPin;
@@ -95,12 +117,16 @@ void MotorController_t::init(void){
 	gpioWrite(in1,1);
 	gpioWrite(in2,0);
 
-	Encoder_Init(encoderCh);
+	// Encoder_Init(encoderCh);
+	EncoderV2_Init(encoderCh);
 
 	// Turn the PID on
   	pidController.SetMode(AUTOMATIC);	
   	pidController.SetOutputLimits(0, MAX_DUTY_CYCLE);
 	pidController.SetSampleTime(CONTROL_SAMPLE_PERIOD_MS);
+
+	/* Call FIR init function to initialize the instance structure. */
+  	arm_fir_init_f32(&S, FILTER_ORDER, (float32_t *)&firCoeffs32[0], &firStateF32[0], BLOCK_SIZE);
 }
 
 /*
@@ -131,27 +157,62 @@ void MotorController_t::setMotorDirection(bool_t direction)
  */
 void MotorController_t::getSpeed(void)
 {
-	input = calculateInputSpeed(Encoder_GetCount(encoderCh));
-	Encoder_ResetCount(encoderCh);
+	// for(int i = SPEED_INPUT_DATA_LENGTH - 1; i > 0; --i){
+	// 	inputData[i] = inputData[i - 1];
+	// }
+	// inputData = (float32_t)calculateInputSpeed(Encoder_GetCount(encoderCh));
+	inputData = (float32_t)calculateInputSpeed(COUNT_TO_SECS(EncoderV2_GetCountMedian(encoderCh)));
+	// Encoder_ResetCount(encoderCh);
+	EncoderV2_ResetCount(encoderCh);
 }
 
 /*
- * @brief:	cconvertRPM to dutyCycle
+ * @brief:	cconvert percentage to dutyCycle
  * @param:	w es la velocidad angular medida en la rueda
  * @note:	Converts RPM speed to dutyCycle value.
  */
 void MotorController_t::setSpeed(void)
 {
+	uint8_t sctDuty = DC_TO_SCT_MAPPING_ALPHA * output + MIN_SCT_DUTY_CYCLE;
+	if(sctDuty <= TRUNCATE_SCT_DUTY_CYCLE )
+		sctDuty = 0;
 
-	uint8_t sctDuty = output*MAX_SCT_DUTY_CYCLE/MAX_DUTY_CYCLE;
-	if(sctDuty > MAX_SCT_DUTY_CYCLE)
-		sctDuty = MAX_SCT_DUTY_CYCLE;
 	if(sctDuty < 0){
 		setMotorDirection(true);
 	}else{
 		setMotorDirection(false);
 	}
 	setMotorDutyCtcle(abs(sctDuty));
+}
+
+/*
+ * @brief:	calculateSpeeds output values
+ * @param:	Placeholder
+ * @note:	Is just a testing function for now.
+ */
+void MotorController_t::filterInput(void)
+{
+	if(useFilter)
+		arm_fir_f32(&S, &inputData, &inputFiltered, BLOCK_SIZE);
+	input = useFilter ? (double)inputFiltered : (double)inputData;
+}
+
+/*
+ * @brief:	calculateSpeeds output values
+ * @param:	Placeholder
+ * @note:	Is just a testing function for now.
+ */
+void MotorController_t::Compute(void)
+{
+	if(setpoint == 0)	// Si llega unsetpoint 0, queremos pasar a modo manual para controlar el ouput y ponerlo en 0
+	{
+		pidController.SetMode(MANUAL);
+		output = 0;
+	}
+	else if(!pidController.Compute()){	// Sino tratamos de computar/computamos el PID
+		pidController.SetMode(AUTOMATIC);	// Si todav[ia esta en modo manual, lo pasamos a modo automatico y computamos
+		pidController.Compute();
+	}
 }
 
 /*
@@ -172,10 +233,14 @@ rightMotor(DO4, DO5, RIGHT_MOTOR_OUTPUT, ENCODER_RIGHT) {
  */
 void AGVMovementModule_t::calculateSetpoints(void)
 {
-	leftMotor.setpoint = (linearSpeed + angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
-	rightMotor.setpoint = (linearSpeed - angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
-}
+	static double setLeft, setRight;
 
+	setLeft = (linearSpeed + angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS; 		// Velocidad angular de las ruedas
+	setRight = (linearSpeed - angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
+
+	leftMotor.setpoint = setLeft > MAX_ANGULAR_SPEED ? MAX_ANGULAR_SPEED : setLeft;
+	rightMotor.setpoint = setRight > MAX_ANGULAR_SPEED ? MAX_ANGULAR_SPEED : setRight;
+}
 
 /*******Tasks*********/
 /*
@@ -189,19 +254,22 @@ void mcmMainTask(void * ptr)
 	TickType_t xLastWakeTime = xTaskGetTickCount();
 	for( ;; )
 	{
-		movementModule.calculateSetpoints();
 		movementModule.leftMotor.getSpeed();
 		movementModule.rightMotor.getSpeed();
+		// movementModule.leftMotor.input = filter(movementModule.leftMotor.inputData);
+		// movementModule.rightMotor.input = filter(movementModule.rightMotor.inputData);
+		movementModule.leftMotor.filterInput();
+		movementModule.rightMotor.filterInput();
 		
-		movementModule.rightMotor.pidController.Compute();
-		movementModule.leftMotor.pidController.Compute();
-		
-		printf("inputSpeedL:%d, setPointSpeedL:%d, outputL:%d, ", (int)(10.0*movementModule.leftMotor.input), (int)(10.0*movementModule.leftMotor.setpoint), (int)(movementModule.leftMotor.output));
-		printf("inputSpeedR:%d, setPointSpeedR:%d, outputR:%d\n", (int)(10.0*movementModule.rightMotor.input), (int)(10.0*movementModule.rightMotor.setpoint), (int)(movementModule.rightMotor.output));
+		movementModule.rightMotor.Compute();
+		movementModule.leftMotor.Compute();
+
+
 
 		movementModule.leftMotor.setSpeed();
 		movementModule.rightMotor.setSpeed();
-		vTaskDelayUntil( &xLastWakeTime, xDelay50ms );
+		vTaskDelay(xDelay50ms);
+		//vTaskDelayUntil( &xLastWakeTime, xDelay50ms );
 	}
 }
 
@@ -210,11 +278,30 @@ void mcmMainTask(void * ptr)
  * @param:	Placeholder
  * @note:	The MC is in charge of controlling the speed and direction of the vehicle.
  */
-double calculateInputSpeed(uint32_t value)
+// double calculateInputSpeed(uint32_t value)
+double calculateInputSpeed(double timeBetweenSteps)
 {
-	double speed = (double) value/(ENCODER_STEPS_PER_REVOLUTION * CONTROL_SAMPLE_PERIOD_MS * 0.001 * REDUCTION_FACTOR)*2.0*3.1415;
+	// double speed = (double) value/(ENCODER_STEPS_PER_REVOLUTION * CONTROL_SAMPLE_PERIOD_MS * 0.001 * REDUCTION_FACTOR)*2.0*3.1415; // Velocidad angular del eje de las ruedas
+	double speed = 1.0/(ENCODER_STEPS_PER_REVOLUTION * timeBetweenSteps * REDUCTION_FACTOR)*2.0*3.1415; // Velocidad angular del eje de las ruedas
 	
-	return (speed >= 2*MAX_ANGULAR_SPEED) ? MAX_ANGULAR_SPEED : speed;
+	return (speed >= 2*MAX_ANGULAR_SPEED) ? MAX_ANGULAR_SPEED : speed; // Esto es para filtrar el ruido de medida (mediciones absurdas del encoder las saturamos)
+}
+
+/*
+ * @brief:	Initialize the MC module
+ * @param:	Placeholder
+ * @note:	The MC is in charge of controlling the speed and direction of the vehicle.
+ */
+double filter(double inputData[])
+{
+	static double ret;
+	ret = 0;
+	for(int i = 0; i < FILTER_ORDER; ++i){
+//		ret +=  coeffs[i]*inputData[i];
+		ret +=  inputData[i];
+	}
+	ret = ret/((double)FILTER_ORDER);
+	return ret;
 }
 
 
@@ -231,7 +318,7 @@ void MC_Init(void)
 	movementModule.rightMotor.init();
 
 	// Create mission task
-	BaseType_t debug = xTaskCreate( mcmMainTask, "MC Main task", 50	, NULL, 1, NULL );
+	configASSERT(xTaskCreate( mcmMainTask, "MC Main task", 100	, NULL, 1, NULL ) == pdTRUE);
 }
 
 /*
@@ -241,7 +328,8 @@ void MC_Init(void)
  */
 void MC_setLinearSpeed(double v)
 {
-	linearSpeed = v;
+	movementModule.setLinerSpeed(v);	// Recibe unvalor entre 0 y 1, tenemos que multiplicar por setpoint maximo
+	movementModule.calculateSetpoints();
 }
 
 /*
@@ -251,7 +339,63 @@ void MC_setLinearSpeed(double v)
  */
 void MC_setAngularSpeed(double w)
 {
-	angularSpeed = w;
+	movementModule.setAngularSpeed(w);
+	movementModule.calculateSetpoints();
+}
+
+/*
+ * @brief:	Sets the angular speed for the vehicle.
+ * @param:	w:   angular speed, as a double the sign defines if is clockwise or anti-clockwise.
+ * @note:	This value will be controlled by a PID, so settlement time must be taken into account.
+ */
+void MC_getWheelSpeeds(double * speeds)
+{
+	speeds[0] = movementModule.leftMotor.setpoint;
+	speeds[1] = movementModule.leftMotor.inputFiltered;
+	speeds[2] = movementModule.rightMotor.setpoint;
+	speeds[3] = movementModule.rightMotor.inputFiltered;
+}
+
+/*
+ * @brief:	Sets the angular speed for the vehicle.
+ * @param:	w:   angular speed, as a double the sign defines if is clockwise or anti-clockwise.
+ * @note:	This value will be controlled by a PID, so settlement time must be taken into account.
+ */
+void MC_setPIDTunings(double Kp, double Ki, double Kd)
+{
+	movementModule.leftMotor.pidController.SetTunings(Kp, Ki, Kd, 1);
+	movementModule.rightMotor.pidController.SetTunings(Kp, Ki, Kd, 1);
+}
+void MC_setRightPIDTunings(double Kp, double Ki, double Kd)
+{
+	movementModule.rightMotor.pidController.SetTunings(Kp, Ki, Kd, 1);
+}
+void MC_setLeftPIDTunings(double Kp, double Ki, double Kd)
+{
+	movementModule.leftMotor.pidController.SetTunings(Kp, Ki, Kd, 1);
+}
+
+void MC_getRightPIDTunings(double * Kp, double * Ki, double * Kd)
+{
+	*Kp = movementModule.rightMotor.pidController.GetKp();
+	*Ki = movementModule.rightMotor.pidController.GetKi();
+	*Kd = movementModule.rightMotor.pidController.GetKd();
+}
+
+void MC_getLeftPIDTunings(double * Kp, double * Ki, double * Kd)
+{
+	*Kp = movementModule.leftMotor.pidController.GetKp();
+	*Ki = movementModule.leftMotor.pidController.GetKi();
+	*Kd = movementModule.leftMotor.pidController.GetKd();
+}
+
+void MC_SetFilterState(bool_t state)
+{
+	useFilter = state;
+}
+bool_t MC_GetFilterState()
+{
+	return useFilter;
 }
 
 /*==================[end of file]============================================*/

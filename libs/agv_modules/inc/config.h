@@ -16,10 +16,6 @@ extern "C"
 #include "my_sapi.h"        // <= Biblioteca sAPI
 #include "my_sapi_sct.h"
 
-// App specific includes
-//#include "MovementControlModule.h"
-
-#define EV_CCO_MSG_REC 1 //bit del event group que indica que llegó un mensaje
 
 /*==================[macros and definitions]=================================*/
 #ifndef TICKS_TO_MS

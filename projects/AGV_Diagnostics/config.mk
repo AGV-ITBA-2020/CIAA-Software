@@ -11,7 +11,7 @@ USE_SAPI=n
 USE_FREERTOS=y
 FREERTOS_HEAP_TYPE=4
 LOAD_INRAM=n
-USE_TINYPRINTF=n
+USE_TINYPRINTF=y
 
 # Al no usar libreria SAPI:
 # Peripheral addresses: chip_lpc43xx.h

@@ -13,7 +13,7 @@
 #include "timers.h"
 #include "my_sapi.h"
 
-
+/*
 typedef struct RawPathData{
 	int32_t trackData;
 	bool leftMarker;
@@ -82,3 +82,4 @@ void ADC_ISR()
 	RawPathData data = {200, true, false};
 	xQueueSendFromISR(queueData, &data, pdFALSE);
 }
+*/
