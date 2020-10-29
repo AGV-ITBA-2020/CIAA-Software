@@ -32,7 +32,7 @@ typedef enum {TAG_SLOW_DOWN, TAG_SPEED_UP, TAG_STATION=3}Tag_t; //Los distintos 
 #define IS_FORKORMERGE_MISSION(x) ((x)==CHECKPOINT_FORK_LEFT || (x) == CHECKPOINT_FORK_RIGHT || (x) == CHECKPOINT_MERGE )
 
 typedef struct  {
-  int displacement;
+  int8_t displacement;
   bool_t tag_found;
   bool_t form_passed; //Fork or Merge passed: Indica si se terminó de pasar por el fork o merge.
   bool_t error;
@@ -82,6 +82,7 @@ void missionTask(void * ptr)
 		quit=missionBlockLogic(msg, &stepReached);//Se aplica las lógicas de camino, determinando si se llegó al paso de misión y si se terminó la misión
 		//MC_setLinearSpeed(currVel); 	//Se setean las velocidades para el seguimiento de línea
 		//MC_setAngularSpeed(computeAngVel(msg.displacement));
+		printf("%d\n",msg.displacement);
 		if(stepReached) //Levanto los eventos correspondientes
 			xEventGroupSetBits( xEventGroup, GEG_MISSION_STEP_REACHED );
 		if(quit)
@@ -118,9 +119,9 @@ bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
 {
 	BLOCK_CHECKPOINT_T currChkpnt = missionBlock->blockCheckpoints[missionBlock->currStep];
 	BLOCK_CHECKPOINT_T nextChkpnt;
-	bool_t missionFinished,stepsLeft=1;
+	bool_t missionFinished=0,stepsLeft=1;
 
-	if(missionBlock->currStep == missionBlock->blockLen-1) //Para saber si estoy en el último bloque
+	if(missionBlock->currStep == (missionBlock->blockLen-1)) //Para saber si estoy en el último bloque
 		stepsLeft = 0;
 	else
 		nextChkpnt= missionBlock->blockCheckpoints[(missionBlock->currStep)+1];//Si quedan pasos proximos, obtengo el proximo paso de la mision
@@ -145,7 +146,7 @@ bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
 		currVel=LOW_SPEED_VEL;
 	if ((currChkpnt == CHECKPOINT_SPEED_UP) && msg.tag_found && msg.tag==TAG_SPEED_UP)
 		currVel=HIGH_SPEED_VEL;
-	if(missionBlock->currStep == missionBlock->blockLen-1)//Si ahora se llegó al final de la misión, quit=1
+	if(missionBlock->currStep == missionBlock->blockLen)//Si ahora se llegó al final de la misión, quit=1
 		missionFinished=1;
 	return missionFinished;
 }
