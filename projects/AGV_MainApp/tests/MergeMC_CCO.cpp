@@ -1,3 +1,4 @@
+/*
 #include "config.h"        // <= Biblioteca sAPI
 #include <ControlCenter.hpp>
 #include <CommunicationCenter.hpp>
@@ -92,5 +93,5 @@ int main( void )
    	return 0;
 }
 
-
+*/
 

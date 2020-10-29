@@ -37,7 +37,7 @@ extern "C" {
 /*==================[external functions definition]==========================*/
 void PC_Init(void);
 
-void PC_setMissionBlock(MISSION_BLOCK_T * mb);
+void PC_setMissionBlock(BLOCK_DETAILS_T * mb);
 
 
 #ifdef __cplusplus

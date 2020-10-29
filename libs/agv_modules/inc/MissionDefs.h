@@ -27,10 +27,7 @@ typedef struct  {
 	unsigned int blockLen,currStep;
 }BLOCK_DETAILS_T; //La información que trae cada mensaje del openMV.
 
-typedef struct {
-	BLOCK_COMMAND_T com;
-	BLOCK_DETAILS_T md;
-}MISSION_BLOCK_T; //Estructura de datos esperada a recibir en MissionQueue
+
 
 typedef struct{
 	BLOCK_DETAILS_T blocks[MAX_NMBR_OF_BLOCKS_IN_MISSION]; //Bloques de la misión

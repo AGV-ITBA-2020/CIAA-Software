@@ -45,7 +45,7 @@ typedef struct  {
 /*==================[internal data declaration]==============================*/
 extern EventGroupHandle_t xEventGroup;
 static PC_State state, prevState;
-static MISSION_BLOCK_T * missionBlock;
+static BLOCK_DETAILS_T * missionBlock;
 static SemaphoreHandle_t xBinarySemaphore;
 // static TaskHandle_t * missionTask;
 
@@ -127,7 +127,7 @@ void PC_Init(void)
 	xTaskCreate( pcmMainTask, "PC Main task", 100	, NULL, 1, NULL ); //Crea task de misi�n
 }
 
-void PC_setMissionBlock(MISSION_BLOCK_T * mb)
+void PC_setMissionBlock(BLOCK_DETAILS_T * mb)
 {
 	missionBlock = mb;
 	xEventGroupSetBits( xEventGroup, GEG_MISSION_BLOCK_STARTED );

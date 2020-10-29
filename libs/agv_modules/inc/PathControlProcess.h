@@ -40,12 +40,13 @@ extern "C" {
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+void PCP_Init(void);
 /*
  * @brief:	Main task for the movement control module
  * @param:	Placeholder
  * @note:	It basically sets the value of the pwm for both motors.
  */
-void PCP_startNewMissionBlock(MISSION_BLOCK_T * mb);
+void PCP_startNewMissionBlock(BLOCK_DETAILS_T * mb);
 
 /*
  * @brief:	Main task for the movement control module
@@ -53,6 +54,10 @@ void PCP_startNewMissionBlock(MISSION_BLOCK_T * mb);
  * @note:	It basically sets the value of the pwm for both motors.
  */
 void PCP_abortMissionBlock(void);
+
+void PCP_pauseMissionBlock(void);
+
+void PCP_continueMissionBlock(void);
 
 #ifdef __cplusplus
 }

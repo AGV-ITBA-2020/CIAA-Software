@@ -19,13 +19,14 @@
 
 /*==================[macros and definitions]=================================*/
 #define OPEN_MV_MSG_LEN 4 //Length en bytes del mensaje del openMV
-#define MAX_DISPLACEMENT 64
+#define MAX_DISPLACEMENT 64.0
 #define EVENT_QUEUE_LEN 10
 
 #define LOW_SPEED_VEL 0.5
 #define HIGH_SPEED_VEL 1.0
+#define PCP_OPENMV_PROCESSING_PERIOD_MS 100
 
-typedef enum {OPENMV_FOLLOW_LINE, OPENMV_FORK_LEFT, OPENMV_FORK_RIGHT, OPENMV_MERGE, OPENMV_ERROR,OPENMV_IDLE}openMV_states; //Los distintos estados del OpenMV
+typedef enum {OPENMV_FOLLOW_LINE, OPENMV_FORK_LEFT, OPENMV_FORK_RIGHT, OPENMV_MERGE, OPENMV_ERROR,OPENMV_IDLE,OPENMV_SEND_DATA=10}openMV_states; //Los distintos estados del OpenMV
 typedef enum {TAG_SLOW_DOWN, TAG_SPEED_UP, TAG_STATION=3}Tag_t; //Los distintos TAGs
 
 #define IS_FORKORMERGE_MISSION(x) ((x)==CHECKPOINT_FORK_LEFT || (x) == CHECKPOINT_FORK_RIGHT || (x) == CHECKPOINT_MERGE )
@@ -33,28 +34,31 @@ typedef enum {TAG_SLOW_DOWN, TAG_SPEED_UP, TAG_STATION=3}Tag_t; //Los distintos 
 typedef struct  {
   int displacement;
   bool_t tag_found;
-  bool_t form_passed;
+  bool_t form_passed; //Fork or Merge passed: Indica si se terminó de pasar por el fork o merge.
   bool_t error;
   Tag_t tag;
-}openMV_msg; //La informaciï¿½n que trae cada mensaje del openMV.
+}openMV_msg; //La informacion que trae cada mensaje del openMV.
 
 
 /*==================[internal data declaration]==============================*/
 static char recBuff[OPEN_MV_MSG_LEN];//Acï¿½ se guarda la data en la interrupciï¿½n
 extern EventGroupHandle_t xEventGroup;
-static MISSION_BLOCK_T * missionBlock;
+static BLOCK_DETAILS_T * missionBlock;
 static SemaphoreHandle_t xBinarySemaphore;
 static TaskHandle_t * missionTaskHandle;
+static TaskHandle_t * openMVSendTaskHandle;
+static uint8_t msgCodeForOpenMV;
 static double currVel=0;
 
 /*==================[internal functions declaration]=========================*/
-openMV_msg parse_openmv_msg(char * buf);
-void send_openmv_nxt_state(BLOCK_CHECKPOINT_T ms);
+openMV_msg parseOpenMVMsg(char * buf);
+void setOpenMVNextState(BLOCK_CHECKPOINT_T ms);
 void missionTask(void * ptr);
 void callbackInterrupt(void *);
 bool_t missionBlockLogic(openMV_msg msg, bool_t * stepReached); //Ejecuta la lï¿½gica de recorrida de camino, y devuelve si terminï¿½ la misiï¿½n
 double computeAngVel(unsigned int displacement); //Obtiene la velocidad angular objetivo (Acï¿½ deberï¿½a estar el PID).
-
+void openMVSendTask(void * ptr);
+void deleteMovTasks();
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
@@ -74,19 +78,33 @@ void missionTask(void * ptr)
 	{
 		xSemaphoreTake( xBinarySemaphore, portMAX_DELAY ); //Espera hasta que haya nuevos datos del openMV
 		stepReached=0;
-		msg=parse_openmv_msg(recBuff); //Se decodifica el msg
-		quit=missionBlockLogic(msg, &stepReached);
-		MC_setLinearSpeed(currVel);
-		MC_setAngularSpeed(computeAngVel(msg.displacement));
-		if(stepReached)
-		{
+		msg=parseOpenMVMsg(recBuff); //Se decodifica el msg
+		quit=missionBlockLogic(msg, &stepReached);//Se aplica las lógicas de camino, determinando si se llegó al paso de misión y si se terminó la misión
+		//MC_setLinearSpeed(currVel); 	//Se setean las velocidades para el seguimiento de línea
+		//MC_setAngularSpeed(computeAngVel(msg.displacement));
+		if(stepReached) //Levanto los eventos correspondientes
 			xEventGroupSetBits( xEventGroup, GEG_MISSION_STEP_REACHED );
-		}
 		if(quit)
 		{
 			xEventGroupSetBits( xEventGroup, GEG_MISSION_STEP_REACHED || GEG_CTMOVE_FINISH);
-			PCP_abortMissionBlock();
+			PCP_abortMissionBlock(); //Si finaliza la misión, termina el proceso de misión
 		}
+	}
+}
+
+/*
+ * @brief:	Main task for the movement control module
+ * @param:	Placeholder
+ * @note:	It basically sets the value of the pwm for both motors.
+ */
+void openMVSendTask(void * ptr)
+{
+	const TickType_t xDelay50ms = pdMS_TO_TICKS( PCP_OPENMV_PROCESSING_PERIOD_MS );
+	TickType_t xLastWakeTime = xTaskGetTickCount();
+	for( ;; )
+	{
+		uartTxWrite(PC_UART,msgCodeForOpenMV);//Cada 50ms envía el código correspondiente al openMV // @suppress("Invalid arguments")
+		vTaskDelayUntil( &xLastWakeTime, xDelay50ms ); // @suppress("Invalid arguments")
 	}
 }
 
@@ -98,34 +116,36 @@ void missionTask(void * ptr)
  */
 bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
 {
-	BLOCK_CHECKPOINT_T currChkpnt = missionBlock->md.blockCheckpoints[missionBlock->md.currStep];
+	BLOCK_CHECKPOINT_T currChkpnt = missionBlock->blockCheckpoints[missionBlock->currStep];
 	BLOCK_CHECKPOINT_T nextChkpnt;
 	bool_t missionFinished,stepsLeft=1;
 
-	if(missionBlock->md.currStep == missionBlock->md.blockLen-1)
+	if(missionBlock->currStep == missionBlock->blockLen-1) //Para saber si estoy en el último bloque
 		stepsLeft = 0;
 	else
-		nextChkpnt= missionBlock->md.blockCheckpoints[missionBlock->md.currStep+1];//Si quedan pasos prï¿½ximos, obtengo el proximo paso de la misiï¿½n
+		nextChkpnt= missionBlock->blockCheckpoints[(missionBlock->currStep)+1];//Si quedan pasos proximos, obtengo el proximo paso de la mision
 
 	bool_t steppingCondition = ( 	((currChkpnt == CHECKPOINT_SLOW_DOWN) && msg.tag_found && msg.tag==TAG_SLOW_DOWN) 	||
 									((currChkpnt == CHECKPOINT_SPEED_UP) && msg.tag_found && msg.tag==TAG_SPEED_UP) 	||
 									((currChkpnt == CHECKPOINT_STATION) && msg.tag_found && msg.tag==TAG_STATION) 		||
 									(IS_FORKORMERGE_MISSION(currChkpnt) && msg.form_passed)
-								); //Condiciones para ir al siguiente paso de la misiï¿½n
+								); //Condiciones para ir al siguiente paso de la mision
 	//Control de pasos de misiï¿½n
 	if (steppingCondition)
 	{
-		missionBlock->md.currStep++;
-		*stepReached=true;
+		(missionBlock->currStep)++;
+		*stepReached=true; //Indico que se llegó a un paso
 		if(stepsLeft)
-			send_openmv_nxt_state(nextChkpnt);
+			setOpenMVNextState(nextChkpnt); //En el caso que no quedan misiones, guardo el próximo mensaje que se le va a enviar al openMV
 	}
+	else
+		msgCodeForOpenMV=OPENMV_SEND_DATA; //Guardo que el próximo dato que se le envíe al openmv es que siga tirando datos.
 	//Control de velocidad
 	if ((currChkpnt == CHECKPOINT_SLOW_DOWN) && msg.tag_found && msg.tag==TAG_SLOW_DOWN)
 		currVel=LOW_SPEED_VEL;
 	if ((currChkpnt == CHECKPOINT_SPEED_UP) && msg.tag_found && msg.tag==TAG_SPEED_UP)
 		currVel=HIGH_SPEED_VEL;
-	if(missionBlock->md.currStep == missionBlock->md.blockLen-1)
+	if(missionBlock->currStep == missionBlock->blockLen-1)//Si ahora se llegó al final de la misión, quit=1
 		missionFinished=1;
 	return missionFinished;
 }
@@ -135,7 +155,7 @@ bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
  * @param:	Placeholder
  * @note:	It basically sets the value of the pwm for both motors.
  */
-openMV_msg parse_openmv_msg(char * buf)
+openMV_msg parseOpenMVMsg(char * buf)
 {
 	openMV_msg retVal;
 	retVal.displacement=buf[0];
@@ -151,16 +171,16 @@ openMV_msg parse_openmv_msg(char * buf)
  * @param:	Placeholder
  * @note:	It basically sets the value of the pwm for both motors.
  */
-void send_openmv_nxt_state(BLOCK_CHECKPOINT_T ms)
+void setOpenMVNextState(BLOCK_CHECKPOINT_T ms)
 { //Correlaciï¿½n entre los estados del openmv y el checkpoint que viene.
 	if(ms == CHECKPOINT_FORK_LEFT)
-		uartTxWrite(PC_UART,OPENMV_FORK_LEFT);
+		msgCodeForOpenMV=OPENMV_FORK_LEFT;
 	else if(ms == CHECKPOINT_FORK_RIGHT)
-		uartTxWrite(PC_UART,OPENMV_FORK_RIGHT);
+		msgCodeForOpenMV=OPENMV_FORK_RIGHT;
 	else if(ms == CHECKPOINT_STATION || ms == CHECKPOINT_SLOW_DOWN || ms==CHECKPOINT_SPEED_UP)
-		uartTxWrite(PC_UART,OPENMV_FOLLOW_LINE);
+		msgCodeForOpenMV=OPENMV_FOLLOW_LINE;
 	else if(ms == CHECKPOINT_MERGE)
-		uartTxWrite(PC_UART,OPENMV_MERGE);
+		msgCodeForOpenMV=OPENMV_MERGE;
 }
 
 /*
@@ -184,10 +204,17 @@ void callbackInterrupt(void* a)
  */
 double computeAngVel(unsigned int displacement) //Desarrollar con PID
 {
-	double a;
-	return a;
-}
+	float normErr=(float)displacement / MAX_DISPLACEMENT; //Desplazamiento de la línea entre -1 y 1.
 
+	return normErr*0.7;//Acá que ponemos??
+}
+void deleteMovTasks()
+{
+	if(missionTaskHandle!=NULL)
+		vTaskDelete(missionTaskHandle); //Borra la task de misiï¿½n
+	if(openMVSendTask!=NULL)
+		vTaskDelete(openMVSendTaskHandle); //Borra la task de misiï¿½n
+}
 /*==================[external functions definition]==========================*/
 /*
  * @brief:	Main task for the movement control module
@@ -196,21 +223,22 @@ double computeAngVel(unsigned int displacement) //Desarrollar con PID
  */
 void PCP_Init(void){
 	xBinarySemaphore = xSemaphoreCreateBinary();
+	msgCodeForOpenMV=OPENMV_IDLE;
+	uartInit( PC_UART, 115200, 0 );
+	uartCallbackSet( PC_UART, UART_RECEIVE,(callBackFuncPtr_t) callbackInterrupt);
+	//MC_Init();
 }
 /*
  * @brief:	Main task for the movement control module
  * @param:	Placeholder
  * @note:	It basically sets the value of the pwm for both motors.
  */
-void PCP_startNewMissionBlock(MISSION_BLOCK_T * mb)
+void PCP_startNewMissionBlock(BLOCK_DETAILS_T * mb)
 {
 	missionBlock = mb;
 	currVel=HIGH_SPEED_VEL;
-	for(unsigned int i=0; i<OPEN_MV_MSG_LEN; i++ )
-		uartReadByte(PC_UART,(uint8_t *) &(recBuff[i]));// Si quedï¿½ basura en la cola de la uart la vuela
-	uartCallbackSet( PC_UART, UART_RECEIVE,(callBackFuncPtr_t) callbackInterrupt);
-	xTaskCreate( missionTask, "RP mission task", 100	, NULL, 2, missionTaskHandle ); //Crea task de misiï¿½n
-	uartInterrupt( PC_UART, 1 ); //Enables uart interrupts
+	setOpenMVNextState(missionBlock->blockCheckpoints[0]);
+	PCP_continueMissionBlock();
 }
 
 /*
@@ -220,11 +248,21 @@ void PCP_startNewMissionBlock(MISSION_BLOCK_T * mb)
  */
 void PCP_abortMissionBlock(void)
 {
-	currVel=0;
-	MC_setLinearSpeed(currVel);
-	uartInterrupt( PC_UART, 0 ); //Disables interrupts
+	PCP_pauseMissionBlock();
 	uartTxWrite(PC_UART,OPENMV_IDLE);
-	if(missionTaskHandle!=NULL)
-		vTaskDelete(missionTaskHandle); //Borra la task de misiï¿½n
+}
+void PCP_pauseMissionBlock(void)
+{
+	uartInterrupt( PC_UART, 0 ); //Disables interrupts
+	deleteMovTasks();
+	//currVel=0;
+	//MC_setLinearSpeed(currVel);
+}
 
+void PCP_continueMissionBlock(void)
+{
+	while(uartReadByte(PC_UART,(uint8_t *) &(recBuff[0])));// Si quedï¿½ basura en la cola de la uart la vuela
+	xTaskCreate( missionTask, "PCP mission task", 200	, NULL, 2, missionTaskHandle ); //Crea task de misiï¿½n
+	xTaskCreate( openMVSendTask, "Send to openMV", 100	, NULL, 3, openMVSendTaskHandle );
+	uartInterrupt( PC_UART, 1 ); //Enables uart interrupts
 }
