@@ -157,10 +157,20 @@ static bool ProcessMessage()
 					printf("CM>LPID;%d;%d;%d\r\n", TO_PRINT(kpid[0]), TO_PRINT(kpid[1]), TO_PRINT(kpid[2]));
 					fflush(stdout);
 				}
+				else if(msg->id == DIAG_ID_rPPID)
+				{
+					double kpid[3];
+					PCP_getPIDTunings(kpid, kpid+1, kpid+2);
+					printf("CM>PPID;%d;%d;%d\r\n", TO_PRINT(kpid[0]), TO_PRINT(kpid[1]), TO_PRINT(kpid[2]));
+					fflush(stdout);
+				}
+				else if(msg->id == DIAG_ID_wPPID)
+				{
+					PCP_setPIDTunings(msg->values[0], msg->values[1], msg->values[2]);
+				}
 				else if(msg->id == DIAG_ID_wRPID)
 				{
 					MC_setRightPIDTunings(msg->values[0], msg->values[1], msg->values[2]);
-					//printf("CM>MSG;Setting RPID: %.1f, %.1f, %.1f\r\n", msg->values[0], msg->values[1], msg->values[2]);
 				}
 				else if(msg->id == DIAG_ID_wLPID)
 				{
@@ -196,7 +206,8 @@ static bool ProcessMessage()
 				if(msg->id == DIAG_ID_VWSPD)
 				{
 					// printf("CM>MSG;Setting V=%.1f W=%.1f\r\n", msg->values[0], msg->values[1]);
-					PCP_SetLinearSpeed(msg->values[0]);
+					//PCP_SetLinearSpeed(msg->values[0]);
+					MC_setLinearSpeed(msg->values[0]);
 					MC_setAngularSpeed(msg->values[1]);
 					info.joystick.currTick = 0;
 				}

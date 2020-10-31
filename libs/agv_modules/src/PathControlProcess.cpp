@@ -263,7 +263,7 @@ void PCP_Init(void){
 void PCP_startNewMissionBlock(BLOCK_DETAILS_T * mb)
 {
 	missionBlock = mb;
-	agvSpeedData.v_output =HIGH_SPEED_VEL;
+	agvSpeedData.v_output = 0;
 	setOpenMVNextState(missionBlock->blockCheckpoints[0]);
 	PCP_continueMissionBlock();
 }
@@ -271,6 +271,17 @@ void PCP_SetLinearSpeed(double v)
 {
 	agvSpeedData.v_output = v;
 }
+void PCP_setPIDTunings(double Kp, double Ki, double Kd)
+{
+	pidController.SetTunings(Kp, Ki, Kd, 1);
+}
+void PCP_getPIDTunings(double* Kp, double* Ki, double* Kd)
+{
+	*Kp = pidController.GetKp();
+	*Ki = pidController.GetKi();
+	*Kd = pidController.GetKd();
+}
+
 /*
  * @brief:	Main task for the movement control module
  * @param:	Placeholder
