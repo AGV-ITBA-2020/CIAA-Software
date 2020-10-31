@@ -10,6 +10,7 @@
 
 #include "PathControlProcess.h"
 #include "GlobalEventGroup.h"
+#include "AgvDiagnostics.hpp"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -20,7 +21,6 @@ extern EventGroupHandle_t xEventGroup;
 static BLOCK_DETAILS_T blockTest;
 int main( void )
 {
-
 	// Read clock settings and update SystemCoreClock variable
 	bool_t debugUartEnable=1;
 	MySapi_BoardInit(debugUartEnable);
@@ -28,6 +28,7 @@ int main( void )
 	blockTest.currStep=0;
 	blockTest.blockLen=1;
 	xEventGroup =  xEventGroupCreate();
+	AgvDiag_Init();
 	PCP_Init();
 	PCP_startNewMissionBlock(&blockTest);
 	vTaskStartScheduler();

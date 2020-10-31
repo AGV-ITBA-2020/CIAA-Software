@@ -12,6 +12,8 @@
 #include "PathControlProcess.h"
 #include "MovementControlModule.hpp"
 #include "GlobalEventGroup.h"
+#include "PID_v1.hpp"
+using namespace pid;
 
 #include "event_groups.h"
 #include "semphr.h"
@@ -48,7 +50,21 @@ static SemaphoreHandle_t xBinarySemaphore;
 static TaskHandle_t * missionTaskHandle;
 static TaskHandle_t * openMVSendTaskHandle;
 static uint8_t msgCodeForOpenMV;
-static double currVel=0;
+
+typedef struct {
+	double error;
+	double output;
+	double w_output;
+	double v_output;
+	double setpoint;
+}AGV_SPEED_T;
+
+AGV_SPEED_T agvSpeedData;
+
+static double PID_KP = 0.1;
+static double PID_KI = 0;
+static double PID_KD = 0;
+static PID pidController(&(agvSpeedData.error), &(agvSpeedData.output), &(agvSpeedData.setpoint), PID_KP, PID_KI, PID_KD, DIRECT);
 
 /*==================[internal functions declaration]=========================*/
 openMV_msg parseOpenMVMsg(char * buf);
@@ -56,7 +72,7 @@ void setOpenMVNextState(BLOCK_CHECKPOINT_T ms);
 void missionTask(void * ptr);
 void callbackInterrupt(void *);
 bool_t missionBlockLogic(openMV_msg msg, bool_t * stepReached); //Ejecuta la lï¿½gica de recorrida de camino, y devuelve si terminï¿½ la misiï¿½n
-double computeAngVel(unsigned int displacement); //Obtiene la velocidad angular objetivo (Acï¿½ deberï¿½a estar el PID).
+static void computeAngVel(int displacement); //Obtiene la velocidad angular objetivo (Acï¿½ deberï¿½a estar el PID).
 void openMVSendTask(void * ptr);
 void deleteMovTasks();
 /*==================[internal data definition]===============================*/
@@ -80,9 +96,11 @@ void missionTask(void * ptr)
 		stepReached=0;
 		msg=parseOpenMVMsg(recBuff); //Se decodifica el msg
 		quit=missionBlockLogic(msg, &stepReached);//Se aplica las lógicas de camino, determinando si se llegó al paso de misión y si se terminó la misión
-		//MC_setLinearSpeed(currVel); 	//Se setean las velocidades para el seguimiento de línea
-		//MC_setAngularSpeed(computeAngVel(msg.displacement));
-		printf("%d\n",msg.displacement);
+		
+		computeAngVel(msg.displacement);
+		MC_setLinearSpeed(agvSpeedData.v_output); 	//Se setean las velocidades para el seguimiento de línea
+		MC_setAngularSpeed(agvSpeedData.w_output);
+
 		if(stepReached) //Levanto los eventos correspondientes
 			xEventGroupSetBits( xEventGroup, GEG_MISSION_STEP_REACHED );
 		if(quit)
@@ -143,9 +161,9 @@ bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
 		msgCodeForOpenMV=OPENMV_SEND_DATA; //Guardo que el próximo dato que se le envíe al openmv es que siga tirando datos.
 	//Control de velocidad
 	if ((currChkpnt == CHECKPOINT_SLOW_DOWN) && msg.tag_found && msg.tag==TAG_SLOW_DOWN)
-		currVel=LOW_SPEED_VEL;
+		agvSpeedData.v_output =LOW_SPEED_VEL;
 	if ((currChkpnt == CHECKPOINT_SPEED_UP) && msg.tag_found && msg.tag==TAG_SPEED_UP)
-		currVel=HIGH_SPEED_VEL;
+		agvSpeedData.v_output =HIGH_SPEED_VEL;
 	if(missionBlock->currStep == missionBlock->blockLen)//Si ahora se llegó al final de la misión, quit=1
 		missionFinished=1;
 	return missionFinished;
@@ -203,12 +221,14 @@ void callbackInterrupt(void* a)
  * @param:	Placeholder
  * @note:	It basically sets the value of the pwm for both motors.
  */
-double computeAngVel(unsigned int displacement) //Desarrollar con PID
+static void computeAngVel(int displacement) //Desarrollar con PID
 {
-	float normErr=(float)displacement / MAX_DISPLACEMENT; //Desplazamiento de la línea entre -1 y 1.
-
-	return normErr*0.7;//Acá que ponemos??
+	agvSpeedData.error=(double)displacement / MAX_DISPLACEMENT; //Desplazamiento de la línea entre -1 y 1.
+	pidController.Compute();
+	agvSpeedData.w_output = agvSpeedData.output * AGV_MAX_ANGULAR_SPEED;	// Map pid output to angular speed of agv
 }
+#define PID_OUTPUT_MAX (1)
+#define PID_OUTPUT_MIN (-1)
 void deleteMovTasks()
 {
 	if(missionTaskHandle!=NULL)
@@ -227,7 +247,13 @@ void PCP_Init(void){
 	msgCodeForOpenMV=OPENMV_IDLE;
 	uartInit( PC_UART, 115200, 0 );
 	uartCallbackSet( PC_UART, UART_RECEIVE,(callBackFuncPtr_t) callbackInterrupt);
-	//MC_Init();
+	MC_Init();
+
+	// Turn the PID on
+  	pidController.SetMode(AUTOMATIC);
+  	pidController.SetOutputLimits(PID_OUTPUT_MIN, PID_OUTPUT_MAX);
+	pidController.SetSampleTime(PCP_OPENMV_PROCESSING_PERIOD_MS);
+	agvSpeedData.setpoint = 0;	// Queremos que el error con la linea sea 0 siempre.
 }
 /*
  * @brief:	Main task for the movement control module
@@ -237,11 +263,14 @@ void PCP_Init(void){
 void PCP_startNewMissionBlock(BLOCK_DETAILS_T * mb)
 {
 	missionBlock = mb;
-	currVel=HIGH_SPEED_VEL;
+	agvSpeedData.v_output =HIGH_SPEED_VEL;
 	setOpenMVNextState(missionBlock->blockCheckpoints[0]);
 	PCP_continueMissionBlock();
 }
-
+void PCP_SetLinearSpeed(double v)
+{
+	agvSpeedData.v_output = v;
+}
 /*
  * @brief:	Main task for the movement control module
  * @param:	Placeholder

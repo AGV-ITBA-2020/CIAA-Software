@@ -27,14 +27,11 @@ using namespace pid;
 #define BLOCK_SIZE          1
 #define FILTER_ORDER        21
 
-
+#define MAX_WHEEL_ANGULAR_SPEED   5.4 // rad/s Midiendo la salida del eje de las ruedas con la fuente de 12 V sobre el motor DERECHO
+#define AGV_MAX_ANGULAR_SPEED  (MAX_WHEEL_ANGULAR_SPEED*AGV_WHEEL_RADIUS/AGV_AXIS_LONGITUDE)
 #define AGV_AXIS_LONGITUDE 0.5
 #define AGV_WHEEL_DIAMETER 0.25
 #define AGV_WHEEL_RADIUS (AGV_WHEEL_DIAMETER/2.0)
-// Los valores medios que conseguimos son Kp=3 Ki=5 Kd=0
-#define PID_KP 3.0
-#define PID_KI 5.0
-#define PID_KD 0.0
 #define SPEED_INPUT_DATA_LENGTH FILTER_ORDER
 
 

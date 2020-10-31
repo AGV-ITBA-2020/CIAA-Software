@@ -8,6 +8,7 @@
 #include "AgvDiagnostics.hpp"
 #include <stdio.h>
 #include "DiagMessage.h"
+#include "PathControlProcess.h"
 #include "MovementControlModule.hpp"
 
 #include "my_sapi_uart.h"
@@ -59,7 +60,7 @@ void AgvDiag_Init()
 	uartInterrupt(UART_USB, true);
 	uartCallbackSet(UART_USB, UART_RECEIVE, (callBackFuncPtr_t)uartRxCallback);
 
-	configASSERT(xTaskCreate(MainTask, "AGV_DIAG_TASK", 100, NULL, 1, &xMainTaskToNotify) == pdTRUE);
+	configASSERT(xTaskCreate(MainTask, "AGV_DIAG_TASK", 180, NULL, 1, &xMainTaskToNotify) == pdTRUE);
 
 	xDiagTimerHandle = xTimerCreate("DiagTimer", TICK_TIMER_BASE, pdTRUE, 0, xTimerCallbackFunc);
 	configASSERT(xDiagTimerHandle != NULL);
@@ -121,7 +122,7 @@ static void RunModuleServices()
 		// Joystick currTick resets when message is received. Therefore, tickPeriod means timeout and service shutdown
 		if(++info.joystick.currTick == info.joystick.tickPeriod)
 		{
-			MC_setLinearSpeed(0.0);
+			PCP_SetLinearSpeed(0.0);
 			MC_setAngularSpeed(0.0);
 			info.joystick.currTick = 0;
 			info.joystick.on = false;
@@ -195,7 +196,7 @@ static bool ProcessMessage()
 				if(msg->id == DIAG_ID_VWSPD)
 				{
 					// printf("CM>MSG;Setting V=%.1f W=%.1f\r\n", msg->values[0], msg->values[1]);
-					MC_setLinearSpeed(msg->values[0]);
+					PCP_SetLinearSpeed(msg->values[0]);
 					MC_setAngularSpeed(msg->values[1]);
 					info.joystick.currTick = 0;
 				}

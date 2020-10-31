@@ -59,6 +59,8 @@ void PCP_pauseMissionBlock(void);
 
 void PCP_continueMissionBlock(void);
 
+void PCP_SetLinearSpeed(double v);
+
 #ifdef __cplusplus
 }
 #endif
