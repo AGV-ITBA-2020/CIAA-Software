@@ -21,7 +21,7 @@ using namespace pid;
 
 /*==================[macros and definitions]=================================*/
 #define OPEN_MV_MSG_LEN 4 //Length en bytes del mensaje del openMV
-#define MAX_DISPLACEMENT 64.0
+#define MAX_DISPLACEMENT 80.0
 #define EVENT_QUEUE_LEN 10
 
 #define LOW_SPEED_VEL 0.5
