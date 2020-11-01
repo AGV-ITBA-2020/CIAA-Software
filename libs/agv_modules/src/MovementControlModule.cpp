@@ -43,7 +43,7 @@ using namespace pid;
 // Los valores medios que conseguimos son Kp=3 Ki=5 Kd=0
 #define PID_KP 5
 #define PID_KI 15
-#define PID_KD 2
+#define PID_KD 3
 
 #define abs(x)  ( (x<0) ? -(x) : x )
 
@@ -61,7 +61,7 @@ const float32_t firCoeffs32[ FILTER_ORDER ] =
 
 /*==================[internal data declaration]==============================*/
 AGVMovementModule_t movementModule;
-bool_t useFilter = true;
+bool_t useFilter = false;
 
 /*==================[internal functions declaration]=========================*/
 /*******Tasks*********/
@@ -229,6 +229,7 @@ AGVMovementModule_t::AGVMovementModule_t(void):
 leftMotor(GPIO2, GPIO3, LEFT_MOTOR_OUTPUT, ENCODER_LEFT), 
 rightMotor(GPIO7, GPIO8, RIGHT_MOTOR_OUTPUT, ENCODER_RIGHT) {
 
+	rightMotor.pidController.SetTunings(PID_KP, PID_KI, PID_KD*0.66, 1);	// El motor derecho es más sensible a kd (se lo bajo un poco)
 }
 
 /*
@@ -368,9 +369,9 @@ void MC_setAngularSpeed(double w)
 void MC_getWheelSpeeds(double * speeds)
 {
 	speeds[0] = movementModule.leftMotor.setpoint;
-	speeds[1] = movementModule.leftMotor.inputFiltered;
+	speeds[1] = movementModule.leftMotor.input;
 	speeds[2] = movementModule.rightMotor.setpoint;
-	speeds[3] = movementModule.rightMotor.inputFiltered;
+	speeds[3] = movementModule.rightMotor.input;
 }
 
 /*

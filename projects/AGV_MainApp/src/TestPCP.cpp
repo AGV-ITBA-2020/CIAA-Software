@@ -36,16 +36,27 @@ int main( void )
 }
 
 void vApplicaationMallocFailedHook(void)
- {
-	 while(1)
-		 printf("MALLOC_FAILED");
- }
+{
+	while(1)
+		printf("MALLOC_FAILED");
+}
+
+void vApplicationDaemonTaskStartupHook(void)
+{
+	while(1)
+		printf("STARTUP_FAILED");
+}
+
+void vApplicationIdleHook( void )
+{
+	while(1)
+		printf("IDLE_FAILED");
+}
 
  void vApplicationStackOverflowHook( TaskHandle_t *pxTask, signed char *pcTaskName )
  {
 	while(1)
 		printf("Stack Overflow! \n");
-
  }
 
 
