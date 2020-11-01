@@ -65,8 +65,8 @@ void CC_mainTask(void *)
 	while(!CCO_connected());
 	for( ;; )
 	{
-		EventBits_t ev = xEventGroupWaitBits( xEventGroup,CC_EVENT_MASK,pdTRUE,pdFALSE,timeoutDelay );
-		CC_mainFSM(ev); //Con el evento que llega se ejecuta la máquina de estados
+		EventBits_t ev = xEventGroupWaitBits( xEventGroup,CC_EVENT_MASK,pdTRUE,pdFALSE,portMAX_DELAY );
+		CC_mainFSM(ev); //Con el evento que llega se ejecuta la máquina de estados // @suppress("Invalid arguments")
 	}
 }
 void CC_mainFSM(EventBits_t ev)
@@ -121,7 +121,7 @@ void CC_idleParseEv(EventBits_t ev)
 	{
 		CCO_getMission(&currMission);
 		CCO_sendMsgWithoutData(CCO_MISSION_ACCEPT); //Le comunica a houston que acepta la mision
-		//PC_setMissionBlock(getNextMissionBlock());
+		PC_setMissionBlock(getNextMissionBlock());
 		if(!currMission.waitForInterBlockEvent) //En el caso que no necesite un evento extra para arrancar la misiï¿½n
 		{
 			changeStateTo(CC_ON_MISSION); //Pasa a estado misiï¿½n
@@ -265,5 +265,5 @@ void CC_init()
 	state=CC_IDLE;
 	prevState=CC_IDLE;
 	currMission.active=0;
-	xTaskCreate( CC_notifyStatus, "CC notify status task", 100	, NULL, 1, NULL );
+	//xTaskCreate( CC_notifyStatus, "CC notify status task", 100	, NULL, 1, NULL );
 }
