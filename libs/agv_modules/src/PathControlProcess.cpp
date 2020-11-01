@@ -86,6 +86,10 @@ void deleteMovTasks();
  * @param:	Placeholder
  * @note:	It basically sets the value of the pwm for both motors.
  */
+double PCP_GetPIDError()
+{
+	return agvSpeedData.error;
+}
 void missionTask(void * ptr)
 {
 	openMV_msg msg;

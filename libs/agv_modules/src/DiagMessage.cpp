@@ -92,6 +92,8 @@ MSG_ID_T DiagMessage::ParseIdCode(string str)
 		id = DIAG_ID_MOD_START;
     else if(str.compare("FILT") == 0)
         id = DIAG_ID_FILT;
+    else if(str.compare("TRACK") == 0)
+        id = DIAG_ID_TRACK;
 
 	return id;
 }

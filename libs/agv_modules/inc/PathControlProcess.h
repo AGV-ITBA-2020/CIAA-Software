@@ -65,6 +65,7 @@ void PCP_setPIDTunings(double Kp, double Ki, double Kd);
 
 void PCP_getPIDTunings(double* Kp, double* Ki, double* Kd);
 
+double PCP_GetPIDError();
 #ifdef __cplusplus
 }
 #endif
