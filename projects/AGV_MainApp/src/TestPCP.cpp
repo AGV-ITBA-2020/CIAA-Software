@@ -35,5 +35,18 @@ int main( void )
    	return 0;
 }
 
+void vApplicaationMallocFailedHook(void)
+ {
+	 while(1)
+		 printf("MALLOC_FAILED");
+ }
+
+ void vApplicationStackOverflowHook( TaskHandle_t *pxTask, signed char *pcTaskName )
+ {
+	while(1)
+		printf("Stack Overflow! \n");
+
+ }
+
 
 

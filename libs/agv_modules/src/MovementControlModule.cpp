@@ -34,16 +34,16 @@ using namespace pid;
 
 #define MAX_DUTY_CYCLE		100.0
 #define MAX_SCT_DUTY_CYCLE	255.0
-#define MIN_SCT_DUTY_CYCLE 104.0
-#define TRUNCATE_SCT_DUTY_CYCLE 130.0
+#define MIN_SCT_DUTY_CYCLE 153.0		// Minimo duty cycle al que se empiezan a mover los motores (es un 60% de duty y sin carga)
+#define TRUNCATE_SCT_DUTY_CYCLE 160.0	// El changui adicional para la funcion partida
 #define DC_TO_SCT_MAPPING_ALPHA ((MAX_SCT_DUTY_CYCLE-MIN_SCT_DUTY_CYCLE)/MAX_DUTY_CYCLE)
 #define REDUCTION_FACTOR	60.06
 
 #define CONTROL_SAMPLE_PERIOD_MS 50.0
 // Los valores medios que conseguimos son Kp=3 Ki=5 Kd=0
-#define PID_KP 3
-#define PID_KI 5
-#define PID_KD 0
+#define PID_KP 5
+#define PID_KI 15
+#define PID_KD 2
 
 #define abs(x)  ( (x<0) ? -(x) : x )
 
@@ -137,7 +137,7 @@ void MotorController_t::init(void){
  * @param:	Placeholder
  * @note:	The MC is in charge of controlling the speed and direction of the vehicle.
  */
-void MotorController_t::setMotorDutyCtcle(uint8_t value)
+void MotorController_t::setMotorDutyCycle(uint8_t value)
 {
 	sctSetDutyCycle(enableSCTOut, value);
 }
@@ -177,15 +177,17 @@ void MotorController_t::getSpeed(void)
 void MotorController_t::setSpeed(void)
 {
 	uint8_t sctDuty = DC_TO_SCT_MAPPING_ALPHA * output + MIN_SCT_DUTY_CYCLE;
-	if(sctDuty <= TRUNCATE_SCT_DUTY_CYCLE )
+	if((sctDuty <= TRUNCATE_SCT_DUTY_CYCLE) && ((setpoint == 0) || ((setpoint - input) <= 0)))
+	{
 		sctDuty = 0;
+	}
 
 	if(sctDuty < 0){
 		setMotorDirection(true);
 	}else{
 		setMotorDirection(false);
 	}
-	setMotorDutyCtcle(abs(sctDuty));
+	setMotorDutyCycle(abs(sctDuty));
 }
 
 /*
@@ -247,6 +249,9 @@ void AGVMovementModule_t::calculateSetpoints(void)
 
 	setLeft += linearSpeed/AGV_WHEEL_RADIUS;	// Velocidad angular final de las ruedas
 	setRight += linearSpeed/AGV_WHEEL_RADIUS;
+
+	setLeft = setLeft < 0 ? 0 : setLeft;
+	setRight = setRight < 0 ? 0 : setRight;
 	// setLeft = (linearSpeed + angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS; 		
 	// setRight = (linearSpeed - angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
 

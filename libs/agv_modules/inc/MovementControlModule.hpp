@@ -27,7 +27,7 @@ using namespace pid;
 #define BLOCK_SIZE          1
 #define FILTER_ORDER        21
 
-#define MAX_WHEEL_ANGULAR_SPEED   5.4 // rad/s Midiendo la salida del eje de las ruedas con la fuente de 12 V sobre el motor DERECHO
+#define MAX_WHEEL_ANGULAR_SPEED   3.55 // rad/s Midiendo la salida del eje de las ruedas con la fuente de 12 V sobre el motor DERECHO
 #define AGV_MAX_ANGULAR_SPEED  (MAX_WHEEL_ANGULAR_SPEED*AGV_WHEEL_RADIUS/AGV_AXIS_LONGITUDE)
 #define AGV_AXIS_LONGITUDE 0.5
 #define AGV_WHEEL_DIAMETER 0.25
@@ -40,7 +40,7 @@ class MotorController_t{
         MotorController_t(gpioMap_t in1, gpioMap_t in2, uint8_t enableSCTOut, ENCODER_CHANNEL_T ch);
 
         void init(void);
-        void setMotorDutyCtcle(uint8_t value);
+        void setMotorDutyCycle(uint8_t value);
         void setMotorDirection(bool_t direction);
         uint8_t outputDutyToPeripheralPWM(double duty);
         void getSpeed(void);
