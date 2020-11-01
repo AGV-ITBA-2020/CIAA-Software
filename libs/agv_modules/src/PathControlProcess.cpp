@@ -236,7 +236,7 @@ void deleteMovTasks()
 {
 	if(missionTaskHandle!=NULL)
 		vTaskDelete(missionTaskHandle); //Borra la task de misi�n
-	if(openMVSendTask!=NULL)
+	if(openMVSendTaskHandle!=NULL)
 		vTaskDelete(openMVSendTaskHandle); //Borra la task de misi�n
 }
 /*==================[external functions definition]==========================*/
@@ -250,7 +250,8 @@ void PCP_Init(void){
 	msgCodeForOpenMV=OPENMV_IDLE;
 	uartInit( PC_UART, 115200, 0 );
 	uartCallbackSet( PC_UART, UART_RECEIVE,(callBackFuncPtr_t) callbackInterrupt);
-
+	missionTaskHandle =NULL;
+	openMVSendTaskHandle= NULL;
 #ifndef DEBUG_WITHOUT_MC
 	MC_Init();
 #endif

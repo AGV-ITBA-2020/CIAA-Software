@@ -15,7 +15,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "event_groups.h"
-
+/*
 extern EventGroupHandle_t xEventGroup;
 
 static BLOCK_DETAILS_T blockTest;
@@ -48,5 +48,5 @@ void vApplicaationMallocFailedHook(void)
 
  }
 
-
+*/
 
