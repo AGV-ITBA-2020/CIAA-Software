@@ -45,7 +45,7 @@ TaskHandle_t xMainTaskToNotify;
 TimerHandle_t xDiagTimerHandle;
 uint32_t rxIndex;
 uint8_t rxBuffer[RX_BUFFER_SIZE];
-DIAG_STATE_T info = { false, {false, PID_DEFAULT_TICK_PERIOD}, {false, JOYSTICK_DEFAULT_TICK_TIMEOUT} };
+DIAG_STATE_T info = { false, {false, PID_DEFAULT_TICK_PERIOD}, false, {false, JOYSTICK_DEFAULT_TICK_TIMEOUT} };
 DiagMessage * msg;
 
 static void MainTask(void *pvParameters);
