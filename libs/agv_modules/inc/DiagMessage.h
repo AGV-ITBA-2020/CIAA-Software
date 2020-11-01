@@ -38,7 +38,8 @@ typedef enum
 	DIAG_ID_WHSPD,	// Wheel Speed
 	DIAG_ID_MOD_STOP,
 	DIAG_ID_MOD_START,
-	DIAG_ID_FILT		// Sets filter state
+	DIAG_ID_FILT,		// Sets filter state
+	DIAG_ID_TRACK,
 } MSG_ID_T;
 
 using namespace std;

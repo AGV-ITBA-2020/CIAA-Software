@@ -4,12 +4,40 @@
 		"selected_items":
 		[
 			[
-				"Set",
-				"SetTunings"
+				"pid",
+				"pidViewer_sendTrack"
+			],
+			[
+				"av",
+				"agvSpeedData"
+			],
+			[
+				"agv",
+				"agvSpeedData"
+			],
+			[
+				"lin",
+				"linealVelDelta"
+			],
+			[
+				"linea",
+				"linearSpeed"
 			],
 			[
 				"MAX",
-				"MAX_DUTY_CYCLE"
+				"MAX_ANGULAR_SPEED"
+			],
+			[
+				"w",
+				"w_output"
+			],
+			[
+				"set",
+				"setpoint"
+			],
+			[
+				"Set",
+				"SetTunings"
 			],
 			[
 				"MA",
@@ -22,10 +50,6 @@
 			[
 				"bool",
 				"bool_t"
-			],
-			[
-				"pid",
-				"pidController"
 			],
 			[
 				"movem",
@@ -490,30 +514,6 @@
 			[
 				"syste",
 				"systemErrorCode"
-			],
-			[
-				"sta",
-				"startupTime"
-			],
-			[
-				"Push",
-				"PushHead"
-			],
-			[
-				"ERR_M",
-				"ERR_MAIL_SYSTEM"
-			],
-			[
-				"FIFO",
-				"FIFO_Full"
-			],
-			[
-				"MAILFI",
-				"MAIL_FIFO_SIZE"
-			],
-			[
-				"MAIL_MAX",
-				"MAIL_MAX_CONSECUTIVE_ATTEMPTS"
 			]
 		]
 	},
@@ -569,14 +569,24 @@
 	},
 	"file_history":
 	[
+		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/PathControlProcess.h",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/src/MovementControlModule.cpp",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/src/PathControlProcess.cpp",
+		"/C/Users/mdevo/AppData/Local/Temp/Rar$DIa19864.11486/key.txt",
+		"/C/Users/mdevo/AppData/Local/Temp/Rar$DIa19864.5699/key.txt",
+		"/E/GitHub/CIAA-Software/libs/my_sapi/src/my_sapi_uart.c",
+		"/E/GitHub/CIAA-Software/libs/my_sapi/src/my_sapi_gpio.c",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/src/PID_v1.cpp",
 		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/PID_v1.hpp",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/MovementControlModule.hpp",
+		"/E/GitHub/CIAA-Software/projects/AGV_MainApp/src/TestPCP.cpp",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/src/AgvDiagnostics.cpp",
 		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/Encoder.h",
 		"/E/GitHub/CIAA-Software/libs/agv_modules/src/DiagMessage.cpp",
 		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/DiagMessage.h",
 		"/E/GitHub/CIAA-Software/libs/agv_modules/src/CommunicationCenter.cpp",
 		"/F/MATLAB R2018a/MATLAB R2018a Win/MATLAB R2018a Win64 Crack/readme.txt",
 		"/E/Setups/MATLAB R2018a/MATLAB R2018a Win/MATLAB R2018a Win64 Crack/readme.txt",
-		"/E/GitHub/CIAA-Software/libs/agv_modules/src/MovementControlModule.cpp",
 		"/E/GitHub/CIAA-Software/projects/Communication/tests/MergeMC_CCO.cpp",
 		"/E/GitHub/CIAA-Software/projects/VL53L0X/src/VL53L0X.c",
 		"/E/GitHub/CIAA-Software/projects/AGV_Diagnostics/inc/AgvDiagnostics.hpp",
@@ -590,7 +600,6 @@
 		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/FreeRTOSConfig.h",
 		"/E/GitHub/CIAA-Software/libs/my_sapi/inc/my_sapi_uart.h",
 		"/E/GitHub/CIAA-Software/projects/AGV_Diagnostics/inc/config.h",
-		"/E/GitHub/CIAA-Software/libs/my_sapi/src/my_sapi_uart.c",
 		"/E/GitHub/CIAA-Software/libs/freertos/include/task.h",
 		"/E/GitHub/CIAA-Software/projects/AGV_Diagnostics/inc/FreeRTOSConfig.h",
 		"/E/GitHub/CIAA-Software/libs/lpc_open/lpc_chip_43xx/src/uart_18xx_43xx.c",
@@ -687,20 +696,11 @@
 		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Timeouts.p",
 		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Timeouts.inc",
 		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Hmi_OpHandler.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/InitSetup.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Hmi_MsgHandler.inc",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Hmi_MsgHandler.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/status.css",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/status.shtml",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/ConfigReg1.inc",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/webserver/control.json",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/RegDriver.p",
-		"/C/Users/mdevo/AppData/Local/Temp/_tc/scripts/user/RegDriver.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Sim.p"
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/InitSetup.p"
 	],
 	"find":
 	{
-		"height": 39.0
+		"height": 40.0
 	},
 	"find_in_files":
 	{
@@ -715,6 +715,28 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"HIGH_SPEED_VEL",
+			"MC_setLinearSpeed",
+			"v_output",
+			"pidC",
+			"pid",
+			"void computeAngVel",
+			"kp",
+			"PID_KP",
+			"init",
+			", ",
+			"error",
+			"v_output",
+			"currVel",
+			"MAX_ANGULAR_SPEED",
+			"input",
+			"  ",
+			"V_output",
+			"W_output",
+			"PID_KD",
+			"PID_KI",
+			"PID_KP",
+			"computeAngVel",
 			"AUTOMATIC",
 			"inAuto",
 			"pone",
@@ -820,29 +842,7 @@
 			"WebServerGetFieldValueFloat",
 			"WS_tempSetPoint",
 			"case",
-			"name",
-			"/span",
-			"%f",
-			"PrintStr",
-			"text",
-			"PrintStr 2",
-			"PrintStr 1",
-			"PrintStr 0",
-			"</span>",
-			"</span> PSI",
-			"str_cmp",
-			"</span>",
-			"<span",
-			"span",
-			"case",
-			"myJson",
-			"bypassTambEnableFan1",
-			"str_opEn",
-			"str_flow",
-			"str_opEn",
-			"DISABLE_MAIL_WARNINGS",
-			"DISABLE_OP_AUTO_RESTORE",
-			"sim_"
+			"name"
 		],
 		"highlight": true,
 		"in_selection": false,

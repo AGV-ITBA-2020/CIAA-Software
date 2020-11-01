@@ -36,6 +36,7 @@ typedef struct {
 typedef struct {
 	bool diagOn;
 	PERIODIC_SERVICE_T pidViewer;
+	bool pidViewer_sendTrack;
 	PERIODIC_SERVICE_T joystick;
 } DIAG_STATE_T;
 
@@ -103,7 +104,11 @@ static void SendSpeedValues()
 	MC_getWheelSpeeds(speeds);
 
 	//taskENTER_CRITICAL();
-	printf("CM>SPD;%d;%d;%d;%d\r\n", TO_PRINT(speeds[2]), TO_PRINT(speeds[3]), TO_PRINT(speeds[0]), TO_PRINT(speeds[1]));
+	if(info.pidViewer_sendTrack)
+		printf("CM>TSPD;%d;%d;%d;%d;%d\r\n", TO_PRINT(speeds[2]), TO_PRINT(speeds[3]), TO_PRINT(speeds[0]), TO_PRINT(speeds[1]), TO_PRINT(PCP_GetPIDError()));
+	else
+		printf("CM>SPD;%d;%d;%d;%d\r\n", TO_PRINT(speeds[2]), TO_PRINT(speeds[3]), TO_PRINT(speeds[0]), TO_PRINT(speeds[1]));
+
 	fflush(stdout);
 	//taskEXIT_CRITICAL();
 }
@@ -188,7 +193,10 @@ static bool ProcessMessage()
 					printf("CM>FILT;%s\r\n", (MC_GetFilterState() ? "1.0" : "0.0"));
 					fflush(stdout);
 				}
-
+				else if(msg->id == DIAG_ID_TRACK)
+				{
+					info.pidViewer_sendTrack = (msg->values[0] == 1.0) ? true : false;
+				}
 			}
 			else
 			{
