@@ -98,8 +98,11 @@ void missionTask(void * ptr)
 		quit=missionBlockLogic(msg, &stepReached);//Se aplica las lógicas de camino, determinando si se llegó al paso de misión y si se terminó la misión
 		
 		computeAngVel(msg.displacement);
+#ifndef DEBUG_WITHOUT_MC
 		MC_setLinearSpeed(agvSpeedData.v_output); 	//Se setean las velocidades para el seguimiento de línea
 		MC_setAngularSpeed(agvSpeedData.w_output);
+#endif
+
 
 		if(stepReached) //Levanto los eventos correspondientes
 			xEventGroupSetBits( xEventGroup, GEG_MISSION_STEP_REACHED );
@@ -247,8 +250,10 @@ void PCP_Init(void){
 	msgCodeForOpenMV=OPENMV_IDLE;
 	uartInit( PC_UART, 115200, 0 );
 	uartCallbackSet( PC_UART, UART_RECEIVE,(callBackFuncPtr_t) callbackInterrupt);
-	MC_Init();
 
+#ifndef DEBUG_WITHOUT_MC
+	MC_Init();
+#endif
 	// Turn the PID on
   	pidController.SetMode(AUTOMATIC);
   	pidController.SetOutputLimits(PID_OUTPUT_MIN, PID_OUTPUT_MAX);
@@ -297,7 +302,11 @@ void PCP_pauseMissionBlock(void)
 	uartInterrupt( PC_UART, 0 ); //Disables interrupts
 	deleteMovTasks();
 	//currVel=0;
-	//MC_setLinearSpeed(currVel);
+#ifndef DEBUG_WITHOUT_MC
+	MC_setLinearSpeed(0);
+	MC_setAngularSpeed(0);
+#endif
+
 }
 
 void PCP_continueMissionBlock(void)
