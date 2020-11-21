@@ -13,7 +13,7 @@
 #include "gima_18xx_43xx.h"
 #include "timer_18xx_43xx.h"
 
-#define MAX_ENC_SAMPLES 10 //Cantidad máxima de flancos positivos que hay entre cada período de control
+#define MAX_ENC_SAMPLES 10 //Cantidad mï¿½xima de flancos positivos que hay entre cada perï¿½odo de control
 
 typedef struct {
 	int gpioPort;
@@ -83,7 +83,7 @@ uint32_t EncoderV2_GetCount(ENCODER_CHANNEL_T ch)
 	if(encoder->measCount>0)
 		measAverage /= encoder->measCount;
 	encoder->measCount=0;
-	NVIC_EnableIRQ( encoder->timerIrqAddr); //Habilita interrupción de vuelta
+	NVIC_EnableIRQ( encoder->timerIrqAddr); //Habilita interrupciï¿½n de vuelta
 	return measAverage;
 }
 uint32_t EncoderV2_GetCountFiltered(ENCODER_CHANNEL_T ch,uint32_t minCount,uint32_t maxCount)
@@ -94,14 +94,14 @@ uint32_t EncoderV2_GetCountFiltered(ENCODER_CHANNEL_T ch,uint32_t minCount,uint3
 	for(unsigned int i=0;i<encoder->measCount;i++)
 	{
 		uint32_t meas = encoder->measArray[i];
-		if(meas>=minCount && meas<=maxCount)	//Saca el promedio, pero las muestras que están fuera del rango de trabajo vuelan
+		if(meas>=minCount && meas<=maxCount)	//Saca el promedio, pero las muestras que estï¿½n fuera del rango de trabajo vuelan
 			measAverage += meas;
 			totalCount++;
 	}
 	if(totalCount>0)
 		measAverage /= totalCount;
 	encoder->measCount=0;
-	NVIC_EnableIRQ( encoder->timerIrqAddr); //Habilita interrupción de vuelta
+	NVIC_EnableIRQ( encoder->timerIrqAddr); //Habilita interrupciï¿½n de vuelta
 	return measAverage;
 }
 uint32_t EncoderV2_GetCountMedian(ENCODER_CHANNEL_T ch)
@@ -127,9 +127,9 @@ uint32_t EncoderV2_GetCountMedian(ENCODER_CHANNEL_T ch)
 	if(totalCount>0)
 		measAverage = arrangedArray[(int)(totalCount/2)];
 	else
-		measAverage = SEC_TO_COUNT(1);	// Asumir que el tiempo entre counts es muy alto.
+		measAverage = SEC_TO_COUNT(10);	// Asumir que el tiempo entre counts es muy alto.
 	encoder->measCount=0;
-	NVIC_EnableIRQ( encoder->timerIrqAddr); //Habilita interrupción de vuelta
+	NVIC_EnableIRQ( encoder->timerIrqAddr); //Habilita interrupciï¿½n de vuelta
 	return measAverage;
 }
 void EncoderV2_ResetCount(ENCODER_CHANNEL_T ch)
@@ -138,27 +138,27 @@ void EncoderV2_ResetCount(ENCODER_CHANNEL_T ch)
 }
 
 /*==================[Interrupt]=========================*/
-void TIMER0_IRQHandler(void) //Ambas rutinas de interrupt llaman a una función en común
+void TIMER0_IRQHandler(void) //Ambas rutinas de interrupt llaman a una funciï¿½n en comï¿½n
 {
 
 	interruptRoutine(ENCODER_LEFT);
-	Chip_TIMER_Reset(encL.timer); //Esto debería ir en el caso en el que no se clearee solo el capture reg (no creo que pase)
+	Chip_TIMER_Reset(encL.timer); //Esto deberï¿½a ir en el caso en el que no se clearee solo el capture reg (no creo que pase)
 
 }
 void TIMER2_IRQHandler(void)
 {
 	interruptRoutine(ENCODER_RIGHT);
-	Chip_TIMER_Reset(encR.timer); //Esto debería ir en el caso en el que no se clearee solo el capture reg (no creo que pase)
+	Chip_TIMER_Reset(encR.timer); //Esto deberï¿½a ir en el caso en el que no se clearee solo el capture reg (no creo que pase)
 
 }
 
 void interruptRoutine(ENCODER_CHANNEL_T ch)
 {
 	enc_config_t * encoder=getEncoderPointer(ch);
-	if(encoder->measCount<MAX_ENC_SAMPLES) //En el caso que no llené el buffer con mediciones ya
-		encoder->measArray[(encoder->measCount)++]=Chip_TIMER_ReadCount(encoder->timer); //Pongo la medición obtenida
+	if(encoder->measCount<MAX_ENC_SAMPLES) //En el caso que no llenï¿½ el buffer con mediciones ya
+		encoder->measArray[(encoder->measCount)++]=Chip_TIMER_ReadCount(encoder->timer); //Pongo la mediciï¿½n obtenida
 	Chip_TIMER_ClearCapture(encoder->timer, encoder->captureNum);
-	//Acá se podría poner disable del interrupt en caso de solo tomar una medición en vez de un promedio
+	//Acï¿½ se podrï¿½a poner disable del interrupt en caso de solo tomar una mediciï¿½n en vez de un promedio
 }
 
 #endif

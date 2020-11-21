@@ -8,6 +8,7 @@
 #include "AgvDiagnostics.hpp"
 #include <stdio.h>
 #include "DiagMessage.h"
+#include "PathControlProcess.h"
 #include "MovementControlModule.hpp"
 
 #include "my_sapi_uart.h"
@@ -35,6 +36,7 @@ typedef struct {
 typedef struct {
 	bool diagOn;
 	PERIODIC_SERVICE_T pidViewer;
+	bool pidViewer_sendTrack;
 	PERIODIC_SERVICE_T joystick;
 } DIAG_STATE_T;
 
@@ -43,7 +45,7 @@ TaskHandle_t xMainTaskToNotify;
 TimerHandle_t xDiagTimerHandle;
 uint32_t rxIndex;
 uint8_t rxBuffer[RX_BUFFER_SIZE];
-DIAG_STATE_T info = { false, {false, PID_DEFAULT_TICK_PERIOD}, {false, JOYSTICK_DEFAULT_TICK_TIMEOUT} };
+DIAG_STATE_T info = { false, {false, PID_DEFAULT_TICK_PERIOD}, true, {false, JOYSTICK_DEFAULT_TICK_TIMEOUT} };
 DiagMessage * msg;
 
 static void MainTask(void *pvParameters);
@@ -59,7 +61,7 @@ void AgvDiag_Init()
 	uartInterrupt(UART_USB, true);
 	uartCallbackSet(UART_USB, UART_RECEIVE, (callBackFuncPtr_t)uartRxCallback);
 
-	configASSERT(xTaskCreate(MainTask, "AGV_DIAG_TASK", 100, NULL, 1, &xMainTaskToNotify) == pdTRUE);
+	configASSERT(xTaskCreate(MainTask, "AGV_DIAG_TASK", 180, NULL, 1, &xMainTaskToNotify) == pdTRUE);
 
 	xDiagTimerHandle = xTimerCreate("DiagTimer", TICK_TIMER_BASE, pdTRUE, 0, xTimerCallbackFunc);
 	configASSERT(xDiagTimerHandle != NULL);
@@ -102,7 +104,11 @@ static void SendSpeedValues()
 	MC_getWheelSpeeds(speeds);
 
 	//taskENTER_CRITICAL();
-	printf("CM>SPD;%d;%d;%d;%d\r\n", TO_PRINT(speeds[2]), TO_PRINT(speeds[3]), TO_PRINT(speeds[0]), TO_PRINT(speeds[1]));
+	if(info.pidViewer_sendTrack)
+		printf("CM>TSPD;%d;%d;%d;%d;%d\r\n", TO_PRINT(speeds[2]), TO_PRINT(speeds[3]), TO_PRINT(speeds[0]), TO_PRINT(speeds[1]), TO_PRINT(PCP_GetPIDError()));
+	else
+		printf("CM>SPD;%d;%d;%d;%d\r\n", TO_PRINT(speeds[2]), TO_PRINT(speeds[3]), TO_PRINT(speeds[0]), TO_PRINT(speeds[1]));
+
 	fflush(stdout);
 	//taskEXIT_CRITICAL();
 }
@@ -121,7 +127,7 @@ static void RunModuleServices()
 		// Joystick currTick resets when message is received. Therefore, tickPeriod means timeout and service shutdown
 		if(++info.joystick.currTick == info.joystick.tickPeriod)
 		{
-			MC_setLinearSpeed(0.0);
+			PCP_SetLinearSpeed(0.0);
 			MC_setAngularSpeed(0.0);
 			info.joystick.currTick = 0;
 			info.joystick.on = false;
@@ -156,10 +162,20 @@ static bool ProcessMessage()
 					printf("CM>LPID;%d;%d;%d\r\n", TO_PRINT(kpid[0]), TO_PRINT(kpid[1]), TO_PRINT(kpid[2]));
 					fflush(stdout);
 				}
+				else if(msg->id == DIAG_ID_rPPID)
+				{
+					double kpid[3];
+					PCP_getPIDTunings(kpid, kpid+1, kpid+2);
+					printf("CM>PPID;%d;%d;%d\r\n", TO_PRINT(kpid[0]), TO_PRINT(kpid[1]), TO_PRINT(kpid[2]));
+					fflush(stdout);
+				}
+				else if(msg->id == DIAG_ID_wPPID)
+				{
+					PCP_setPIDTunings(msg->values[0], msg->values[1], msg->values[2]);
+				}
 				else if(msg->id == DIAG_ID_wRPID)
 				{
 					MC_setRightPIDTunings(msg->values[0], msg->values[1], msg->values[2]);
-					//printf("CM>MSG;Setting RPID: %.1f, %.1f, %.1f\r\n", msg->values[0], msg->values[1], msg->values[2]);
 				}
 				else if(msg->id == DIAG_ID_wLPID)
 				{
@@ -177,7 +193,10 @@ static bool ProcessMessage()
 					printf("CM>FILT;%s\r\n", (MC_GetFilterState() ? "1.0" : "0.0"));
 					fflush(stdout);
 				}
-
+				else if(msg->id == DIAG_ID_TRACK)
+				{
+					info.pidViewer_sendTrack = (msg->values[0] == 1.0) ? true : false;
+				}
 			}
 			else
 			{
@@ -195,8 +214,12 @@ static bool ProcessMessage()
 				if(msg->id == DIAG_ID_VWSPD)
 				{
 					// printf("CM>MSG;Setting V=%.1f W=%.1f\r\n", msg->values[0], msg->values[1]);
+#ifndef DEBUG_WITHOUT_MC
+					PCP_SetLinearSpeed(msg->values[0]);
+#else
 					MC_setLinearSpeed(msg->values[0]);
 					MC_setAngularSpeed(msg->values[1]);
+#endif
 					info.joystick.currTick = 0;
 				}
 				else if(msg->id == DIAG_ID_MOD_STOP)

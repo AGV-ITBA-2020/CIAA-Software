@@ -126,23 +126,21 @@ void UART3_IRQHandler(void)
 /*==================[external functions declaration]=========================*/
 void uartInit( uartMap_t uart, uint32_t baudRate, bool_t loopback )
 {
+   uint32_t triggerLevel;
    Chip_UART_Init( lpcUarts[uart].uartAddr );// Initialize UART
 
    Chip_UART_SetBaud( lpcUarts[uart].uartAddr, baudRate );// Set Baud rate
 
    // Restart FIFOS using FCR (FIFO Control Register).
    // Set Enable, Reset content, set trigger level
-   Chip_UART_SetupFIFOS( lpcUarts[uart].uartAddr,
-                         UART_FCR_FIFO_EN |
-                         UART_FCR_TX_RS   |
-                         UART_FCR_RX_RS   |
-						 UART_FCR_TRG_LEV3 );
-   if(uart == UART_232 ) //Esto deberíamos hacerlo fuera del driver
-	   Chip_UART_SetupFIFOS( lpcUarts[uart].uartAddr,
-	                            UART_FCR_FIFO_EN |
-	                            UART_FCR_TX_RS   |
-	                            UART_FCR_RX_RS   |
-	                            UART_FCR_TRG_LEV2 );//Hago que trigeree el interrupt cuando hay 8
+
+   if(uart == UART_485 )
+	   triggerLevel=UART_FCR_TRG_LEV1; //Para el openmv tiene que saltar la interrupción con 4 bytes
+   else if(uart == UART_232 )
+	   triggerLevel=UART_FCR_TRG_LEV2; //Cuando hay 8 bytes salta para las comunicaciones
+   else
+   	   triggerLevel=UART_FCR_TRG_LEV2; //Para la UART de Diagnostics
+   Chip_UART_SetupFIFOS( lpcUarts[uart].uartAddr,UART_FCR_FIFO_EN | UART_FCR_TX_RS   | UART_FCR_RX_RS   |triggerLevel );
    // Dummy read
    Chip_UART_ReadByte( lpcUarts[uart].uartAddr );
 
@@ -162,12 +160,8 @@ void uartInit( uartMap_t uart, uint32_t baudRate, bool_t loopback )
 	   // Specific configurations for RS485
 	   if( uart == UART_485 )
 	   {
-	        Chip_UART_SetRS485Flags( LPC_USART0, UART_RS485CTRL_OINV_1 | UART_RS485CTRL_DCTRL_EN     ); //Esto estaba en el sapi, hay que checkear si necesita
-	     	  //Se debería oner el pin de DE en 1 para que funcione como una uart normal
-	        Chip_SCU_PinMux( lpcUart485DirPin.lpcScuPort,
-	                               lpcUart485DirPin.lpcScuPin,
-	                               MD_PDN,
-	                               lpcUart485DirPin.lpcScuFunc );
+	        Chip_UART_SetRS485Flags( LPC_USART0, UART_RS485CTRL_OINV_1 | UART_RS485CTRL_DCTRL_EN     ); //Invertido y con dirección automática
+	        Chip_SCU_PinMux( lpcUart485DirPin.lpcScuPort,lpcUart485DirPin.lpcScuPin,MD_PDN,lpcUart485DirPin.lpcScuFunc );
 	   }
 
    }

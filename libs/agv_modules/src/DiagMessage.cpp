@@ -72,6 +72,10 @@ MSG_ID_T DiagMessage::ParseIdCode(string str)
 		id = DIAG_ID_rRPID;
 	else if(str.compare("rLPID") == 0)
 		id = DIAG_ID_rLPID;
+	else if(str.compare("rPPID") == 0)
+		id = DIAG_ID_rPPID;
+	else if(str.compare("wPPID") == 0)
+		id = DIAG_ID_wPPID;
 	else if(str.compare("wRPID") == 0)
 		id = DIAG_ID_wRPID;
 	else if(str.compare("wLPID") == 0)
@@ -88,6 +92,8 @@ MSG_ID_T DiagMessage::ParseIdCode(string str)
 		id = DIAG_ID_MOD_START;
     else if(str.compare("FILT") == 0)
         id = DIAG_ID_FILT;
+    else if(str.compare("TRACK") == 0)
+        id = DIAG_ID_TRACK;
 
 	return id;
 }

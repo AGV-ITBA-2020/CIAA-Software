@@ -23,6 +23,8 @@ extern "C" {
 #define PC_UART_BAUDRATE 115200
 #define PC_UART UART_485
 
+ // #define DEBUG_WITHOUT_MC //Comentar para cuando se quiera utilizar MC dentro de PCP
+
 // class PathControlProcess_t{
 //     public:
 //         PathControlProcess_t(){};
@@ -40,12 +42,13 @@ extern "C" {
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+void PCP_Init(void);
 /*
  * @brief:	Main task for the movement control module
  * @param:	Placeholder
  * @note:	It basically sets the value of the pwm for both motors.
  */
-void PCP_startNewMissionBlock(MISSION_BLOCK_T * mb);
+void PCP_startNewMissionBlock(BLOCK_DETAILS_T * mb);
 
 /*
  * @brief:	Main task for the movement control module
@@ -54,6 +57,17 @@ void PCP_startNewMissionBlock(MISSION_BLOCK_T * mb);
  */
 void PCP_abortMissionBlock(void);
 
+void PCP_pauseMissionBlock(void);
+
+void PCP_continueMissionBlock(void);
+
+void PCP_SetLinearSpeed(double v);
+
+void PCP_setPIDTunings(double Kp, double Ki, double Kd);
+
+void PCP_getPIDTunings(double* Kp, double* Ki, double* Kd);
+
+double PCP_GetPIDError();
 #ifdef __cplusplus
 }
 #endif
