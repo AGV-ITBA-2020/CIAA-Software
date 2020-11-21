@@ -6,7 +6,7 @@
  */
 
 
-
+/*
 
 #include "config.h"        // <= Biblioteca sAPI
 
@@ -45,3 +45,4 @@ int main( void )
 	vTaskStartScheduler();
    	return 0;
 }
+*/
