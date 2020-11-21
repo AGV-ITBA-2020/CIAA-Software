@@ -23,7 +23,7 @@ extern "C" {
 #define PC_UART_BAUDRATE 115200
 #define PC_UART UART_485
 
-#define DEBUG_WITHOUT_MC //Comentar para cuando se quiera utilizar MC dentro de PCP
+ // #define DEBUG_WITHOUT_MC //Comentar para cuando se quiera utilizar MC dentro de PCP
 
 // class PathControlProcess_t{
 //     public:

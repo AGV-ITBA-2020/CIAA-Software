@@ -9,13 +9,14 @@
 
 
 #include "PathControlProcess.h"
+#include "MovementControlModule.hpp"
 #include "GlobalEventGroup.h"
 #include "AgvDiagnostics.hpp"
 
 #include "FreeRTOS.h"
 #include "task.h"
 #include "event_groups.h"
-/*
+
 extern EventGroupHandle_t xEventGroup;
 
 static BLOCK_DETAILS_T blockTest;
@@ -29,6 +30,9 @@ int main( void )
 	blockTest.blockLen=1;
 	xEventGroup =  xEventGroupCreate();
 	AgvDiag_Init();
+#ifdef DEBUG_WITHOUT_MC
+	MC_Init();
+#endif
 	PCP_Init();
 	PCP_startNewMissionBlock(&blockTest);
 	vTaskStartScheduler();
@@ -58,6 +62,4 @@ void vApplicationIdleHook( void )
 	while(1)
 		printf("Stack Overflow! \n");
  }
-
-*/
 
