@@ -42,7 +42,7 @@ using namespace pid;
 #define CONTROL_SAMPLE_PERIOD_MS 50.0
 // Los valores medios que conseguimos son Kp=3 Ki=5 Kd=0
 #define PID_KP 5
-#define PID_KI 15
+#define PID_KI 35
 #define PID_KD 3
 
 #define abs(x)  ( (x<0) ? -(x) : x )

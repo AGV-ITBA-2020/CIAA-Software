@@ -47,7 +47,7 @@ void CCO_send_task()
 			}
 			vTaskDelay( delay ); //Se blockea por un tiempo de manera de que se vacíe la fifo sin ocupar tiempo de ejecución.
 		}
-		while(uartTxReady(EMH_UART));
+		while(!uartTxReady(EMH_UART));
 		uartWriteByte( EMH_UART, (uint8_t) MSG_TERMINATOR ); //Envío el terminador
 	}
 }
