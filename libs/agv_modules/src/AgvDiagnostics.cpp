@@ -36,6 +36,7 @@ typedef struct {
 typedef struct {
 	bool diagOn;
 	PERIODIC_SERVICE_T pidViewer;
+	bool pidViewer_sendTrack;
 	PERIODIC_SERVICE_T joystick;
 } DIAG_STATE_T;
 
@@ -44,7 +45,7 @@ TaskHandle_t xMainTaskToNotify;
 TimerHandle_t xDiagTimerHandle;
 uint32_t rxIndex;
 uint8_t rxBuffer[RX_BUFFER_SIZE];
-DIAG_STATE_T info = { false, {false, PID_DEFAULT_TICK_PERIOD}, {false, JOYSTICK_DEFAULT_TICK_TIMEOUT} };
+DIAG_STATE_T info = { false, {false, PID_DEFAULT_TICK_PERIOD}, true, {false, JOYSTICK_DEFAULT_TICK_TIMEOUT} };
 DiagMessage * msg;
 
 static void MainTask(void *pvParameters);
@@ -103,7 +104,11 @@ static void SendSpeedValues()
 	MC_getWheelSpeeds(speeds);
 
 	//taskENTER_CRITICAL();
-	printf("CM>SPD;%d;%d;%d;%d\r\n", TO_PRINT(speeds[2]), TO_PRINT(speeds[3]), TO_PRINT(speeds[0]), TO_PRINT(speeds[1]));
+	if(info.pidViewer_sendTrack)
+		printf("CM>TSPD;%d;%d;%d;%d;%d\r\n", TO_PRINT(speeds[2]), TO_PRINT(speeds[3]), TO_PRINT(speeds[0]), TO_PRINT(speeds[1]), TO_PRINT(PCP_GetPIDError()));
+	else
+		printf("CM>SPD;%d;%d;%d;%d\r\n", TO_PRINT(speeds[2]), TO_PRINT(speeds[3]), TO_PRINT(speeds[0]), TO_PRINT(speeds[1]));
+
 	fflush(stdout);
 	//taskEXIT_CRITICAL();
 }
@@ -188,7 +193,10 @@ static bool ProcessMessage()
 					printf("CM>FILT;%s\r\n", (MC_GetFilterState() ? "1.0" : "0.0"));
 					fflush(stdout);
 				}
-
+				else if(msg->id == DIAG_ID_TRACK)
+				{
+					info.pidViewer_sendTrack = (msg->values[0] == 1.0) ? true : false;
+				}
 			}
 			else
 			{
@@ -206,9 +214,12 @@ static bool ProcessMessage()
 				if(msg->id == DIAG_ID_VWSPD)
 				{
 					// printf("CM>MSG;Setting V=%.1f W=%.1f\r\n", msg->values[0], msg->values[1]);
-					//PCP_SetLinearSpeed(msg->values[0]);
+#ifndef DEBUG_WITHOUT_MC
+					PCP_SetLinearSpeed(msg->values[0]);
+#else
 					MC_setLinearSpeed(msg->values[0]);
 					MC_setAngularSpeed(msg->values[1]);
+#endif
 					info.joystick.currTick = 0;
 				}
 				else if(msg->id == DIAG_ID_MOD_STOP)
