@@ -79,6 +79,7 @@ void uartCallback(void* a) //Se llama cada vez que hubo 8 bytes entrando o un ti
 
 void EMH_init(callBackFuncPtr_t msgRecCallback,callBackFuncPtr_t connectionCallback)
 {
+	unsigned int i=0;
 	uartInit( EMH_UART, EMH_UART_BAUDRATE, LOOPBACK_MODE );
 	outCallback = msgRecCallback;
 	conCallback = connectionCallback;
@@ -86,6 +87,8 @@ void EMH_init(callBackFuncPtr_t msgRecCallback,callBackFuncPtr_t connectionCallb
 	uartCallbackSet( EMH_UART, UART_RECEIVE,(callBackFuncPtr_t)uartCallback);
 	recievedQueue=xQueueCreate( EMH_REC_BUF_LEN,sizeof(EthMsg)); //Queues para comunicación. Para recibir solo necesita 1 espacio dado que recibe un msj y se despacha al tok
 	sendQueue=xQueueCreate( EMH_SEND_BUF_MSGS,sizeof(EthMsg)); //Para enviar puede ser que varios procesos les pidan enviar cosas
+	while(i<50000000) //Delay para que prenda en el esp en caso de que esté apagado.
+		i++;
 	uartWriteString( EMH_UART, "Reset"); //Resetea el ESP
 	uartWriteByte( EMH_UART, 0  );
 	xTaskCreate( CCO_send_task, "CCO send task", 100	, NULL, EMH_SEND_PRIORITY, NULL ); //Crea task de misión
