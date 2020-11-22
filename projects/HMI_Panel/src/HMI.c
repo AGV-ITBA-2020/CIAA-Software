@@ -6,7 +6,6 @@
  */
 
 #include "HMI.h"
-#include "my_sapi.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
@@ -19,56 +18,62 @@
 #define HMI_REFRESH_LOW pdMS_TO_TICKS(100)	// ms. Low frequency refresh rate
 #define HMI_REFRESH_HIGH pdMS_TO_TICKS(10)	// ms. High frequency refresh rate
 
-typedef struct {
-	bool_t IO_type;		// 0 indicates an input. 1 indicates an output.
-	HMI_INPUT_ID id : HMI_IO_ID_MAX_BIT_SIZE;
-	HMI_INPUT_PATTERN pattern : 3;					// Indicates the type of pattern to capture.
-	unsigned int maxCount;							// Indicates the time required to consider that the button has been pressed. If 0, input is not active.
-	unsigned int patCount : 3;						// Used to count patterns.
-	unsigned int count;								// Used to count time pressed.
-	bool_t lastValue : 1;							// Used for capturing input changes and debouncing.
-	gpioMap_t inputPin;
-	void (* callbackSuccess)(HMI_INPUT_ID inputId);
-	void (* callbackAbort)(HMI_INPUT_ID inputId);
-}HMI_Input_t;
 
-typedef struct {
-	bool_t IO_type;		// 0 indicates an input. 1 indicates an output.
-	gpioMap_t outputPin;
-	HMI_OUTPUT_ID id;
-	unsigned int timeOn;						// Indicates the # of timebases to set the output ON in one period. If 0, input is not active.
-	unsigned int timeOff;					// Indicates the # of timebases to set the output OFF in one period.
-	unsigned int timebaseCounter;			// Counts the timebase in each period.
-	unsigned int actionCounter;			// Indicates the amount of periods to execute the pattern.
-	void (* callbackSuccess)(HMI_OUTPUT_ID inputId);
-	void (* callbackAbort)(HMI_OUTPUT_ID inputId);
-}HMI_Output_t;
 
 static HMI_Input_t inputArray[INPUT_TOTAL_COUNT];
 static HMI_Output_t outputArray[OUTPUT_TOTAL_COUNT];
 static QueueHandle_t hmiQueue;
 static char queueObjectSize;	// Used to define max size of object in queue
+static gpioMap_t inputConnectionMap[]={
+		DI0, 	//INPUT_BUT_GREEN
+		DI1, 	//INPUT_BUT_BLUE
+		DI2, 	//INPUT_SW_1
+		DI3 	//INPUT_SW_2
+};
+static gpioMap_t outputConnectionMap[]={
+		DO0, 	//OUTPUT_BUT_GREEN
+		DO1, 	//OUTPUT_BUT_BLUE
+		DO2, 	//OUTPUT_LEDSTRIP_RIGHT
+		DO3, 	//OUTPUT_LEDSTRIP_LEFT
+		DO4, 	//OUTPUT_LEDSTRIP_STOP
+		DO5 	//OUTPUT_BUZZER
+};
+
 
 void HMI_MainTask();
 char RunInputRoutine();
 char RunOutputRoutine();
 void LoadInputConfig(HMI_Input_t * data);
 void LoadOutputConfig(HMI_Output_t * data);
+void GpioInit();
 
+
+////////////////////////////Funciones externas ///////////////////////////////////
 void HMI_Init()
 {
 	// Initialize HMI task
-	BaseType_t taskOk = xTaskCreate(HMI_MainTask, "HMI_TASK", 512, NULL, HMI_TASK_PRIO, NULL);
-	configASSERT(taskOk == true);
-
+	BaseType_t taskOk = xTaskCreate(HMI_MainTask, "HMI_TASK", 256, NULL, HMI_TASK_PRIO, NULL);
 	// Initialize queue
+	GpioInit();
 	queueObjectSize = sizeof(HMI_Output_t);
 	if(sizeof(HMI_Input_t) > queueObjectSize)
 		queueObjectSize = sizeof(HMI_Input_t);
 	hmiQueue = xQueueCreate(HMI_QUEUE_LENGTH, (UBaseType_t) queueObjectSize);
-	configASSERT(hmiQueue != NULL);
 }
-
+bool_t HMI_AddToQueue(void * HMI_InputOrOutput)
+{
+	return xQueueSendToBack(hmiQueue,HMI_InputOrOutput,0 );
+}
+gpioMap_t HMI_getCorrespondingPin(HMI_IO_TYPE IOType, unsigned int id)
+{
+	gpioMap_t retVal;
+	if(IOType == HMI_INPUT)
+		retVal=inputConnectionMap[id];
+	else
+		retVal=outputConnectionMap[id];
+	return retVal;
+}
+////////////////////////////Funciones internas ///////////////////////////////////
 void HMI_MainTask()
 {
 	// Set initial variables
@@ -79,7 +84,7 @@ void HMI_MainTask()
 	for( ;; )
 	{
 		// First, load all pending IO request in the corresponding IO struct
-/*		while(uxQueueMessagesWaiting(hmiQueue) > 0)
+		while(uxQueueMessagesWaiting(hmiQueue) > 0)
 		{
 			char tempObj[queueObjectSize];
 			xQueueReceive(hmiQueue, tempObj, 0);
@@ -88,20 +93,21 @@ void HMI_MainTask()
 			else
 				LoadOutputConfig((HMI_Output_t *) tempObj);
 		}
-*/
-HMI_Input_t tempObj;
-tempObj.IO_type=0;
-tempObj.count=0;
-tempObj.id=0;
-tempObj.inputPin;
-tempObj.lastValue=1;
-tempObj.maxCount=500;
-tempObj.patCount=1;
-tempObj.pattern=COUNTER;
-HMI_Input_t *pointer =tempObj;
+
+		/*
+		HMI_Input_t tempObj;
+		tempObj.IO_type=0;
+		tempObj.count=0;
+		tempObj.id=0;
+		tempObj.inputPin;
+		tempObj.lastValue=1;
+		tempObj.maxCount=500;
+		tempObj.patCount=1;
+		tempObj.pattern=COUNTER;
+		HMI_Input_t *pointer =tempObj;
 
 		LoadInputConfig((HMI_Input_t *) pointer);
-
+		*/
 
 		char nInputs = RunInputRoutine();
 		char nOutputs = RunOutputRoutine();
@@ -158,7 +164,7 @@ char RunInputRoutine()
 					if(inputArray[i].patCount==0)				// If number of patterns reached -> set input as inactive, successful press.
 					{
 						inputArray[i].maxCount=0;
-						inputArray[i].callbackSuccess();
+						inputArray[i].callbackSuccess(inputArray[i].id);
 					}
 					else										// If number of patterns not reached -> update last value, set input as active.
 					{
@@ -204,7 +210,7 @@ char RunOutputRoutine()
 				(outputArray[i].actionCounter)--;
 				(outputArray[i].timebaseCounter)=0;
 				if(outputArray[i].actionCounter==0)
-					outputArray[i].callbackSuccess();
+					outputArray[i].callbackSuccess(outputArray[i].id);
 
 				else
 				{
@@ -219,18 +225,25 @@ char RunOutputRoutine()
 
 void LoadInputConfig(HMI_Input_t * data)
 {
-	if(inputArray[data->maxCount]==0)
-		inputArray[data->id]=data;
+	if(inputArray[data->id].maxCount==0)
+		inputArray[data->id]=*data;
 	else
-		inputArray[data->callbackAbort()];
+		data->callbackAbort(data->id);
 
 }
 
 void LoadOutputConfig(HMI_Output_t * data)
 {
-	if(outputArray[data->actionCounter]==0)
-		outputArray[data->id]=data;
+	if(outputArray[data->id].actionCounter==0)
+		outputArray[data->id]=*data;
 	else
-		outputArray[data->callbackAbort()];
-
+		data->callbackAbort(data->id);
 }
+void GpioInit()
+{
+	for(unsigned int i=0; i<INPUT_TOTAL_COUNT;i++)
+		gpioInit(inputConnectionMap[i],GPIO_INPUT);
+	for(unsigned int i=0; i<OUTPUT_TOTAL_COUNT;i++)
+		gpioInit(outputConnectionMap[i],GPIO_OUTPUT);
+}
+
