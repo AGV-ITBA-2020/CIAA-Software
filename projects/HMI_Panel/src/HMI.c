@@ -133,31 +133,20 @@ char RunInputRoutine()
 	unsigned int ninputs=0;
 	for(int i=0;i<INPUT_TOTAL_COUNT;i++)
 	{
-	if(inputArray[i].maxCount==0)								// Checks if input is active
-		continue;
-	else
-	{	int pinread=gpioRead(inputArray[i].inputPin);
-		if(pinread==0)
-		{
-			if(inputArray[i].lastValue==1)						// If a 0 has been read and the last value was 1 -> reset counter, update lastValue and set the input as active.
-			{
-				(inputArray[i].count)=0;
-				inputArray[i].lastValue=pinread;
-				ninputs++;
-
-			}
-			else												// If a 0 has been read and the last value was 0 -> update time pressed
-			{
-
-				(inputArray[i].count)++;
-				inputArray[i].lastValue=pinread;				// Whether needed time is reached or not -> update last value, set input as active.
-				ninputs++;
-			}													// Whether needed time is reached or not -> do nothing because the button is still being pressed.
-		}
+		if(inputArray[i].maxCount==0)								// Checks if input is active
+			continue;
 		else
 		{
-			if(inputArray[i].lastValue==0)						// If a 1 has been read and the last value was 0 -> Button released
-
+			int pinread=gpioRead(inputArray[i].inputPin);
+			ninputs++;
+			if(pinread==0)
+			{
+				if(inputArray[i].lastValue==1)						// If a 0 has been read and the last value was 1 -> reset counter, update lastValue and set the input as active.
+					(inputArray[i].count)=0;
+				else												// If a 0 has been read and the last value was 0 -> update time pressed
+					(inputArray[i].count)++;					// Whether needed time is reached or not -> update last value, set input as active. // Whether needed time is reached or not -> do nothing because the button is still being pressed.
+			}
+			else if(inputArray[i].lastValue==0)					// If a 1 has been read and the last value was 0 -> Button released
 			{
 				if(inputArray[i].count>inputArray[i].maxCount)	// If needed time is reached
 				{
@@ -167,23 +156,12 @@ char RunInputRoutine()
 						inputArray[i].maxCount=0;
 						inputArray[i].callbackSuccess(inputArray[i].id);
 					}
-					else										// If number of patterns not reached -> update last value, set input as active.
-					{
-						inputArray[i].lastValue=pinread;
-						ninputs++;
-					}
-
-
 				}
 			}
+			inputArray[i].lastValue=pinread;
 		}
-
 	}
-	}
-
 	return ninputs;
-
-
 }
 
 char RunOutputRoutine()
