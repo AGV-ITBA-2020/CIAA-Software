@@ -39,11 +39,16 @@ void SS_init()
 {
 	gpioInit( emergencyPin, GPIO_INPUT );
 	xTaskCreate(SS_MainTask, "HMI_TASK", 100, NULL, 1, NULL);
-	//Habría que hacerlo con callbacks pero una paja de leer eso, no hay nada hecho
+	//Habrï¿½a que hacerlo con callbacks pero una paja de leer eso, no hay nada hecho
 }
 
 
 void emergencyCallback()
 {
 	xEventGroupSetBitsFromISR( xEventGroup,GEG_EMERGENCY_STOP,NULL );
+}
+
+bool_t SS_emergencyState()
+{
+	return gpioRead(emergencyPin);
 }

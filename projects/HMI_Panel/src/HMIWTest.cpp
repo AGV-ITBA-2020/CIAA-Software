@@ -12,7 +12,7 @@
 #include "event_groups.h"
 #include "task.h"
 void testHMIW(void * ptr);
-EventGroupHandle_t xEventGroup;
+extern EventGroupHandle_t xEventGroup;
 
 void testHMIW(void * ptr)
 {
