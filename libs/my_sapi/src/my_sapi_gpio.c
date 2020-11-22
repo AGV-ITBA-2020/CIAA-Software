@@ -44,7 +44,7 @@
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
-
+callBackFuncPtr_t fCallback;
 /*==================[internal data definition]===============================*/
 
 const pinInitGpioLpc4337_t gpioPinsInit[] = {
@@ -260,4 +260,23 @@ bool_t gpioRead( gpioMap_t pin )
    return ret_val;
 }
 
+
+void gpioSetInt( gpioMap_t pin, callBackFuncPtr_t f )
+{
+
+	int8_t pinNamePort = 0;
+	int8_t pinNamePin  = 0;
+	int8_t func        = 0;
+	int8_t gpioPort    = 0;
+	int8_t gpioPin     = 0;
+	gpioObtainPinInit( pin, &pinNamePort, &pinNamePin, &func,
+	                      &gpioPort, &gpioPin );
+	Chip_SCU_GPIOIntPinSel(0, gpioPort, gpioPin);
+	fCallback=f;
+}
 /*==================[end of file]============================================*/
+void SGPIO_IRQHandler()
+{
+	if(fCallback!=NULL)
+		fCallback(0);
+}

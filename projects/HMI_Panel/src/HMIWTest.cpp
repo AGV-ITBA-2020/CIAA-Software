@@ -25,7 +25,7 @@ void testHMIW(void * ptr)
  		{
  			HMIWev=HMIW_GetEvInfo();
  			if(HMIWev.id==INPUT_BUT_GREEN &&HMIWev.pat==LONG_PRESS)
- 				HMIW_Blink(OUTPUT_LEDSTRIP_STOP,5);
+ 				HMIW_Blink(OUTPUT_BUT_GREEN,5);
  			HMIW_ListenToLongPress(INPUT_BUT_GREEN);
  		}
 
@@ -42,3 +42,4 @@ int main( void )
 	BaseType_t ret = xTaskCreate(testHMIW, "CCO Test", 150	, NULL, 1, NULL );
 	vTaskStartScheduler();
 }
+

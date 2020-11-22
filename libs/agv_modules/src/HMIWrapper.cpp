@@ -34,6 +34,7 @@ void HMIW_ListenToLongPress(HMI_INPUT_ID id)
 	exampleInput.id=id;
 	exampleInput.pattern=LONG_PRESS; //Creo que esto ni hace falta ponerlo.
 	exampleInput.patCount=1;
+	exampleInput.count=0;
 	exampleInput.inputPin=HMI_getCorrespondingPin(exampleInput.IO_type, exampleInput.id);
 	exampleInput.maxCount=int(HMIW_LONGPRESS_MS/HMI_REFRESH_MS);
 	exampleInput.callbackSuccess=inputCallback;
@@ -47,6 +48,7 @@ void HMIW_ListenToMultiplePress(HMI_INPUT_ID id, unsigned int count)
 	exampleInput.id=id;
 	exampleInput.pattern=COUNTER; //Creo que esto ni hace falta ponerlo.
 	exampleInput.patCount=count;
+	exampleInput.count=0;
 	exampleInput.inputPin=HMI_getCorrespondingPin(exampleInput.IO_type, exampleInput.id);
 	exampleInput.maxCount=int(HMIW_MIN_PRESS_MS/HMI_REFRESH_MS);
 	exampleInput.callbackSuccess=inputCallback;
@@ -72,7 +74,7 @@ HMIW_EV_INFO HMIW_GetEvInfo()
 	HMIW_EV_INFO retVal;
 	BaseType_t bt= xQueueReceive( evQueue,&retVal,0); //Si hay algo en la cola lo pone en msgP
 	if(uxQueueMessagesWaiting(evQueue))
-		xEventGroupSetBitsFromISR( xEventGroup,GEG_HMI , NULL );
+		xEventGroupSetBits( xEventGroup,GEG_HMI );
 	return retVal; //Esto dice si se leyó algo o no.
 }
 /*==================[ callbacks]==========================*/
@@ -82,7 +84,7 @@ void inputCallback(HMI_INPUT_ID id)
 	aux.id=id;
 	aux.pat=patternConfig[id];
 	xQueueSendToBack(evQueue,&aux,0);
-	xEventGroupSetBitsFromISR( xEventGroup,GEG_HMI , NULL );
+	xEventGroupSetBits( xEventGroup,GEG_HMI );
 }
 void dumbFunc(HMI_OUTPUT_ID id)
 {

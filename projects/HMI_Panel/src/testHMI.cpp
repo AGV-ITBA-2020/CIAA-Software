@@ -28,8 +28,10 @@ int main( void )
 	exampleInput.IO_type=HMI_INPUT;
 	exampleInput.id=INPUT_BUT_GREEN;
 	exampleInput.pattern=LONG_PRESS;
+	exampleInput.patCount=1;
 	exampleInput.inputPin=HMI_getCorrespondingPin(exampleInput.IO_type, exampleInput.id);
 	exampleInput.maxCount=1;
+	exampleInput.count=0;
 	exampleInput.callbackSuccess=defaultHMIInputCallback;
 	HMI_AddToQueue((void *)&exampleInput);
 	vTaskStartScheduler();
@@ -37,7 +39,6 @@ int main( void )
 
 void defaultHMIInputCallback(HMI_INPUT_ID inputId)
 {
-
 	printf("Long press");
 }
 void defaultHMIOutputCallback(HMI_OUTPUT_ID outputId)
