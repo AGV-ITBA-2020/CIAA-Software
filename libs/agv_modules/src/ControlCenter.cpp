@@ -8,6 +8,7 @@
 #include "CommunicationCenter.hpp"
 #include "PathControlModule.h"
 #include "HMIWrapper.hpp"
+#include "SecuritySystem.hpp"
 #include "GlobalEventGroup.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -278,6 +279,7 @@ void CC_init()
 {
 	PC_Init();
 	CCO_init();
+	SS_init();
 	xEventGroup =  xEventGroupCreate();
 	xTaskCreate(CC_mainTask, "CC Main task", 100, NULL, 1, NULL ); //Crea task de misi�n
 	state=CC_IDLE;
