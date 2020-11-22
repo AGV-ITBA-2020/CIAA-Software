@@ -25,18 +25,18 @@ static QueueHandle_t hmiQueue;
 static char queueObjectSize;	// Used to define max size of object in queue
 
 static gpioMap_t inputConnectionMap[]={
-		DI0, 	//INPUT_BUT_GREEN
-		DI1, 	//INPUT_BUT_BLUE
-		DI2, 	//INPUT_SW_1
-		DI3 	//INPUT_SW_2
+		DI2, 	//INPUT_BUT_GREEN
+		DI3, 	//INPUT_BUT_BLUE
+		DI0, 	//INPUT_SW_AUTO
+		DI1 	//INPUT_SW_MANUAL
 };
 static gpioMap_t outputConnectionMap[]={
-		DO0, 	//OUTPUT_BUT_GREEN
-		DO1, 	//OUTPUT_BUT_BLUE
-		DO2, 	//OUTPUT_LEDSTRIP_RIGHT
-		DO3, 	//OUTPUT_LEDSTRIP_LEFT
-		DO4, 	//OUTPUT_LEDSTRIP_STOP
-		DO5 	//OUTPUT_BUZZER
+		DO5, 	//OUTPUT_BUT_GREEN
+		DO6, 	//OUTPUT_BUT_BLUE
+		DO0, 	//OUTPUT_LEDSTRIP_RIGHT
+		DO1, 	//OUTPUT_LEDSTRIP_LEFT
+		DO2, 	//OUTPUT_LEDSTRIP_STOP
+		DO4 	//OUTPUT_BUZZER
 };
 
 

@@ -6,12 +6,11 @@
  */
 
 #include "config.h"        // <= Biblioteca sAPI
-#include "../inc/HMIWrapper.hpp"
+#include "HMIWrapper.hpp"
 #include "GlobalEventGroup.h"
 #include "FreeRTOS.h"
 #include "event_groups.h"
 #include "task.h"
-
 void testHMIW(void * ptr);
 EventGroupHandle_t xEventGroup;
 
