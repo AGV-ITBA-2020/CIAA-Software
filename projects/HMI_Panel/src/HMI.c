@@ -20,19 +20,20 @@
 #define HMI_REFRESH_HIGH pdMS_TO_TICKS(10)	// ms. High frequency refresh rate
 
 typedef struct {
-	bool IO_type;		// 0 indicates an input. 1 indicates an output.
+	bool_t IO_type;		// 0 indicates an input. 1 indicates an output.
 	HMI_INPUT_ID id : HMI_IO_ID_MAX_BIT_SIZE;
-	HMI_INPUT_PATTERN pattern : 3;				// Indicates the type of pattern to capture.
-	unsigned int maxCount : 3;					// Indicates the number of times the pattern repeats for a success. If 0, input is not active. Para short press es el número de short press necesarios para cumplir. Para long press es el tiempo máximo para ser considerado long press.
-	unsigned int count : 3;						// Used to count patterns. Para short press cuento cuántos voy teniendo. Para long press lo uso para el tiempo que permanece presionado.
-	bool lastValue : 1;							// Used for capturing input changes and debouncing.
+	HMI_INPUT_PATTERN pattern : 3;					// Indicates the type of pattern to capture.
+	unsigned int maxCount;							// Indicates the time required to consider that the button has been pressed. If 0, input is not active.
+	unsigned int patCount : 3;						// Used to count patterns.
+	unsigned int count;								// Used to count time pressed.
+	bool_t lastValue : 1;							// Used for capturing input changes and debouncing.
 	gpioMap_t inputPin;
 	void (* callbackSuccess)(HMI_INPUT_ID inputId);
 	void (* callbackAbort)(HMI_INPUT_ID inputId);
 }HMI_Input_t;
 
 typedef struct {
-	bool IO_type;		// 0 indicates an input. 1 indicates an output.
+	bool_t IO_type;		// 0 indicates an input. 1 indicates an output.
 	gpioMap_t outputPin;
 	HMI_OUTPUT_ID id;
 	unsigned int timeOn;						// Indicates the # of timebases to set the output ON in one period. If 0, input is not active.
@@ -78,7 +79,7 @@ void HMI_MainTask()
 	for( ;; )
 	{
 		// First, load all pending IO request in the corresponding IO struct
-		while(uxQueueMessagesWaiting(hmiQueue) > 0)
+/*		while(uxQueueMessagesWaiting(hmiQueue) > 0)
 		{
 			char tempObj[queueObjectSize];
 			xQueueReceive(hmiQueue, tempObj, 0);
@@ -87,6 +88,20 @@ void HMI_MainTask()
 			else
 				LoadOutputConfig((HMI_Output_t *) tempObj);
 		}
+*/
+HMI_Input_t tempObj;
+tempObj.IO_type=0;
+tempObj.count=0;
+tempObj.id=0;
+tempObj.inputPin;
+tempObj.lastValue=1;
+tempObj.maxCount=500;
+tempObj.patCount=1;
+tempObj.pattern=COUNTER;
+HMI_Input_t *pointer =tempObj;
+
+		LoadInputConfig((HMI_Input_t *) pointer);
+
 
 		char nInputs = RunInputRoutine();
 		char nOutputs = RunOutputRoutine();
@@ -111,66 +126,50 @@ char RunInputRoutine()
 	unsigned int ninputs=0;
 	for(int i=0;i<INPUT_TOTAL_COUNT;i++)
 	{
-	if(inputArray[i].maxCount==0)
+	if(inputArray[i].maxCount==0)								// Checks if input is active
 		continue;
 	else
-	{
-		if(gpioRead(inputArray[i].inputPin)==0)
+	{	int pinread=gpioRead(inputArray[i].inputPin);
+		if(pinread==0)
 		{
-			if(inputArray[i].lastValue==1)
+			if(inputArray[i].lastValue==1)						// If a 0 has been read and the last value was 1 -> reset counter, update lastValue and set the input as active.
 			{
-				if(inputArray[i].pattern==LONG_PRESS)
-				{
-					(inputArray[i].count)=0;
-					inputArray[i].lastValue=gpioRead(inputArray[i].inputPin);
-					ninputs++;
-				}
+				(inputArray[i].count)=0;
+				inputArray[i].lastValue=pinread;
+				ninputs++;
 
-				else
-				{
-					(inputArray[i].count)++;
-
-					if(inputArray[i].count<inputArray[i].maxCount)
-					{
-						inputArray[i].lastValue=gpioRead(inputArray[i].inputPin);
-						ninputs++;
-					}
-					else
-					{
-						inputArray[i].maxCount=0;
-						inputArray[i].callbackSuccess;
-					}
-				}
 			}
-			else
+			else												// If a 0 has been read and the last value was 0 -> update time pressed
 			{
-				if(inputArray[i].pattern==LONG_PRESS)
-				{
-					(inputArray[i].count)++;
 
-					if(inputArray[i].count<inputArray[i].maxCount)
-					{
-						inputArray[i].lastValue=gpioRead(inputArray[i].inputPin);
-						ninputs++;
-					}
-					else
-					{
-						inputArray[i].maxCount=0;
-						inputArray[i].callbackSuccess;
-					}
-
-				}
-				else
-
-					inputArray[i].callbackAbort;
-			}
+				(inputArray[i].count)++;
+				inputArray[i].lastValue=pinread;				// Whether needed time is reached or not -> update last value, set input as active.
+				ninputs++;
+			}													// Whether needed time is reached or not -> do nothing because the button is still being pressed.
 		}
 		else
-			if(inputArray[i].lastValue==0)
+		{
+			if(inputArray[i].lastValue==0)						// If a 1 has been read and the last value was 0 -> Button released
+
 			{
+				if(inputArray[i].count>inputArray[i].maxCount)	// If needed time is reached
+				{
+					(inputArray[i].patCount--);
+					if(inputArray[i].patCount==0)				// If number of patterns reached -> set input as inactive, successful press.
+					{
+						inputArray[i].maxCount=0;
+						inputArray[i].callbackSuccess();
+					}
+					else										// If number of patterns not reached -> update last value, set input as active.
+					{
+						inputArray[i].lastValue=pinread;
+						ninputs++;
+					}
 
+
+				}
 			}
-
+		}
 
 	}
 	}
@@ -182,25 +181,37 @@ char RunInputRoutine()
 
 char RunOutputRoutine()
 {
-	unsigned int noutputs;
+	unsigned int noutputs=0;
 
 	for(int i=0;i<OUTPUT_TOTAL_COUNT;i++)
-		if((outputArray[i].timebaseCounter)<(outputArray[i].timeOn))
-		{
-			(outputArray[i].timebaseCounter)++;
-			gpioWrite(outputArray[i].outputPin,1);
-		}
-
-		else if((outputArray[i].timebaseCounter>=outputArray[i].timeOn) && (outputArray[i].timebaseCounter<=((outputArray[i].timeOff) + (outputArray[i].timeOff))))
-		{
-			(outputArray[i].timebaseCounter)++;
-			gpioWrite(outputArray[i].outputPin,0);
-		}
-	
+		if(outputArray[i].actionCounter==0)												// Checks if output is active
+			continue;
 		else
 		{
-			(outputArray[i].timebaseCounter)=0;
-			outputArray[i].callbackSuccess;
+			if((outputArray[i].timebaseCounter)<(outputArray[i].timeOn))				// If needed ON time is reached ->
+			{
+				(outputArray[i].timebaseCounter)++;
+				gpioWrite(outputArray[i].outputPin,1);
+			}
+			else if((outputArray[i].timebaseCounter>=outputArray[i].timeOn) && (outputArray[i].timebaseCounter<=((outputArray[i].timeOff) + (outputArray[i].timeOff))))
+			{
+				(outputArray[i].timebaseCounter)++;
+				gpioWrite(outputArray[i].outputPin,0);
+			}
+
+			else
+			{
+				(outputArray[i].actionCounter)--;
+				(outputArray[i].timebaseCounter)=0;
+				if(outputArray[i].actionCounter==0)
+					outputArray[i].callbackSuccess();
+
+				else
+				{
+					noutputs++;
+				}
+			}
+	
 		}
 
 	return noutputs;
@@ -208,13 +219,18 @@ char RunOutputRoutine()
 
 void LoadInputConfig(HMI_Input_t * data)
 {
-	inputArray[data.id]=data;
+	if(inputArray[data->maxCount]==0)
+		inputArray[data->id]=data;
+	else
+		inputArray[data->callbackAbort()];
 
 }
 
 void LoadOutputConfig(HMI_Output_t * data)
 {
-
-	outputArray[data.id]=data;
+	if(outputArray[data->actionCounter]==0)
+		outputArray[data->id]=data;
+	else
+		outputArray[data->callbackAbort()];
 
 }
