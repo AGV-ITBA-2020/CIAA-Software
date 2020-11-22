@@ -177,10 +177,9 @@ void MotorController_t::getSpeed(void)
 void MotorController_t::setSpeed(void)
 {
 	uint8_t sctDuty = DC_TO_SCT_MAPPING_ALPHA * output + MIN_SCT_DUTY_CYCLE;
+
 	if((sctDuty <= TRUNCATE_SCT_DUTY_CYCLE) && ((setpoint == 0) || ((setpoint - input) <= 0)))
-	{
 		sctDuty = 0;
-	}
 
 	if(sctDuty < 0){
 		setMotorDirection(true);
@@ -241,21 +240,22 @@ void AGVMovementModule_t::calculateSetpoints(void)
 {
 	static double setLeft, setRight;
 
-	setLeft = angularSpeed*AGV_AXIS_LONGITUDE/AGV_WHEEL_RADIUS; 		// Velocidad angular de las ruedas
+	setLeft = angularSpeed*AGV_AXIS_LONGITUDE/AGV_WHEEL_RADIUS; 		// Velocidad angular de las ruedas para lograr vel de giro. Parte 1 de oztug
 	setRight = -angularSpeed*AGV_AXIS_LONGITUDE/AGV_WHEEL_RADIUS;
 
-	double linealVelDelta = MAX_WHEEL_ANGULAR_SPEED - (setLeft >= 0 ? setLeft : setRight);	// Get absolute of angular velocity of wheel
-	if(linearSpeed > linealVelDelta)
-		linearSpeed = linealVelDelta;
+	double wheelSpeedDelta = MAX_WHEEL_ANGULAR_SPEED - (setLeft >= 0 ? setLeft : setRight);	// Vel angular de ruedas para llegar a su máximo dada esa velocidad de giro
+	double wheelLinealSetpoint = linearSpeed / AGV_WHEEL_RADIUS;	// Vel. angular de ruedas de la componente lineal. Parte 2 de oztug
 
-	setLeft += linearSpeed/AGV_WHEEL_RADIUS;	// Velocidad angular final de las ruedas
-	setRight += linearSpeed/AGV_WHEEL_RADIUS;
+	if(wheelLinealSetpoint > wheelSpeedDelta)
+		wheelLinealSetpoint = wheelSpeedDelta;
+
+	setLeft += wheelLinealSetpoint;	// Velocidad angular final de las ruedas
+	setRight += wheelLinealSetpoint;
 
 	setLeft = setLeft < 0 ? 0 : setLeft;
 	setRight = setRight < 0 ? 0 : setRight;
-	// setLeft = (linearSpeed + angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS; 		
-	// setRight = (linearSpeed - angularSpeed*AGV_AXIS_LONGITUDE)/AGV_WHEEL_RADIUS;
 
+	// Redundancia
 	leftMotor.setpoint = setLeft > MAX_WHEEL_ANGULAR_SPEED ? MAX_WHEEL_ANGULAR_SPEED : setLeft;
 	rightMotor.setpoint = setRight > MAX_WHEEL_ANGULAR_SPEED ? MAX_WHEEL_ANGULAR_SPEED : setRight;
 }
@@ -274,20 +274,16 @@ void mcmMainTask(void * ptr)
 	{
 		movementModule.leftMotor.getSpeed();
 		movementModule.rightMotor.getSpeed();
-		// movementModule.leftMotor.input = filter(movementModule.leftMotor.inputData);
-		// movementModule.rightMotor.input = filter(movementModule.rightMotor.inputData);
+		
 		movementModule.leftMotor.filterInput();
 		movementModule.rightMotor.filterInput();
 		
 		movementModule.rightMotor.Compute();
 		movementModule.leftMotor.Compute();
 
-
-
 		movementModule.leftMotor.setSpeed();
 		movementModule.rightMotor.setSpeed();
-		vTaskDelay(xDelay50ms);
-		//vTaskDelayUntil( &xLastWakeTime, xDelay50ms );
+		vTaskDelayUntil( &xLastWakeTime, xDelay50ms );
 	}
 }
 
