@@ -24,9 +24,18 @@ void testHMIW(void * ptr)
  		if(ev & GEG_HMI)
  		{
  			HMIWev=HMIW_GetEvInfo();
- 			if(HMIWev.id==INPUT_BUT_GREEN &&HMIWev.pat==LONG_PRESS)
- 				HMIW_Blink(OUTPUT_BUT_GREEN,5);
- 			HMIW_ListenToLongPress(INPUT_BUT_GREEN);
+ 			if(HMIWev.id==INPUT_BUT_GREEN &&HMIWev.pat==SHORT_PRESS)
+ 			{
+ 				HMIW_Blink(OUTPUT_LEDSTRIP_LEFT,5);
+ 				HMIW_ListenToShortPress(INPUT_BUT_GREEN);
+ 			}
+
+ 			if(HMIWev.id==INPUT_BUT_BLUE &&HMIWev.pat==SHORT_PRESS)
+ 			{
+ 				HMIW_Blink(OUTPUT_LEDSTRIP_RIGHT,5);
+ 				HMIW_ListenToShortPress(INPUT_BUT_BLUE);
+ 			}
+
  		}
 
  	}
@@ -37,7 +46,8 @@ void testHMIW(void * ptr)
 int main( void )
 {
 	HMIW_Init();
-	HMIW_ListenToLongPress(INPUT_BUT_GREEN);
+	HMIW_ListenToShortPress(INPUT_BUT_GREEN);
+	HMIW_ListenToShortPress(INPUT_BUT_BLUE);
 	xEventGroup =  xEventGroupCreate();
 	BaseType_t ret = xTaskCreate(testHMIW, "CCO Test", 150	, NULL, 1, NULL );
 	vTaskStartScheduler();

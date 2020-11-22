@@ -211,8 +211,9 @@ void LoadOutputConfig(HMI_Output_t * data)
 {
 	if(outputArray[data->id].actionCounter==0)
 		outputArray[data->id]=*data;
+	/*
 	else
-		data->callbackAbort(data->id);
+		data->callbackAbort(data->id);*/
 }
 void GpioInit()
 {

@@ -40,7 +40,8 @@ typedef enum{
 
 typedef enum{
 	COUNTER,
-	LONG_PRESS
+	LONG_PRESS,
+	SHORT_PRESS
 } HMI_INPUT_PATTERN;
 
 typedef struct {

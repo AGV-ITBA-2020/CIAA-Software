@@ -13,6 +13,7 @@
 
 
 #define HMIW_EV_QUEUE_LEN 5
+
 extern EventGroupHandle_t xEventGroup;
 static QueueHandle_t evQueue;
 /*==================[internal functions declaration]==========================*/
@@ -40,6 +41,20 @@ void HMIW_ListenToLongPress(HMI_INPUT_ID id)
 	exampleInput.callbackSuccess=inputCallback;
 	HMI_AddToQueue((void *)&exampleInput);
 	patternConfig[id]=LONG_PRESS;
+}
+void HMIW_ListenToShortPress(HMI_INPUT_ID id)
+{
+	HMI_Input_t exampleInput;
+	exampleInput.IO_type=HMI_INPUT;
+	exampleInput.id=id;
+	exampleInput.pattern=LONG_PRESS; //Creo que esto ni hace falta ponerlo.
+	exampleInput.patCount=1;
+	exampleInput.count=0;
+	exampleInput.inputPin=HMI_getCorrespondingPin(exampleInput.IO_type, exampleInput.id);
+	exampleInput.maxCount=int(HMIW_SHORTPRESS_MS/HMI_REFRESH_MS);
+	exampleInput.callbackSuccess=inputCallback;
+	HMI_AddToQueue((void *)&exampleInput);
+	patternConfig[id]=SHORT_PRESS;
 }
 void HMIW_ListenToMultiplePress(HMI_INPUT_ID id, unsigned int count)
 {
