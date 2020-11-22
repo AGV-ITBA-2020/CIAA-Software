@@ -169,7 +169,7 @@ double CCO_getLinSpeed()
 {
 	string auxStr = auxRecMsg.array;
 	auxStr=getData(auxStr);
-	return stoi(auxStr)*0.01;
+	return stoi(auxStr)*0.1;
 }
 
 double CCO_getAngSpeed()
