@@ -13,6 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define HMI_REFRESH_MS 100
+
 typedef enum{	
 	HMI_INPUT,
 	HMI_OUTPUT

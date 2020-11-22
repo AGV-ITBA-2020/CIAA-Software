@@ -15,8 +15,7 @@
 #define HMI_IO_ID_MAX_BIT_SIZE 6
 #define HMI_QUEUE_LENGTH 5
 
-#define HMI_REFRESH_LOW pdMS_TO_TICKS(100)	// ms. Low frequency refresh rate
-#define HMI_REFRESH_HIGH pdMS_TO_TICKS(10)	// ms. High frequency refresh rate
+#define HMI_REFRESH_RATE pdMS_TO_TICKS(HMI_REFRESH_MS)	// ms. High frequency refresh rate
 
 
 
@@ -24,6 +23,7 @@ static HMI_Input_t inputArray[INPUT_TOTAL_COUNT];
 static HMI_Output_t outputArray[OUTPUT_TOTAL_COUNT];
 static QueueHandle_t hmiQueue;
 static char queueObjectSize;	// Used to define max size of object in queue
+
 static gpioMap_t inputConnectionMap[]={
 		DI0, 	//INPUT_BUT_GREEN
 		DI1, 	//INPUT_BUT_BLUE
@@ -78,7 +78,7 @@ void HMI_MainTask()
 {
 	// Set initial variables
 	TickType_t xLastTimeWoke = xTaskGetTickCount();
-	TickType_t hmiUpdatePeriod = HMI_REFRESH_HIGH;
+	TickType_t hmiUpdatePeriod = HMI_REFRESH_RATE;
 
 	// Start task main loop
 	for( ;; )
@@ -111,15 +111,16 @@ void HMI_MainTask()
 
 		char nInputs = RunInputRoutine();
 		char nOutputs = RunOutputRoutine();
-		if(nInputs > 0) // If there's at least 1 input active
-			hmiUpdatePeriod = HMI_REFRESH_HIGH;
-		else if(nOutputs > 0) // If there's at no input but at least 1 output active
-			hmiUpdatePeriod = HMI_REFRESH_LOW;
+		if(nInputs > 0 || nOutputs > 0) // If there's at least 1 input active
+			hmiUpdatePeriod = HMI_REFRESH_RATE;
 		else	// Else no IO active. Sleep until new queue event.
 			hmiUpdatePeriod = portMAX_DELAY;
 
 		if(hmiUpdatePeriod == portMAX_DELAY)  // No IO active. Sleep until new queue event.
-			xQueuePeek(hmiQueue, NULL, portMAX_DELAY);
+		{
+			char tempObj[queueObjectSize];
+			xQueuePeek(hmiQueue, tempObj, portMAX_DELAY);
+		}
 		else
 		{
 			vTaskDelayUntil(&xLastTimeWoke, hmiUpdatePeriod);
@@ -194,12 +195,13 @@ char RunOutputRoutine()
 			continue;
 		else
 		{
+			noutputs++;
 			if((outputArray[i].timebaseCounter)<(outputArray[i].timeOn))				// If needed ON time is reached ->
 			{
 				(outputArray[i].timebaseCounter)++;
 				gpioWrite(outputArray[i].outputPin,1);
 			}
-			else if((outputArray[i].timebaseCounter>=outputArray[i].timeOn) && (outputArray[i].timebaseCounter<=((outputArray[i].timeOff) + (outputArray[i].timeOff))))
+			else if((outputArray[i].timebaseCounter>=outputArray[i].timeOn) && (outputArray[i].timebaseCounter<=((outputArray[i].timeOn) + (outputArray[i].timeOff))))
 			{
 				(outputArray[i].timebaseCounter)++;
 				gpioWrite(outputArray[i].outputPin,0);
@@ -211,11 +213,6 @@ char RunOutputRoutine()
 				(outputArray[i].timebaseCounter)=0;
 				if(outputArray[i].actionCounter==0)
 					outputArray[i].callbackSuccess(outputArray[i].id);
-
-				else
-				{
-					noutputs++;
-				}
 			}
 	
 		}
