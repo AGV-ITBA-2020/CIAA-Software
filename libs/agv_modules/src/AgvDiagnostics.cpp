@@ -213,7 +213,6 @@ static bool ProcessMessage()
 			{
 				if(msg->id == DIAG_ID_VWSPD)
 				{
-					// printf("CM>MSG;Setting V=%.1f W=%.1f\r\n", msg->values[0], msg->values[1]);
 #ifndef DEBUG_WITHOUT_MC
 					PCP_SetLinearSpeed(msg->values[0]);
 #else
