@@ -52,7 +52,7 @@ void GpioInit();
 void HMI_Init()
 {
 	// Initialize HMI task
-	BaseType_t taskOk = xTaskCreate(HMI_MainTask, "HMI_TASK", 256, NULL, HMI_TASK_PRIO, NULL);
+	BaseType_t taskOk = xTaskCreate(HMI_MainTask, "HMI_TASK", 300, NULL, HMI_TASK_PRIO, NULL);
 	// Initialize queue
 	GpioInit();
 	queueObjectSize = sizeof(HMI_Output_t);
