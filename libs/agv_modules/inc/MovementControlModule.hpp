@@ -27,7 +27,7 @@ using namespace pid;
 #define BLOCK_SIZE          1
 #define FILTER_ORDER        21
 
-#define MAX_WHEEL_ANGULAR_SPEED   3.55 // rad/s Midiendo la salida del eje de las ruedas con la fuente de 12 V sobre el motor DERECHO
+#define MAX_WHEEL_ANGULAR_SPEED   4.01 // rad/s (0.5 m/s) midiendo la velocidad del AGV en movimiento con con 100% de Duty de PWM.
 #define AGV_MAX_ANGULAR_SPEED  (MAX_WHEEL_ANGULAR_SPEED*AGV_WHEEL_RADIUS/AGV_AXIS_LONGITUDE)
 #define AGV_AXIS_LONGITUDE 0.5
 #define AGV_WHEEL_DIAMETER 0.25

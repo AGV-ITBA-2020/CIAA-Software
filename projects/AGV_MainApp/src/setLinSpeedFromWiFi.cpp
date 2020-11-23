@@ -46,7 +46,6 @@ void testComCenter(void * ptr)
 			PCP_SetLinearSpeed(0);
 			HMIW_Blink(OUTPUT_LEDSTRIP_STOP,10);
 		}
-		
 		else
 			PCP_SetLinearSpeed(0);
 		vTaskDelay(xDelay50ms);
@@ -101,6 +100,3 @@ void vApplicationIdleHook( void )
 	while(1)
 		printf("Stack Overflow! \n");
  }
-
-
-
