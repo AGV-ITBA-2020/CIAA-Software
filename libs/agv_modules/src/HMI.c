@@ -73,6 +73,12 @@ gpioMap_t HMI_getCorrespondingPin(HMI_IO_TYPE IOType, unsigned int id)
 		retVal=outputConnectionMap[id];
 	return retVal;
 }
+
+void HMI_SetOutputPin(gpioMap_t pin, bool_t state)
+{
+	gpioWrite(pin,state);
+}
+
 ////////////////////////////Funciones internas ///////////////////////////////////
 void HMI_MainTask()
 {

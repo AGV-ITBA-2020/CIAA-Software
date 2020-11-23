@@ -84,13 +84,18 @@ void HMIW_Blink(HMI_OUTPUT_ID id, unsigned int count)
 	HMI_AddToQueue((void *)&tempObj);
 }
 
+void HMIW_SetOutput(HMI_OUTPUT_ID id, bool_t state)
+{
+	HMI_SetOutputPin(HMI_getCorrespondingPin(HMI_OUTPUT, id), state);
+}
+
 HMIW_EV_INFO HMIW_GetEvInfo()
 {
 	HMIW_EV_INFO retVal;
 	BaseType_t bt= xQueueReceive( evQueue,&retVal,0); //Si hay algo en la cola lo pone en msgP
 	if(uxQueueMessagesWaiting(evQueue))
 		xEventGroupSetBits( xEventGroup,GEG_HMI );
-	return retVal; //Esto dice si se leyó algo o no.
+	return retVal; //Esto dice si se leyï¿½ algo o no.
 }
 /*==================[ callbacks]==========================*/
 void inputCallback(HMI_INPUT_ID id)
