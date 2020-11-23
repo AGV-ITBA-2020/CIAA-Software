@@ -4,7 +4,7 @@
  *  Created on: Nov 21, 2020
  *      Author: Javier
  */
-
+/*
 #include "config.h"        // <= Biblioteca sAPI
 #include "PathControlProcess.h"
 #include "MovementControlModule.hpp"
@@ -31,7 +31,7 @@ void testComCenter(void * ptr)
 	while(!CCO_connected());
 	for( ;; )
 	{
-		EventBits_t ev = xEventGroupWaitBits( xEventGroup,GEG_COMS_RX,pdTRUE,pdFALSE,portMAX_DELAY); // @suppress("Invalid arguments")
+		EventBits_t ev = xEventGroupWaitBits( xEventGroup,GEG_COMS_RX | GEG_EMERGENCY_STOP,pdTRUE,pdFALSE,portMAX_DELAY); // @suppress("Invalid arguments")
 		if((ev & GEG_COMS_RX) && !SS_emergencyState())
 		{
 			int debug =1;
@@ -70,6 +70,9 @@ int main( void )
 	SS_init();
 	AgvDiag_Init();
 	CCO_init();
+	#ifdef DEBUG_WITHOUT_MC
+		MC_Init();
+	#endif
 	PCP_Init();
 	PCP_startNewMissionBlock(&blockTest);
 	BaseType_t ret = xTaskCreate(testComCenter, "CCO Test", 150	, NULL, 1, NULL ); //Task para debuggear lo enviado
@@ -100,3 +103,4 @@ void vApplicationIdleHook( void )
 	while(1)
 		printf("Stack Overflow! \n");
  }
+*/

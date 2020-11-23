@@ -50,8 +50,8 @@ void pcmMainTask(void * ptr)
 	const TickType_t timeoutDelay250ms = pdMS_TO_TICKS( 250 );
 	for( ;; )
 	{
-		EventBits_t ev = xEventGroupWaitBits( xEventGroup,PC_EVENT_MASK,pdTRUE,pdFALSE,timeoutDelay250ms );
-		mainFSM(ev); //Con el evento que llega se ejecuta la máquina de estados
+		EventBits_t ev = xEventGroupWaitBits( xEventGroup,PC_EVENT_MASK,pdTRUE,pdFALSE,portMAX_DELAY);	// portMAX_DELAY si no quieron timeout
+		mainFSM(ev); //Con el evento que llega se ejecuta la máquina de estados // @suppress("Invalid arguments")
 	}
 }
 
@@ -96,6 +96,10 @@ void runParseEv(EventBits_t ev)
 	{
 		PCP_pauseMissionBlock();
 		state=PC_PAUSE;
+	}
+	else if(ev & GEG_CTMOVE_FINISH)
+	{
+		state=PC_IDLE;
 	}
 }
 

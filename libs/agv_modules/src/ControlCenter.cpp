@@ -70,12 +70,12 @@ void CC_notifyStatus(void *)
 }
 void CC_mainTask(void *)
 {
-	const TickType_t timeoutDelay = pdMS_TO_TICKS( 12000 );
+	const TickType_t timeoutDelay = pdMS_TO_TICKS( 5000 );
 	while(!CCO_connected());
 	for( ;; )
 	{
-		EventBits_t ev = xEventGroupWaitBits( xEventGroup,CC_EVENT_MASK,pdTRUE,pdFALSE,portMAX_DELAY );
-		CC_mainFSM(ev); //Con el evento que llega se ejecuta la máquina de estados // @suppress("Invalid arguments")
+		EventBits_t ev = xEventGroupWaitBits( xEventGroup,CC_EVENT_MASK,pdTRUE,pdFALSE,timeoutDelay);
+		CC_mainFSM(ev); //Con el evento que llega se ejecuta la mï¿½quina de estados // @suppress("Invalid arguments")
 	}
 }
 void CC_mainFSM(EventBits_t ev)
@@ -84,11 +84,11 @@ void CC_mainFSM(EventBits_t ev)
 		recHeader=CCO_getMsgType(); //Si fue un mensaje de internet, recibe el header
 	}
 	if(ev & GEG_HMI){
-		hmiEv=HMIW_GetEvInfo(); //Si fue un evento de HMI, se debería obtener que tipo de evento fue
+		hmiEv=HMIW_GetEvInfo(); //Si fue un evento de HMI, se deberï¿½a obtener que tipo de evento fue
 	}
 	CC_indepParseEv(ev); //Eventos que no dependen de su estado inicial (van a error)
 	switch(state){
-		case CC_IDLE: //Funciones que dividen la FSM dependiendo del estado en el que se esté
+		case CC_IDLE: //Funciones que dividen la FSM dependiendo del estado en el que se estï¿½
 			CC_idleParseEv(ev);
 			break;
 		case CC_ON_MISSION:
@@ -112,7 +112,7 @@ void CC_mainFSM(EventBits_t ev)
 }
 void CC_indepParseEv(EventBits_t ev)
 {
-	if(ev == 0) //Si hubo un timeout. En principio no pasaría nada no?
+	if(ev == 0) //Si hubo un timeout. En principio no pasarï¿½a nada no?
 	{}
 	if(ev & ERROR_EVENT_MASK)
 	{
@@ -150,11 +150,9 @@ void CC_onMissionParseEv(EventBits_t ev)
 	}
 	if(ev & GEG_CTMOVE_FINISH) //Se termino el bloque que se le habia mandado al PC
 	{
-		CCO_sendMsgWithoutData(CCO_MISSION_STEP_REACHED);
-		missionAdvance();
 		if(currMission.waitForInterBlockEvent) //Si se tiene que esperar por un evento se va a pausa
 			changeStateTo(CC_PAUSE);
-		else if(!isMissionCompleted()) //Sino, si todavía no terminó la misión le paso el bloque que viene
+		else if(!isMissionCompleted()) //Sino, si todavï¿½a no terminï¿½ la misiï¿½n le paso el bloque que viene
 		{
 			PC_setMissionBlock(getNextMissionBlock());
 			xEventGroupSetBits( xEventGroup, GEG_MISSION_BLOCK_STARTED);
@@ -164,13 +162,13 @@ void CC_onMissionParseEv(EventBits_t ev)
 	}
 	if(ev & (GEG_EMERGENCY_STOP | GEG_PRIORITY_STOP )) //Cualquier emergencia va a estado de emergencia
 		changeStateTo(CC_PAUSE);
-	if((ev & GEG_COMS_RX) && recHeader == CCO_ABORT_MISSION) //Recibe que aborte misión por internes
+	if((ev & GEG_COMS_RX) && recHeader == CCO_ABORT_MISSION) //Recibe que aborte misiï¿½n por internes
 	{
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_ABORT_CMD);
 		changeStateTo(CC_IDLE);
 	}
 
-	if((ev & GEG_COMS_RX) && recHeader == CCO_PAUSE_MISSION)//Recibe que pause misión por internes
+	if((ev & GEG_COMS_RX) && recHeader == CCO_PAUSE_MISSION)//Recibe que pause misiï¿½n por internes
 	{
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_PAUSE_CMD);
 		changeStateTo(CC_PAUSE);
@@ -181,24 +179,24 @@ void CC_onMissionParseEv(EventBits_t ev)
 
 void CC_pauseParseEv(EventBits_t ev)
 {
-	/*Esto sería correspondiente a pausa */
+	/*Esto serï¿½a correspondiente a pausa */
 	if(currMission.waitForInterBlockEvent) //En el caso en que se este esperando por un evento entre bloques.
 	{
-		if(((currMissionIBE()== IBE_HOUSTON_CONTINUE) && (ev & GEG_COMS_RX) && (recHeader == CCO_CONTINUE)) || //Si se esperaba un continue de houston y llegó
-		   ((currMissionIBE()== IBE_BUTTON_PRESS) && hmiEvCondition(ev,INPUT_BUT_BLUE, LONG_PRESS))){ //o si se esperaba presionar un botón y se presionó
+		if(((currMissionIBE()== IBE_HOUSTON_CONTINUE) && (ev & GEG_COMS_RX) && (recHeader == CCO_CONTINUE)) || //Si se esperaba un continue de houston y llegï¿½
+		   ((currMissionIBE()== IBE_BUTTON_PRESS) && hmiEvCondition(ev,INPUT_BUT_BLUE, LONG_PRESS))){ //o si se esperaba presionar un botï¿½n y se presionï¿½
 			currMission.waitForInterBlockEvent=false; //Ya no se tiene que esperar por evento.
-			CCO_sendMsgWithoutData(CCO_IBE_RECIEVED); //Comunica a Houston que recibió el IBE
-			if(!isMissionCompleted()) //Si faltan bloques de la misión
+			CCO_sendMsgWithoutData(CCO_IBE_RECIEVED); //Comunica a Houston que recibiï¿½ el IBE
+			if(!isMissionCompleted()) //Si faltan bloques de la misiï¿½n
 			{
 				PC_setMissionBlock(getNextMissionBlock());
 				xEventGroupSetBits( xEventGroup, GEG_MISSION_BLOCK_STARTED);
 				changeStateTo(CC_ON_MISSION);
 			}
-			else //Si este evento era el último paso de la misión, vuelve a IDLE
+			else //Si este evento era el ï¿½ltimo paso de la misiï¿½n, vuelve a IDLE
 				changeStateTo(CC_IDLE);
 		}
 	}
-	if((ev & GEG_COMS_RX) && recHeader == CCO_ABORT_MISSION) //Si estando en pausa recibe que aborte misión.
+	if((ev & GEG_COMS_RX) && recHeader == CCO_ABORT_MISSION) //Si estando en pausa recibe que aborte misiï¿½n.
 	{
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_ABORT_CMD);
 		changeStateTo(CC_IDLE);
@@ -212,13 +210,13 @@ void CC_emergencyParseEv(EventBits_t ev)
 //		if(chekcOnEmergency()) //Se fija que no siga estando en emergencia
 //		{
 			changeStateTo(prevState);
-			//xEventGroupSetBits( xEventGroup, GEG_MISSION_CONTINUE_CMD); //Si vuelve a estado misión debería poner esto
+			//xEventGroupSetBits( xEventGroup, GEG_MISSION_CONTINUE_CMD); //Si vuelve a estado misiï¿½n deberï¿½a poner esto
 //		}
 	}
 }
 void CC_onErrorRoutine(EventBits_t ev)
 {
-	//Pasar por todos los módulos con eventos de error y recupera el string de error
+	//Pasar por todos los mï¿½dulos con eventos de error y recupera el string de error
 	//Lo comunica a houston salvo que sea algo del centro de comunicaciones (CCO_sendError(string err))
 }
 
@@ -253,7 +251,7 @@ void changeStateTo(CC_State newState)
 
 }
 
-/*Estas funciones de abajo le darían motivo a una clase misión (con funciones propias) */
+/*Estas funciones de abajo le darï¿½an motivo a una clase misiï¿½n (con funciones propias) */
 void missionAdvance()
 {
 	currMission.currBlock++; //Avanza el bloque
@@ -262,7 +260,7 @@ void missionAdvance()
 	else
 		currMission.waitForInterBlockEvent=true;
 }
-bool_t isMissionCompleted() //Termina si ya pasó todos los bloques y no espera ningún evento
+bool_t isMissionCompleted() //Termina si ya pasï¿½ todos los bloques y no espera ningï¿½n evento
 {
 	return (currMission.currBlock==currMission.nmbrOfBlocks) && (!currMission.waitForInterBlockEvent);
 }
@@ -275,9 +273,12 @@ BLOCK_DETAILS_T * getNextMissionBlock()
 	return &(currMission.blocks[currMission.currBlock]);
 }
 /*==================[external functions declaration]=========================*/
-void CC_init()
+void CC_Init()
 {
 	PC_Init();
+	HMIW_Init();
+	HMIW_ListenToShortPress(INPUT_BUT_GREEN);
+	HMIW_ListenToShortPress(INPUT_BUT_BLUE);
 	CCO_init();
 	SS_init();
 	xEventGroup =  xEventGroupCreate();
