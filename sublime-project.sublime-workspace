@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"timer",
+				"timerIsOn"
+			],
+			[
+				"RTOS",
+				"RTOSDIAG_TIMER"
+			],
+			[
 				"pid",
 				"pidViewer_sendTrack"
 			],
@@ -202,10 +210,6 @@
 			[
 				"curre",
 				"currentTimerSize"
-			],
-			[
-				"timer",
-				"timerP"
 			],
 			[
 				"minute",
@@ -510,10 +514,6 @@
 			[
 				"Mail",
 				"MAIL_MAX_MSG_LENGTH"
-			],
-			[
-				"syste",
-				"systemErrorCode"
 			]
 		]
 	},
@@ -569,16 +569,21 @@
 	},
 	"file_history":
 	[
-		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/PathControlProcess.h",
-		"/E/GitHub/CIAA-Software/libs/agv_modules/src/MovementControlModule.cpp",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/EncoderV2.h",
+		"/E/GitHub/CIAA-Software/libs/lpc_open/lpc_chip_43xx/inc/timer_18xx_43xx.h",
 		"/E/GitHub/CIAA-Software/libs/agv_modules/src/PathControlProcess.cpp",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/src/MovementControlModule.cpp",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/src/PathControlModule.cpp",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/src/HMI.c",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/MovementControlModule.hpp",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/src/Encoder.c",
+		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/PathControlProcess.h",
 		"/C/Users/mdevo/AppData/Local/Temp/Rar$DIa19864.11486/key.txt",
 		"/C/Users/mdevo/AppData/Local/Temp/Rar$DIa19864.5699/key.txt",
 		"/E/GitHub/CIAA-Software/libs/my_sapi/src/my_sapi_uart.c",
 		"/E/GitHub/CIAA-Software/libs/my_sapi/src/my_sapi_gpio.c",
 		"/E/GitHub/CIAA-Software/libs/agv_modules/src/PID_v1.cpp",
 		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/PID_v1.hpp",
-		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/MovementControlModule.hpp",
 		"/E/GitHub/CIAA-Software/projects/AGV_MainApp/src/TestPCP.cpp",
 		"/E/GitHub/CIAA-Software/libs/agv_modules/src/AgvDiagnostics.cpp",
 		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/Encoder.h",
@@ -691,16 +696,11 @@
 		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Hmi.inc",
 		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/ErrorHandler.p",
 		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/FanHandler.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Adeclarations.inc",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/CmpHandler.inc",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Timeouts.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Timeouts.inc",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Hmi_OpHandler.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/InitSetup.p"
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Adeclarations.inc"
 	],
 	"find":
 	{
-		"height": 40.0
+		"height": 39.0
 	},
 	"find_in_files":
 	{
@@ -715,6 +715,24 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"DIAG_ID_MOD_STOP",
+			"!",
+			"\\",
+			"vSetupTimerForRunTimeStats",
+			"LPC_TIMER1",
+			"configCPU_CLOCK_HZ",
+			"timerIrqAddr",
+			"RTOSDX_DEFAULT_TICK_PERIOD",
+			"RTOS_DIAG_DEFAULT_TICK_PERIOD",
+			"max_delay",
+			"xPORT_DEL",
+			"rxSize",
+			"MIN_SCT_DUTY_CYCLE",
+			"MAX_SCT_DUTY_CYCLE",
+			"init",
+			"linearSpeedSetpoint",
+			"wheelSpeedDelta",
+			"linearSpeedSetpoint",
 			"HIGH_SPEED_VEL",
 			"MC_setLinearSpeed",
 			"v_output",
@@ -824,25 +842,7 @@
 			"CMP_TA",
 			"tandem",
 			"CMP_TB",
-			"CMP_TA",
-			"LoadDefaultSP",
-			"GetDefaultOpJson",
-			"runPeriodicServices",
-			"serviceDisplay",
-			"RunPeriodicServices",
-			"SysWdtFeedS",
-			"runPeriodicServices",
-			"runMailService",
-			"id",
-			"OP_st",
-			"tandem",
-			"CMP",
-			"tempMil",
-			"tempMileage",
-			"WebServerGetFieldValueFloat",
-			"WS_tempSetPoint",
-			"case",
-			"name"
+			"CMP_TA"
 		],
 		"highlight": true,
 		"in_selection": false,
