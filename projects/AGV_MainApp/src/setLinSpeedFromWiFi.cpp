@@ -6,12 +6,12 @@
  */
 
 #include "config.h"        // <= Biblioteca sAPI
-
-
 #include "PathControlProcess.h"
 #include "MovementControlModule.hpp"
+#include "HMIWrapper.hpp"
 #include "GlobalEventGroup.h"
 #include "AgvDiagnostics.hpp"
+#include "SecuritySystem.hpp"
 #include <CommunicationCenter.hpp>
 
 #include "FreeRTOS.h"
@@ -32,7 +32,7 @@ void testComCenter(void * ptr)
 	for( ;; )
 	{
 		EventBits_t ev = xEventGroupWaitBits( xEventGroup,GEG_COMS_RX,pdTRUE,pdFALSE,portMAX_DELAY); // @suppress("Invalid arguments")
-		if(ev & GEG_COMS_RX)
+		if((ev & GEG_COMS_RX) && !SS_emergencyState())
 		{
 			int debug =1;
 			MSG_REC_HEADER_T type = CCO_getMsgType();
@@ -40,6 +40,11 @@ void testComCenter(void * ptr)
 				PCP_SetLinearSpeed(CCO_getLinSpeed());
 			else
 				PCP_SetLinearSpeed(0);
+		}
+		else if (ev & GEG_EMERGENCY_STOP)
+		{
+			PCP_SetLinearSpeed(0);
+			HMIW_Blink(OUTPUT_LEDSTRIP_STOP,10);
 		}
 		else
 			PCP_SetLinearSpeed(0);
@@ -59,6 +64,11 @@ int main( void )
 	blockTest.currStep=0;
 	blockTest.blockLen=1;
 	xEventGroup =  xEventGroupCreate();
+	HMIW_Init();
+	HMIW_ListenToShortPress(INPUT_BUT_GREEN);
+	HMIW_ListenToShortPress(INPUT_BUT_BLUE);
+	SS_init();
+	AgvDiag_Init();
 	CCO_init();
 	PCP_Init();
 	PCP_startNewMissionBlock(&blockTest);
@@ -90,6 +100,3 @@ void vApplicationIdleHook( void )
 	while(1)
 		printf("Stack Overflow! \n");
  }
-
-
-

@@ -61,9 +61,9 @@ typedef struct {
 
 AGV_SPEED_T agvSpeedData;
 
-static double PID_KP = 0.17;
+static double PID_KP = 0.19;
 static double PID_KI = 0;
-static double PID_KD = 0.1;
+static double PID_KD = 0.15;
 static PID pidController(&(agvSpeedData.error), &(agvSpeedData.output), &(agvSpeedData.setpoint), PID_KP, PID_KI, PID_KD, DIRECT);
 
 /*==================[internal functions declaration]=========================*/
