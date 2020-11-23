@@ -15,14 +15,14 @@
 extern "C" {
 #endif
 
-
 #define MSG_MAX_PARAM_COUNT 4
 
 typedef enum
 {
 	DIAG_ORG_NONE,
 	DIAG_ORG_PIDV,
-	DIAG_ORG_JOY
+	DIAG_ORG_JOY,
+	DIAG_ORG_RTOSDIAG
 }MSG_ORIGIN_T;
 typedef enum
 {
@@ -40,6 +40,8 @@ typedef enum
 	DIAG_ID_MOD_START,
 	DIAG_ID_FILT,		// Sets filter state
 	DIAG_ID_TRACK,
+	DIAG_ID_STAT_RT,	// RTOS runtime stats
+	DIAG_ID_STAT_TASK	// RTOS task list stats
 } MSG_ID_T;
 
 using namespace std;

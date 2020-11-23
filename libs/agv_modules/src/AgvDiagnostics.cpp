@@ -6,17 +6,15 @@
  */
 
 #include "AgvDiagnostics.hpp"
+#include "FreeRTOS.h"
+#include "FreeRTOSConfig.h"
 #include <stdio.h>
 #include "DiagMessage.h"
 #include "PathControlProcess.h"
 #include "MovementControlModule.hpp"
-
 #include "my_sapi_uart.h"
-
 #include "task.h"
 #include "timers.h"
-
-//#include "printf.h"
 
 using namespace std;
 
@@ -24,6 +22,11 @@ using namespace std;
 #define TICK_TIMER_BASE pdMS_TO_TICKS(200)
 #define JOYSTICK_DEFAULT_TICK_TIMEOUT 10
 #define PID_DEFAULT_TICK_PERIOD 2
+#define RTOSDIAG_DEFAULT_TICK_PERIOD 50
+
+#if(configGENERATE_RUN_TIME_STATS)	// If stats are saved, create array for storing stat text
+		static char cStringBuffer[ 512 ];
+#endif
 
 #define TO_PRINT(x) ((int)(x*100.0))
 
@@ -38,6 +41,7 @@ typedef struct {
 	PERIODIC_SERVICE_T pidViewer;
 	bool pidViewer_sendTrack;
 	PERIODIC_SERVICE_T joystick;
+	PERIODIC_SERVICE_T rtosDiag;
 } DIAG_STATE_T;
 
 
@@ -45,8 +49,9 @@ TaskHandle_t xMainTaskToNotify;
 TimerHandle_t xDiagTimerHandle;
 uint32_t rxIndex;
 uint8_t rxBuffer[RX_BUFFER_SIZE];
-DIAG_STATE_T info = { false, {false, PID_DEFAULT_TICK_PERIOD}, true, {false, JOYSTICK_DEFAULT_TICK_TIMEOUT} };
+DIAG_STATE_T info = { false, {false, PID_DEFAULT_TICK_PERIOD}, true, {false, JOYSTICK_DEFAULT_TICK_TIMEOUT}, {false, RTOSDIAG_DEFAULT_TICK_PERIOD} };
 DiagMessage * msg;
+bool timerIsOn = false;
 
 static void MainTask(void *pvParameters);
 static void xTimerCallbackFunc( TimerHandle_t xTimer );
@@ -68,6 +73,7 @@ void AgvDiag_Init()
 
 	info.diagOn = true;
 	info.pidViewer.tickPeriod = PID_DEFAULT_TICK_PERIOD;
+
 //	info.pidViewer.on = true;
 //	configASSERT(xTimerReset(xDiagTimerHandle, 0) == pdPASS);
 }
@@ -81,9 +87,10 @@ static void MainTask(void *pvParameters)
 {
 	uint32_t rxSize = 0;	// If 0 -> Notification from timer; else message was received
 	TimerHandle_t tickTimer;
+
 	for( ;; )
 	{
-		if( xTaskNotifyWait(0, 0, &rxSize, pdMS_TO_TICKS(200) ) == pdPASS )	// Then an event has been received
+		if( xTaskNotifyWait(0, 0, &rxSize, portMAX_DELAY) == pdPASS )	// Then an event has been received
 		{
 			if(rxSize == 0)	// Notification from timer
 			{
@@ -116,7 +123,7 @@ static void RunModuleServices()
 {
 	if(info.pidViewer.on)
 	{
-		if(++info.pidViewer.currTick == info.pidViewer.tickPeriod)
+		if(++info.pidViewer.currTick >= info.pidViewer.tickPeriod)
 		{
 			info.pidViewer.currTick = 0;	// Reset counter
 			SendSpeedValues();
@@ -125,7 +132,7 @@ static void RunModuleServices()
 	if(info.joystick.on)
 	{
 		// Joystick currTick resets when message is received. Therefore, tickPeriod means timeout and service shutdown
-		if(++info.joystick.currTick == info.joystick.tickPeriod)
+		if(++info.joystick.currTick >= info.joystick.tickPeriod)
 		{
 			PCP_SetLinearSpeed(0.0);
 			MC_setAngularSpeed(0.0);
@@ -133,6 +140,18 @@ static void RunModuleServices()
 			info.joystick.on = false;
 			printf("DIAG>MSG;Joystick timeout!! \r\n");
 			fflush(stdout);
+		}
+	}
+	if(info.rtosDiag.on)
+	{
+		if(++info.rtosDiag.currTick >= info.rtosDiag.tickPeriod)
+		{
+			#if(configGENERATE_RUN_TIME_STATS)
+			vTaskGetRunTimeStats( cStringBuffer );
+			info.rtosDiag.currTick = 0;
+			printf("RTOS>%s\r\n", cStringBuffer);
+			fflush(stdout);
+			#endif
 		}
 	}
 }
@@ -184,7 +203,10 @@ static bool ProcessMessage()
 				else if(msg->id == DIAG_ID_MOD_STOP)
 				{
 					if(info.joystick.on == false)	// Then timer must be stopped
+					{
 						configASSERT(xTimerStop(xDiagTimerHandle, 0) == pdPASS);
+						timerIsOn = false;
+					}
 					info.pidViewer.on = false;
 				}
 				else if(msg->id == DIAG_ID_FILT)
@@ -202,8 +224,11 @@ static bool ProcessMessage()
 			{
 				if(msg->id == DIAG_ID_MOD_START)
 				{
-					if(info.joystick.on == false)	// Then timer must be started
+					if(timerIsOn == false)	// Then timer must be started
+					{
 						configASSERT(xTimerReset(xDiagTimerHandle, 0) == pdPASS);
+						timerIsOn = true;
+					}
 					info.pidViewer.on = true;
 				}
 			}
@@ -213,18 +238,21 @@ static bool ProcessMessage()
 			{
 				if(msg->id == DIAG_ID_VWSPD)
 				{
-#ifndef DEBUG_WITHOUT_MC
+			#ifndef DEBUG_WITHOUT_MC
 					PCP_SetLinearSpeed(msg->values[0]);
-#else
+			#else
 					MC_setLinearSpeed(msg->values[0]);
-					MC_setAngularSpeed(msg->values[1]);
-#endif
+					MC_setAngularSpeed(msg->values[1]);	
+			#endif
 					info.joystick.currTick = 0;
 				}
 				else if(msg->id == DIAG_ID_MOD_STOP)
 				{
 					if(info.pidViewer.on == false)	// Then timer must be stopped
+					{
 						configASSERT(xTimerStop(xDiagTimerHandle, 0) == pdPASS);
+						timerIsOn = false;
+					}
 					info.joystick.on = false;
 				}
 			}
@@ -232,11 +260,45 @@ static bool ProcessMessage()
 			{
 				if(msg->id == DIAG_ID_MOD_START)
 				{
-					if(info.pidViewer.on == false)	// Then timer must be started
+					if(timerIsOn == false)	// Then timer must be started
+					{
 						configASSERT(xTimerReset(xDiagTimerHandle, 0) == pdPASS);
+						timerIsOn == true;
+					}
 					info.joystick.on = true;
 				}
 			}
+		break;
+		case DIAG_ORG_RTOSDIAG:
+			if(info.rtosDiag.on)
+			{
+				if(msg->id == DIAG_ID_MOD_STOP)
+					info.rtosDiag.on = false;
+
+			#if(configGENERATE_RUN_TIME_STATS)
+				else if(msg->id == DIAG_ID_STAT_RT)
+				{
+						vTaskGetRunTimeStats( cStringBuffer );
+						printf("RTOS>\r%s\r\n", cStringBuffer);
+						fflush(stdout);
+				}
+				else if(msg->id == DIAG_ID_STAT_TASK)
+				{
+						vTaskList( cStringBuffer );
+						printf("RTOS>\r%s\r\n", cStringBuffer);
+						fflush(stdout);
+				}
+			#endif
+			
+			}
+			else
+			{
+				if(msg->id == DIAG_ID_MOD_START)
+				{
+					info.rtosDiag.on = true;
+				}
+			}
+
 		break;
 	}
 
