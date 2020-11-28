@@ -5,16 +5,17 @@
  *      Author: Javier
  */
 
-/*
 
+/*
 
 #include "config.h"        // <= Biblioteca sAPI
 
-
+#include "HMIWrapper.hpp"
 #include "PathControlProcess.h"
 #include "MovementControlModule.hpp"
 #include "GlobalEventGroup.h"
 #include "AgvDiagnostics.hpp"
+#include "SecuritySystem.hpp"
 #include <CommunicationCenter.hpp>
 
 #include "FreeRTOS.h"
@@ -34,18 +35,18 @@ void testComCenter(void * ptr)
 	while(!CCO_connected());
 	for( ;; )
 	{
-		EventBits_t ev = xEventGroupWaitBits( xEventGroup,GEG_COMS_RX,pdTRUE,pdFALSE,portMAX_DELAY); // @suppress("Invalid arguments")
-		if(ev & GEG_COMS_RX)
+		EventBits_t ev = xEventGroupWaitBits( xEventGroup,GEG_COMS_RX | GEG_MISSION_STEP_REACHED | GEG_EMERGENCY_STOP,pdTRUE,pdFALSE,portMAX_DELAY); // @suppress("Invalid arguments")
+		if(ev & GEG_MISSION_STEP_REACHED)
 		{
-			int debug =1;
-			MSG_REC_HEADER_T type = CCO_getMsgType();
-			if(type==CCO_SET_VEL)
-				PCP_SetLinearSpeed(CCO_getLinSpeed());
-			else
-				PCP_SetLinearSpeed(0);
+			static bool_t debug = 0;
+//			HMIW_SetOutput(OUTPUT_LEDSTRIP_LEFT, !debug); // @suppress("Invalid arguments")
+			HMIW_Blink(OUTPUT_LEDSTRIP_RIGHT,5);
+			HMIW_Blink(OUTPUT_LEDSTRIP_LEFT,5);
 		}
-		else
+		else if (ev & GEG_EMERGENCY_STOP)
+		{
 			PCP_SetLinearSpeed(0);
+		}
 		vTaskDelay(xDelay50ms);
 
 	}
@@ -58,12 +59,23 @@ int main( void )
 	// Read clock settings and update SystemCoreClock variable
 	bool_t debugUartEnable=1;
 	MySapi_BoardInit(debugUartEnable);
-	blockTest.blockCheckpoints[0]=CHECKPOINT_FORK_LEFT;
-	blockTest.blockCheckpoints[1]=CHECKPOINT_STATION;
+	blockTest.blockCheckpoints[0]=CHECKPOINT_STATION;
+	blockTest.blockCheckpoints[1]=CHECKPOINT_FORK_RIGHT;
+	blockTest.blockCheckpoints[2]=CHECKPOINT_MERGE;
+	blockTest.blockCheckpoints[3]=CHECKPOINT_FORK_LEFT;
+	blockTest.blockCheckpoints[4]=CHECKPOINT_MERGE;
 	blockTest.currStep=0;
-	blockTest.blockLen=2;
+	blockTest.blockLen=5;
 	xEventGroup =  xEventGroupCreate();
+	HMIW_Init();
+	HMIW_ListenToShortPress(INPUT_BUT_GREEN);
+	HMIW_ListenToShortPress(INPUT_BUT_BLUE);
+	SS_init();
+	AgvDiag_Init();
 	CCO_init();
+	#ifdef DEBUG_WITHOUT_MC
+		MC_Init();
+	#endif
 	PCP_Init();
 	PCP_startNewMissionBlock(&blockTest);
 	BaseType_t ret = xTaskCreate(testComCenter, "CCO Test", 150	, NULL, 1, NULL ); //Task para debuggear lo enviado
@@ -93,4 +105,5 @@ void vApplicationIdleHook( void )
  {
 	while(1)
 		printf("Stack Overflow! \n");
- }*/
+ }
+*/

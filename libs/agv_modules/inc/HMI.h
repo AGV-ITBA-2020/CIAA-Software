@@ -76,6 +76,8 @@ bool_t HMI_AddToQueue(void * HMI_InputOrOutput);
 
 gpioMap_t HMI_getCorrespondingPin(HMI_IO_TYPE IOType, unsigned int id);
 
+void HMI_SetOutputPin(gpioMap_t pin, bool_t state);
+
 #ifdef __cplusplus
 }
 #endif

@@ -52,7 +52,7 @@ void GpioInit();
 void HMI_Init()
 {
 	// Initialize HMI task
-	BaseType_t taskOk = xTaskCreate(HMI_MainTask, "HMI_TASK", 256, NULL, HMI_TASK_PRIO, NULL);
+	BaseType_t taskOk = xTaskCreate(HMI_MainTask, "HMI_TASK", 300, NULL, HMI_TASK_PRIO, NULL);
 	// Initialize queue
 	GpioInit();
 	queueObjectSize = sizeof(HMI_Output_t);
@@ -73,6 +73,12 @@ gpioMap_t HMI_getCorrespondingPin(HMI_IO_TYPE IOType, unsigned int id)
 		retVal=outputConnectionMap[id];
 	return retVal;
 }
+
+void HMI_SetOutputPin(gpioMap_t pin, bool_t state)
+{
+	gpioWrite(pin,state);
+}
+
 ////////////////////////////Funciones internas ///////////////////////////////////
 void HMI_MainTask()
 {

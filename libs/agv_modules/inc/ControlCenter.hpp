@@ -9,7 +9,7 @@
 #define LIBS_AGV_MODULES_INC_CONTROLCENTER_HPP_
 
 
-void CC_init();
+void CC_Init();
 
 
 #endif /* LIBS_AGV_MODULES_INC_CONTROLCENTER_HPP_ */

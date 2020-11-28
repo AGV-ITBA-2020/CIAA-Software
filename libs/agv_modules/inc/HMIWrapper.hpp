@@ -27,3 +27,5 @@ void HMIW_ListenToShortPress(HMI_INPUT_ID id);
 void HMIW_ListenToMultiplePress(HMI_INPUT_ID id, unsigned int count);
 
 void HMIW_Blink(HMI_OUTPUT_ID id, unsigned int count);
+
+void HMIW_SetOutput(HMI_OUTPUT_ID id, bool_t state);

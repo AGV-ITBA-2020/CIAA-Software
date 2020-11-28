@@ -11,6 +11,8 @@
 #include "queue.h"
 #include "event_groups.h"
 
+#include "HMIWrapper.hpp"
+
 extern EventGroupHandle_t xEventGroup;
 gpioMap_t emergencyPin=GPIO8;
 
@@ -26,8 +28,14 @@ void SS_MainTask(void *)
 	for( ;; )
 	{
 		bool_t read=gpioRead(emergencyPin);
-		if(read==1 && lastEmergSignalValue)
+		if(read && !lastEmergSignalValue){
 			xEventGroupSetBits( xEventGroup,GEG_EMERGENCY_STOP);
+			HMIW_SetOutput(OUTPUT_LEDSTRIP_STOP, true);
+		}
+		else if (!read && lastEmergSignalValue)
+		{
+			HMIW_SetOutput(OUTPUT_LEDSTRIP_STOP, false);
+		}
 		lastEmergSignalValue=read;
 		vTaskDelayUntil(&xLastTimeWoke, hmiUpdatePeriod);
 	}

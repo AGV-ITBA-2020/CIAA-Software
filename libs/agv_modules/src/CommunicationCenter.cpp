@@ -56,12 +56,12 @@ MSG_REC_HEADER_T CCO_getMsgType()
 {
 	MSG_REC_HEADER_T retVal;
 
-	//map<string,MSG_REC_HEADER_T> recHeaderLUT= { {"Quest?",CCO_NEW_MISSION},{"Continue",CCO_CONTINUE_MISSION},{"Status",CCO_STATUS_REQ},{"Quest?",CCO_NEW_MISSION},{"QuestAbort?",CCO_ABORT_MISSION},{"Pause",CCO_PAUSE_MISSION},{"Fixed speed",CCO_SET_VEL}}; //Estp se ve que no le gustó
+	//map<string,MSG_REC_HEADER_T> recHeaderLUT= { {"Quest?",CCO_NEW_MISSION},{"Continue",CCO_CONTINUE_MISSION},{"Status",CCO_STATUS_REQ},{"Quest?",CCO_NEW_MISSION},{"QuestAbort?",CCO_ABORT_MISSION},{"Pause",CCO_PAUSE_MISSION},{"Fixed speed",CCO_SET_VEL}}; //Estp se ve que no le gustï¿½
 //	if(recHeaderLUT.count(header)) //Si el header existe
 //		retVal=recHeaderLUT[header]; //Devuelvo el tipo que se corresponde con ese header
 
 	if(!EMH_recieveMsg(&auxRecMsg))
-		assert(0); //En caso que se llamo a esta funcion pero la capa inferior no tenía mensajes
+		assert(0); //En caso que se llamo a esta funcion pero la capa inferior no tenï¿½a mensajes
 	string auxRecStr = auxRecMsg.array;
 	string header = getHeader(auxRecStr);
 
@@ -97,10 +97,10 @@ bool_t CCO_getMission(MISSION_T * mission)
 	while(i < data.size())
 	{
 
-		if(isdigit(data[i])) //Si es un número (que representa una distancia)
+		if(isdigit(data[i])) //Si es un nï¿½mero (que representa una distancia)
 		{
 			mission->blocks[mission->nmbrOfBlocks].distances[mission->blocks[mission->nmbrOfBlocks].blockLen]=stoi(data.substr(i));
-			while(isdigit(data[i])) //Salteo hasta que se terminen los números
+			while(isdigit(data[i])) //Salteo hasta que se terminen los nï¿½meros
 				i++;
 		}
 		else //Sino, tomo los comandos y los parseo como son.
@@ -118,7 +118,7 @@ bool_t CCO_getMission(MISSION_T * mission)
 			else if(isCheckpoint(com)) //Si es un checkpoint
 				mission->blocks[mission->nmbrOfBlocks].blockCheckpoints[(mission->blocks[mission->nmbrOfBlocks].blockLen)++]=getCheckpoint(com);
 			else
-				assert(0); //Una misión no puede tener un campo que no sea los mencionados
+				assert(0); //Una misiï¿½n no puede tener un campo que no sea los mencionados
 			i+=2;
 		}
 	}
@@ -212,6 +212,7 @@ bool_t CCO_sendMsgWithoutData(MSG_SEND_HEADER_T msg)
 		assert(0);
 
 	auxStr.copy(auxSendMsg.array,auxStr.length());
+	auxSendMsg.array[auxStr.length()] = 0;
 	retVal= EMH_sendMsg(&auxSendMsg);
 	return retVal;
 }

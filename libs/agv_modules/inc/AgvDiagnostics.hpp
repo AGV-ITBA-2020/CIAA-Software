@@ -8,11 +8,14 @@
 #ifndef AGVDIAGNOSTICS_HPP_
 #define AGVDIAGNOSTICS_HPP_
 
-
-#include "FreeRTOS.h"
-#include "queue.h"
-#include "Encoder.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void AgvDiag_Init();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* AGVDIAGNOSTICS_HPP_ */

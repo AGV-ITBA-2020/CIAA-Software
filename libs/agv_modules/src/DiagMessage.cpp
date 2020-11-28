@@ -61,6 +61,8 @@ MSG_ORIGIN_T DiagMessage::ParseOriginCode(string str)
 		org = DIAG_ORG_PIDV;
 	else if(str.compare("JOY") == 0)
 		org = DIAG_ORG_JOY;
+    else if(str.compare("RTOS") == 0)
+        org = DIAG_ORG_RTOSDIAG;
 
 	return org;
 }
@@ -94,6 +96,10 @@ MSG_ID_T DiagMessage::ParseIdCode(string str)
         id = DIAG_ID_FILT;
     else if(str.compare("TRACK") == 0)
         id = DIAG_ID_TRACK;
+    else if(str.compare("STRT") == 0)
+        id = DIAG_ID_STAT_RT;
+    else if(str.compare("STTSK") == 0)
+        id = DIAG_ID_STAT_TASK;
 
 	return id;
 }

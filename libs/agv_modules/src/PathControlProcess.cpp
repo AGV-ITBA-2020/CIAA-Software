@@ -9,6 +9,7 @@
 /*==================[inclusions]=============================================*/
 #include "my_sapi_uart.h"
 
+#include "HMIWrapper.hpp"
 #include "PathControlProcess.h"
 #include "MovementControlModule.hpp"
 #include "GlobalEventGroup.h"
@@ -61,9 +62,13 @@ typedef struct {
 
 AGV_SPEED_T agvSpeedData;
 
-static double PID_KP = 0.19;
+// static double PID_KP = 0.19;	// Tenttivas para v mas grandes
+// static double PID_KI = 0;
+// static double PID_KD = 0.15;
+
+static double PID_KP = 0.14;	// Para velocidades entre 0.25 y 0.15 m/s
 static double PID_KI = 0;
-static double PID_KD = 0.15;
+static double PID_KD = 0.11;
 static PID pidController(&(agvSpeedData.error), &(agvSpeedData.output), &(agvSpeedData.setpoint), PID_KP, PID_KI, PID_KD, DIRECT);
 
 /*==================[internal functions declaration]=========================*/
@@ -109,11 +114,14 @@ void missionTask(void * ptr)
 
 
 		if(stepReached) //Levanto los eventos correspondientes
-			xEventGroupSetBits( xEventGroup, GEG_MISSION_STEP_REACHED );
-		if(quit)
 		{
-			xEventGroupSetBits( xEventGroup, GEG_MISSION_STEP_REACHED || GEG_CTMOVE_FINISH);
-			PCP_abortMissionBlock(); //Si finaliza la misi�n, termina el proceso de misi�n
+			if(quit)
+			{
+				xEventGroupSetBits( xEventGroup, GEG_CTMOVE_FINISH | GEG_MISSION_STEP_REACHED);
+				PCP_abortMissionBlock(); //Si finaliza la misi�n, termina el proceso de misi�n
+			}else{
+				xEventGroupSetBits( xEventGroup, GEG_MISSION_STEP_REACHED );
+			}
 		}
 	}
 }
@@ -161,6 +169,24 @@ bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
 	{
 		(missionBlock->currStep)++;
 		*stepReached=true; //Indico que se lleg� a un paso
+		switch (currChkpnt) 
+		{
+			case CHECKPOINT_FORK_LEFT:
+				HMIW_Blink(OUTPUT_LEDSTRIP_LEFT,5);
+			break;
+			case CHECKPOINT_FORK_RIGHT:
+				HMIW_Blink(OUTPUT_LEDSTRIP_RIGHT,5);
+			break;
+			case CHECKPOINT_MERGE:
+				HMIW_Blink(OUTPUT_LEDSTRIP_LEFT,5);
+				HMIW_Blink(OUTPUT_LEDSTRIP_RIGHT,5);
+			break;
+			case CHECKPOINT_STATION:
+				HMIW_SetOutput(OUTPUT_LEDSTRIP_LEFT, true);
+				HMIW_SetOutput(OUTPUT_LEDSTRIP_RIGHT, true);
+			break;
+		}
+
 		if(stepsLeft)
 			setOpenMVNextState(nextChkpnt); //En el caso que no quedan misiones, guardo el pr�ximo mensaje que se le va a enviar al openMV
 	}
@@ -273,9 +299,11 @@ void PCP_Init(void){
 void PCP_startNewMissionBlock(BLOCK_DETAILS_T * mb)
 {
 	missionBlock = mb;
-	agvSpeedData.v_output = 0;
+	agvSpeedData.v_output = 0.16;
 	setOpenMVNextState(missionBlock->blockCheckpoints[0]);
 	PCP_continueMissionBlock();
+	HMIW_SetOutput(OUTPUT_LEDSTRIP_LEFT, false);
+	HMIW_SetOutput(OUTPUT_LEDSTRIP_RIGHT, false);
 }
 void PCP_SetLinearSpeed(double v)
 {

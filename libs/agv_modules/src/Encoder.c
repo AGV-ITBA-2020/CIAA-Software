@@ -49,7 +49,7 @@ void Encoder_Init(ENCODER_CHANNEL_T ch)
 	// Enable timer clock and reset it
 	Chip_TIMER_Init(encoder->timer);
 	Chip_TIMER_PrescaleSet(encoder->timer, 1);	// Timer res = 204MHz/100 = 2.04MHz
-	Chip_TIMER_TIMER_SetCountClockSrc(encoder->timer, TIMER_CAPSRC_BOTH_CAPN, encoder->captureNum);
+	Chip_TIMER_SetCountClockSrc(encoder->timer, TIMER_CAPSRC_BOTH_CAPN, encoder->captureNum);
 	Chip_TIMER_Enable(encoder->timer);
 }
 

@@ -140,7 +140,6 @@ void EncoderV2_ResetCount(ENCODER_CHANNEL_T ch)
 /*==================[Interrupt]=========================*/
 void TIMER0_IRQHandler(void) //Ambas rutinas de interrupt llaman a una funci�n en com�n
 {
-
 	interruptRoutine(ENCODER_LEFT);
 	Chip_TIMER_Reset(encL.timer); //Esto deber�a ir en el caso en el que no se clearee solo el capture reg (no creo que pase)
 
