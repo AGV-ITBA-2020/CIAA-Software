@@ -78,6 +78,8 @@ gpioMap_t HMI_getCorrespondingPin(HMI_IO_TYPE IOType, unsigned int id);
 
 void HMI_SetOutputPin(gpioMap_t pin, bool_t state);
 
+void HMI_clearInputs();
+
 #ifdef __cplusplus
 }
 #endif

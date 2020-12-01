@@ -23,6 +23,7 @@
 typedef enum{CC_IDLE,CC_ON_MISSION,CC_MANUAL, CC_ERROR, CC_PAUSE, CC_EMERGENCY,CC_LOWPOWER} CC_State;
 #define N_PRESSES_ON_EMERGENCY 2
 #define N_PRESSES_TO_ABORT_MISSION 3
+#define NOTIFY_STATUS_PERIOD_MS 2500
 /*==================[internal data declaration]==============================*/
 extern EventGroupHandle_t xEventGroup;
 static CC_State state,prevState;
@@ -50,21 +51,29 @@ INTER_BLOCK_EVENT_T currMissionIBE();
 BLOCK_DETAILS_T * getNextMissionBlock();
 bool_t isMissionCompleted();
 void missionAdvance();
+void genAgvStatusStruct();
 /*==================[internal functions definition]==========================*/
 /*===============[Useful funcs]=====================*/
 bool_t hmiEvCondition(EventBits_t ev,HMI_INPUT_ID id, HMI_INPUT_PATTERN pat)
 {
 	return ((ev & GEG_HMI) && hmiEv.id==id && hmiEv.pat==pat);
 }
+void genAgvStatusStruct()
+{
+	agvStatus.distEst=PC_getDistTravelled();
+	agvStatus.inMision=currMission.active;
+	agvStatus.waitForInterBlockEvent=currMission.waitForInterBlockEvent;
+}
 /*===============[Tasks]=====================*/
 void CC_notifyStatus(void *)
 {
-	char * msgP;
-	const TickType_t delay = pdMS_TO_TICKS( 2000 );
+	const TickType_t timeoutDelay = pdMS_TO_TICKS( NOTIFY_STATUS_PERIOD_MS );
+	TickType_t xLastTimeWoke = xTaskGetTickCount();
 	for( ;; )
 	{
-		//getStatus();
-		//CCO_sendStatus(agvStatus);
+		genAgvStatusStruct();
+		CCO_sendStatus(agvStatus);
+		vTaskDelayUntil(&xLastTimeWoke, timeoutDelay);
 	}
 
 }
@@ -161,7 +170,7 @@ void CC_onMissionParseEv(EventBits_t ev)
 			changeStateTo(CC_IDLE);
 	}
 	if(ev & (GEG_EMERGENCY_STOP | GEG_PRIORITY_STOP )) //Cualquier emergencia va a estado de emergencia
-		changeStateTo(CC_PAUSE);
+		changeStateTo(CC_EMERGENCY);
 	if((ev & GEG_COMS_RX) && recHeader == CCO_ABORT_MISSION) //Recibe que aborte misiï¿½n por internes
 	{
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_ABORT_CMD);
@@ -207,11 +216,13 @@ void CC_emergencyParseEv(EventBits_t ev)
 {
 	if(((ev & GEG_COMS_RX) && recHeader == CCO_CONTINUE) || hmiEvCondition(ev,INPUT_BUT_GREEN, COUNTER))
 	{
-//		if(chekcOnEmergency()) //Se fija que no siga estando en emergencia
-//		{
+		if(!SS_emergencyState()) //Se fija que no siga estando en emergencia
+		{
 			changeStateTo(prevState);
-			//xEventGroupSetBits( xEventGroup, GEG_MISSION_CONTINUE_CMD); //Si vuelve a estado misiï¿½n deberï¿½a poner esto
-//		}
+			xEventGroupSetBits( xEventGroup, GEG_CONTINUE); //Si vuelve a estado misiï¿½n deberï¿½a poner esto
+		}
+		else if(hmiEvCondition(ev,INPUT_BUT_GREEN, COUNTER)) //Si se presionó el botón pero no se estaba en emergencia
+			HMIW_ListenToMultiplePress(INPUT_BUT_GREEN, N_PRESSES_ON_EMERGENCY); //Se escucha de vuelta al input.
 	}
 }
 void CC_onErrorRoutine(EventBits_t ev)
@@ -233,6 +244,7 @@ void changeStateTo(CC_State newState)
 {
 	prevState=state;
 	state=newState;
+	HMI_clearInputs(); //Borra todos los listens previos.
 	if(state==CC_EMERGENCY)
 	{
 		HMIW_ListenToMultiplePress(INPUT_BUT_GREEN, N_PRESSES_ON_EMERGENCY);
@@ -240,8 +252,8 @@ void changeStateTo(CC_State newState)
 	}
 	else if(state==CC_ON_MISSION)
 	{
-		//HMIW_ListenToMultiplePress(INPUT_BUT_BLUE, N_PRESSES_TO_ABORT_MISSION);
-		HMIW_Blink(OUTPUT_BUT_GREEN, 5);
+		HMIW_ListenToMultiplePress(INPUT_BUT_BLUE, N_PRESSES_TO_ABORT_MISSION);
+		HMIW_Blink(OUTPUT_BUT_GREEN, 3);
 	}
 	else if(state==CC_PAUSE)
 	{
