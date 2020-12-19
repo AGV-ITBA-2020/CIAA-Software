@@ -24,7 +24,7 @@ typedef enum{CC_IDLE,CC_ON_MISSION,CC_MANUAL, CC_ERROR, CC_PAUSE, CC_EMERGENCY,C
 #define N_PRESSES_ON_EMERGENCY 2
 // #define N_PRESSES_TO_ABORT_MISSION 3
 // #define N_PRESSES_TO_PAUSE_MISSION 1
-#define NOTIFY_STATUS_PERIOD_MS 2500
+#define NOTIFY_STATUS_PERIOD_MS 10000
 /*==================[internal data declaration]==============================*/
 extern EventGroupHandle_t xEventGroup;
 static CC_State state,prevState;
@@ -143,6 +143,7 @@ void CC_idleParseEv(EventBits_t ev)
 		PC_setMissionBlock(getNextMissionBlock());
 		if(!currMission.waitForInterBlockEvent) //En el caso que no necesite un evento extra para arrancar la misi�n
 		{
+			HMIW_Blink(OUTPUT_BUT_GREEN, 3);
 			changeStateTo(CC_ON_MISSION); //Pasa a estado misi�n
 			xEventGroupSetBitsFromISR( xEventGroup, GEG_MISSION_BLOCK_STARTED, NULL );
 		}
@@ -268,7 +269,6 @@ void changeStateTo(CC_State newState)
 	{
 		HMIW_ListenToShortPress(INPUT_BUT_BLUE);	// BLUE for AVORT
 		HMIW_ListenToShortPress(INPUT_BUT_GREEN);	// GREEN for PAUSE
-		HMIW_Blink(OUTPUT_BUT_GREEN, 3);
 	}
 	else if(state==CC_PAUSE)
 	{
@@ -322,5 +322,5 @@ void CC_Init()
 	state=CC_IDLE;
 	prevState=CC_IDLE;
 	currMission.active=0;
-	//xTaskCreate( CC_notifyStatus, "CC notify status task", 100	, NULL, 1, NULL );
+	xTaskCreate( CC_notifyStatus, "CC notify status task", 200	, NULL, 1, NULL );
 }
