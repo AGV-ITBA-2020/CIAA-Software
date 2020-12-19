@@ -40,6 +40,7 @@ typedef struct{
 	bool_t inMision, waitForInterBlockEvent, error;
 	unsigned int currBlock,nmbrOfBlocks;
 	double distEst;
+	double batVoltage;
 	//Faltan poner más cosas todavía
 } AGV_STATUS_T;
 
