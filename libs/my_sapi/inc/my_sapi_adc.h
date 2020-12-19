@@ -38,8 +38,8 @@
 
 /*==================[inclusions]=============================================*/
 
-#include "sapi_datatypes.h"
-#include "sapi_peripheral_map.h"
+#include "my_sapi_datatypes.h"
+#include "my_sapi_peripheral_map.h"
 
 /*==================[c++]====================================================*/
 #ifdef __cplusplus

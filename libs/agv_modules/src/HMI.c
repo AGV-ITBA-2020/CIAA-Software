@@ -84,6 +84,12 @@ void HMI_clearInputs()
 		inputArray[i].maxCount=0; //Borra todos los inputs que se escuchaban antes.
 }
 
+void HMI_ClearOutputs()
+{
+	for(int i=0;i<OUTPUT_TOTAL_COUNT;i++)
+		outputArray[i].actionCounter = 0;
+}
+
 ////////////////////////////Funciones internas ///////////////////////////////////
 void HMI_MainTask()
 {
