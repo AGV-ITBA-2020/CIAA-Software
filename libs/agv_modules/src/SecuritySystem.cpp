@@ -10,14 +10,21 @@
 #include "task.h"
 #include "queue.h"
 #include "event_groups.h"
-
+#include "wwdt_18xx_43xx.h"
 #include "HMIWrapper.hpp"
+
+#define USE_WATCHDOG 1
 
 extern EventGroupHandle_t xEventGroup;
 gpioMap_t emergencyPin=GPIO8;
 
 void emergencyCallback();
 void SS_MainTask(void *);
+void SS_WdtStart();
+bool_t SS_WdtHasTimeout();
+uint32_t SS_WdtGetStatus();
+void SS_WdtFeed();
+uint32_t SS_WdtGetCount();
 
 void SS_MainTask(void *)
 {
@@ -27,6 +34,8 @@ void SS_MainTask(void *)
 	bool_t lastEmergSignalValue=0;
 	for( ;; )
 	{
+		if(USE_WATCHDOG)
+			SS_WdtFeed();	// Feed the watchdog
 		bool_t read=gpioRead(emergencyPin);
 		if(read && !lastEmergSignalValue){
 			xEventGroupSetBits( xEventGroup,GEG_EMERGENCY_STOP);
@@ -45,6 +54,8 @@ void SS_MainTask(void *)
 
 void SS_init()
 {
+	if(USE_WATCHDOG)
+		SS_WdtStart();
 	gpioInit( emergencyPin, GPIO_INPUT );
 	xTaskCreate(SS_MainTask, "HMI_TASK", 100, NULL, 1, NULL);
 	//Habr�a que hacerlo con callbacks pero una paja de leer eso, no hay nada hecho
@@ -59,4 +70,38 @@ void emergencyCallback()
 bool_t SS_emergencyState()
 {
 	return gpioRead(emergencyPin);
+}
+
+void SS_WdtStart()
+{
+	Chip_WWDT_Init(LPC_WWDT);
+	Chip_WWDT_SetTimeOut(LPC_WWDT, (uint32_t)(2*WDT_OSC));	// Watchdog set for 2 second
+	Chip_WWDT_SetOption(LPC_WWDT, WWDT_WDMOD_WDRESET);	// WWDT timeout will cause reset
+	Chip_WWDT_Start(LPC_WWDT);
+}
+
+bool_t SS_WdtHasTimeout()
+{
+	if( (Chip_WWDT_GetStatus(LPC_WWDT) & WWDT_WDMOD_WDTOF) )
+	{
+		Chip_WWDT_ClearStatusFlag(LPC_WWDT, WWDT_WDMOD_WDTOF);	// Clear flag
+		return true;
+	}
+	else
+		return false;
+}
+
+uint32_t SS_WdtGetStatus()
+{
+	return Chip_WWDT_GetStatus(LPC_WWDT);
+}
+
+void SS_WdtFeed()
+{
+	Chip_WWDT_Feed(LPC_WWDT);
+}
+
+uint32_t SS_WdtGetCount()
+{
+	return Chip_WWDT_GetCurrentCount(LPC_WWDT);
 }
