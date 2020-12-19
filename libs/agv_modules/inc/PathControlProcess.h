@@ -63,6 +63,8 @@ void PCP_continueMissionBlock(void);
 
 void PCP_SetLinearSpeed(double v);
 
+double PCP_getLinearSpeed();
+
 void PCP_setPIDTunings(double Kp, double Ki, double Kd);
 
 void PCP_getPIDTunings(double* Kp, double* Ki, double* Kd);

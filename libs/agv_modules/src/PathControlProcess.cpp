@@ -309,6 +309,10 @@ void PCP_SetLinearSpeed(double v)
 {
 	agvSpeedData.v_output = v;
 }
+double PCP_getLinearSpeed()
+{
+	return agvSpeedData.v_output ;
+}
 void PCP_setPIDTunings(double Kp, double Ki, double Kd)
 {
 	pidController.SetTunings(Kp, Ki, Kd, 1);

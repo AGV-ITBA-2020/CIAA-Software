@@ -218,9 +218,14 @@ bool_t CCO_sendMsgWithoutData(MSG_SEND_HEADER_T msg)
 }
 
 bool_t CCO_sendStatus(AGV_STATUS_T status)
-{//TBD
+{
 	bool_t retVal=0;
-
+	string header= "Status\n";
+	string distance= "Distance: "+ to_string(int(status.distEst));
+	//Acá vendrán más status que aporten, pero por ahora se necesitaban estos.
+	string finalMsg= header + distance;
+	finalMsg.copy(auxSendMsg.array,finalMsg.length());
+	retVal= EMH_sendMsg(&auxSendMsg);
 	return retVal;
 }
 

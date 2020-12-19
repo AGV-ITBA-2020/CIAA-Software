@@ -39,6 +39,7 @@ void PC_Init(void);
 
 void PC_setMissionBlock(BLOCK_DETAILS_T * mb);
 
+double PC_getDistTravelled();
 
 #ifdef __cplusplus
 }

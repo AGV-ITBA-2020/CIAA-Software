@@ -39,6 +39,7 @@ typedef struct{
 typedef struct{
 	bool_t inMision, waitForInterBlockEvent, error;
 	unsigned int currBlock,nmbrOfBlocks;
+	double distEst;
 	//Faltan poner más cosas todavía
 } AGV_STATUS_T;
 

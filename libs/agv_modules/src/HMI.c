@@ -78,6 +78,17 @@ void HMI_SetOutputPin(gpioMap_t pin, bool_t state)
 {
 	gpioWrite(pin,state);
 }
+void HMI_clearInputs()
+{
+	for(int i=0;i<INPUT_TOTAL_COUNT;i++)
+		inputArray[i].maxCount=0; //Borra todos los inputs que se escuchaban antes.
+}
+
+void HMI_ClearOutputs()
+{
+	for(int i=0;i<OUTPUT_TOTAL_COUNT;i++)
+		outputArray[i].actionCounter = 0;
+}
 
 ////////////////////////////Funciones internas ///////////////////////////////////
 void HMI_MainTask()
@@ -221,6 +232,7 @@ void LoadOutputConfig(HMI_Output_t * data)
 	else
 		data->callbackAbort(data->id);*/
 }
+
 void GpioInit()
 {
 	for(unsigned int i=0; i<INPUT_TOTAL_COUNT;i++)
