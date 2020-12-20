@@ -64,6 +64,7 @@ void genAgvStatusStruct()
 	agvStatus.distEst=PC_getDistTravelled();
 	agvStatus.inMision=currMission.active;
 	agvStatus.waitForInterBlockEvent=currMission.waitForInterBlockEvent;
+	agvStatus.batVoltage = SS_GetBatteryLevel();
 }
 /*===============[Tasks]=====================*/
 void CC_notifyStatus(void *)

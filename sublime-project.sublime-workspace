@@ -569,6 +569,8 @@
 	},
 	"file_history":
 	[
+		"/E/GitHub/CIAA-Software/libs/agv_modules/src/SecuritySystem.cpp",
+		"/E/GitHub/CIAA-Software/projects/MeasBattery/main.cpp",
 		"/E/GitHub/CIAA-Software/libs/agv_modules/inc/EncoderV2.h",
 		"/E/GitHub/CIAA-Software/libs/lpc_open/lpc_chip_43xx/inc/timer_18xx_43xx.h",
 		"/E/GitHub/CIAA-Software/libs/agv_modules/src/PathControlProcess.cpp",
@@ -694,9 +696,7 @@
 		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/OpLogic.p",
 		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/valoresUtiles.inc",
 		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Hmi.inc",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/ErrorHandler.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/FanHandler.p",
-		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/Adeclarations.inc"
+		"/G/Mi unidad/Proyectos/ClimaRental/Desarrollo de software/GWF-80TR/GWF-80TR-A-git/scripts/user/ErrorHandler.p"
 	],
 	"find":
 	{
@@ -715,6 +715,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"SS_Wdt",
 			"DIAG_ID_MOD_STOP",
 			"!",
 			"\\",
@@ -841,8 +842,7 @@
 			"CMP_T",
 			"CMP_TA",
 			"tandem",
-			"CMP_TB",
-			"CMP_TA"
+			"CMP_TB"
 		],
 		"highlight": true,
 		"in_selection": false,
