@@ -4,6 +4,7 @@
  *  Created on: Nov 22, 2020
  *      Author: Javier
  */
+#include "SecuritySystem.hpp"
 #include "my_sapi.h"
 #include "FreeRTOS.h"
 #include "GlobalEventGroup.h"
@@ -13,8 +14,6 @@
 #include "wwdt_18xx_43xx.h"
 #include "HMIWrapper.hpp"
 #include "BMS.h"
-
-#define USE_WATCHDOG 1
 
 extern EventGroupHandle_t xEventGroup;
 gpioMap_t emergencyPin=GPIO8;
@@ -71,7 +70,7 @@ void SS_init()
 	BMS_Init();
 	BMS_MeasureBlocking();	// Start a blocking measurement of the battery voltage
 	xTaskCreate(SS_MainTask, "HMI_TASK", 100, NULL, 1, NULL);
-	//Habr�a que hacerlo con callbacks pero una paja de leer eso, no hay nada hecho
+	//Habria que hacerlo con callbacks pero una paja de leer eso, no hay nada hecho
 }
 
 
