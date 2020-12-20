@@ -80,6 +80,8 @@ void HMI_SetOutputPin(gpioMap_t pin, bool_t state);
 
 void HMI_clearInputs();
 
+void HMI_ClearOutputs();
+
 #ifdef __cplusplus
 }
 #endif

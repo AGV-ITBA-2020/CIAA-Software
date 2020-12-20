@@ -75,16 +75,16 @@ void mainFSM(EventBits_t ev)
 {
 	switch(state){
 		case PC_IDLE: //Funciones que dividen la FSM dependiendo del estado en el que se est�
-			idleParseEv(ev);
+			idleParseEv(ev);	// @suppress("Invalid arguments")
 			break;
 		case PC_RUN:
-			runParseEv(ev);
+			runParseEv(ev);		// @suppress("Invalid arguments")
 			break;
 		case PC_PAUSE:
-			pauseParseEv(ev);
+			pauseParseEv(ev);	// @suppress("Invalid arguments")
 			break;
 		case PC_ERROR:
-			errorParseEv(ev);
+			errorParseEv(ev);	// @suppress("Invalid arguments")
 			break;
 		default:
 			break;
@@ -130,6 +130,11 @@ void pauseParseEv(EventBits_t ev)
 	{
 		PCP_continueMissionBlock();
 		state=PC_RUN;
+	}
+	if(ev & GEG_MISSION_ABORT_CMD)
+	{
+		PCP_abortMissionBlock();
+		state=PC_IDLE;
 	}
 }
 

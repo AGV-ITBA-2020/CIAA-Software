@@ -217,13 +217,14 @@ bool_t CCO_sendMsgWithoutData(MSG_SEND_HEADER_T msg)
 	return retVal;
 }
 
-bool_t CCO_sendStatus(AGV_STATUS_T &status)
+bool_t CCO_sendStatus(AGV_STATUS_T status)
 {
 	bool_t retVal=0;
 	string header= "Status\n";
-	string distance= "Distance: "+to_string(status.distEst);
+	string distance= "Distance: "+ to_string(int(status.distEst));
+	string batVolt= "\nBatVolt: "+ to_string(int(100*status.batVoltage));
 	//Acá vendrán más status que aporten, pero por ahora se necesitaban estos.
-	string finalMsg= header + distance;
+	string finalMsg= header + distance + batVolt;
 	finalMsg.copy(auxSendMsg.array,finalMsg.length());
 	retVal= EMH_sendMsg(&auxSendMsg);
 	return retVal;
