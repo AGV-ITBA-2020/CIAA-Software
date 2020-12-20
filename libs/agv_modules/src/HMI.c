@@ -87,7 +87,10 @@ void HMI_clearInputs()
 void HMI_ClearOutputs()
 {
 	for(int i=0;i<OUTPUT_TOTAL_COUNT;i++)
+	{
 		outputArray[i].actionCounter = 0;
+		HMI_SetOutputPin(outputArray[i].outputPin, false);
+	}
 }
 
 ////////////////////////////Funciones internas ///////////////////////////////////
