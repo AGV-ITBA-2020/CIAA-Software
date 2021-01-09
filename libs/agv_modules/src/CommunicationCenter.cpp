@@ -221,7 +221,7 @@ bool_t CCO_sendStatus(AGV_STATUS_T status)
 {
 	bool_t retVal=0;
 	string header= "Status\n";
-	string distance= "Distance: "+ to_string(int(status.distEst));
+	string distance= "Distance: "+ to_string(int(100*status.distEst));
 	string batVolt= "\nBatVolt: "+ to_string(int(100*status.batVoltage));
 	//Acá vendrán más status que aporten, pero por ahora se necesitaban estos.
 	string finalMsg= header + distance + batVolt;

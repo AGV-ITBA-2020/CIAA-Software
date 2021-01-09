@@ -29,6 +29,8 @@ using namespace pid;
 #define HIGH_SPEED_VEL 1.0
 #define PCP_OPENMV_PROCESSING_PERIOD_MS 100
 
+#define MIN_DISTANCE_BETWEEN_TAGS 0.5
+
 typedef enum {OPENMV_FOLLOW_LINE, OPENMV_FORK_LEFT, OPENMV_FORK_RIGHT, OPENMV_MERGE, OPENMV_ERROR,OPENMV_IDLE,OPENMV_SEND_DATA=10}openMV_states; //Los distintos estados del OpenMV
 typedef enum {TAG_SLOW_DOWN, TAG_SPEED_UP, TAG_STATION=3}Tag_t; //Los distintos TAGs
 
@@ -161,7 +163,7 @@ bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
 
 	bool_t steppingCondition = ( 	((currChkpnt == CHECKPOINT_SLOW_DOWN) && msg.tag_found && msg.tag==TAG_SLOW_DOWN) 	||
 									((currChkpnt == CHECKPOINT_SPEED_UP) && msg.tag_found && msg.tag==TAG_SPEED_UP) 	||
-									((currChkpnt == CHECKPOINT_STATION) && msg.tag_found && msg.tag==TAG_STATION) 		||
+									((currChkpnt == CHECKPOINT_STATION) && msg.tag_found && (msg.tag==TAG_STATION) && (MC_getDistanceTravelled() >= MIN_DISTANCE_BETWEEN_TAGS)) 		||
 									(IS_FORKORMERGE_MISSION(currChkpnt) && msg.form_passed)
 								); //Condiciones para ir al siguiente paso de la mision
 	//Control de pasos de misi�n
