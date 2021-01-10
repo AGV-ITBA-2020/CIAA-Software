@@ -62,6 +62,7 @@ const float32_t firCoeffs32[ FILTER_ORDER ] =
 /*==================[internal data declaration]==============================*/
 AGVMovementModule_t movementModule;
 bool_t useFilter = false;
+bool_t manualMode = false;	// Variable to read and/or set manual mode in the AGV by different modules
 
 /*==================[internal functions declaration]=========================*/
 /*******Tasks*********/
@@ -412,4 +413,12 @@ bool_t MC_GetFilterState()
 	return useFilter;
 }
 
+bool_t MC_GetManualMode()
+{
+	return manualMode;
+}
+void MC_SetManualMode(bool_t status)
+{
+	manualMode = status;
+}
 /*==================[end of file]============================================*/
