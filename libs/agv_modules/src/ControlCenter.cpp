@@ -24,7 +24,7 @@ typedef enum{CC_IDLE,CC_ON_MISSION,CC_MANUAL, CC_ERROR, CC_PAUSE, CC_EMERGENCY,C
 #define N_PRESSES_ON_EMERGENCY 2
 // #define N_PRESSES_TO_ABORT_MISSION 3
 // #define N_PRESSES_TO_PAUSE_MISSION 1
-#define NOTIFY_STATUS_PERIOD_MS 10000
+#define NOTIFY_STATUS_PERIOD_MS 1000
 /*==================[internal data declaration]==============================*/
 extern EventGroupHandle_t xEventGroup;
 static CC_State state,prevState;
@@ -158,19 +158,22 @@ void CC_onMissionParseEv(EventBits_t ev)
 	if(ev & GEG_MISSION_STEP_REACHED) //Se llego a un step de mision
 	{
 		CCO_sendMsgWithoutData(CCO_MISSION_STEP_REACHED);
-		missionAdvance();
 	}
 	if(ev & GEG_CTMOVE_FINISH) //Se termino el bloque que se le habia mandado al PC
 	{
-		if(currMission.waitForInterBlockEvent) //Si se tiene que esperar por un evento se va a pausa
+		missionAdvance();
+		if (isMissionCompleted()) //En caso de que ya la haya terminado, voy a IDLE
+		{
+			changeStateTo(CC_IDLE);
+		}
+		else if(currMission.waitForInterBlockEvent) //Si se tiene que esperar por un evento se va a pausa
 			changeStateTo(CC_PAUSE);
-		else if(!isMissionCompleted()) //Sino, si todav�a no termin� la misi�n le paso el bloque que viene
+		else //Sino, si todav�a no termin� la misi�n le paso el bloque que viene
 		{
 			PC_setMissionBlock(getNextMissionBlock());
 			xEventGroupSetBits( xEventGroup, GEG_MISSION_BLOCK_STARTED);
 		}
-		else //En caso de que ya la haya terminado, voy a IDLE
-			changeStateTo(CC_IDLE);
+
 	}
 	if(ev & (GEG_EMERGENCY_STOP | GEG_PRIORITY_STOP )) //Cualquier emergencia va a estado de emergencia
 	{
@@ -296,8 +299,9 @@ void changeStateTo(CC_State newState)
 void missionAdvance()
 {
 	currMission.currBlock++; //Avanza el bloque
+
 	if(currMission.interBlockEvent[currMission.currBlock]==IBE_NONE) //Se fija si necesita un evento para avanzar al siguiente bloque
-		currMission.waitForInterBlockEvent=false;
+			currMission.waitForInterBlockEvent=false;
 	else
 	{
 		if(currMission.interBlockEvent[currMission.currBlock] == IBE_BUTTON_PRESS)

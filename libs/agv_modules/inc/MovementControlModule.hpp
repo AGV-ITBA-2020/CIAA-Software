@@ -71,11 +71,15 @@ class AGVMovementModule_t {
         void calculateSetpoints();    
         void setLinerSpeed(double v){ linearSpeed = v; };
         void setAngularSpeed(double w){ angularSpeed = w; };
+        
+        void setDistanceTravelled(double distance){distanceTravelled = distance;};
+        double getDistanceTravelled(){return distanceTravelled;};
 
         MotorController_t leftMotor, rightMotor;
+        double distanceTravelled;
     
     private:
-        double linearSpeed, angularSpeed;
+        double linearSpeed, angularSpeed;        
 };
 
 /*==================[internal data declaration]==============================*/
@@ -117,6 +121,20 @@ void MC_setAngularSpeed(double w);
  * @note:	This value will be controlled by a PID, so settlement time must be taken into account.
  */
 void MC_getWheelSpeeds(double * speeds);
+
+/*
+ * @brief:	Sets the angular speed for the vehicle.
+ * @param:	w:   angular speed, as a double the sign defines if is clockwise or anti-clockwise.
+ * @note:	This value will be controlled by a PID, so settlement time must be taken into account.
+ */
+double MC_getDistanceTravelled();
+
+/*
+ * @brief:	Sets the angular speed for the vehicle.
+ * @param:	w:   angular speed, as a double the sign defines if is clockwise or anti-clockwise.
+ * @note:	This value will be controlled by a PID, so settlement time must be taken into account.
+ */
+void MC_setDistanceTravelled(double distance);
 
 /*
  * @brief:	Sets the angular speed for the vehicle.

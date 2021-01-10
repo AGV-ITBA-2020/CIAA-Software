@@ -88,6 +88,13 @@ double calculateInputSpeed(double timeBetweenSteps);
  */
 double filter(double inputData[]);
 
+/*
+ * @brief:	Initialize the MC module
+ * @param:	Placeholder
+ * @note:	The MC is in charge of controlling the speed and direction of the vehicle.
+ */
+double getLinearSpeed(void);
+
 
 /*==================[internal data definition]===============================*/
 
@@ -275,6 +282,8 @@ void mcmMainTask(void * ptr)
 	{
 		movementModule.leftMotor.getSpeed();
 		movementModule.rightMotor.getSpeed();
+
+		movementModule.distanceTravelled += getLinearSpeed() * float(CONTROL_SAMPLE_PERIOD_MS) / 1000.0;//
 		
 		movementModule.leftMotor.filterInput();
 		movementModule.rightMotor.filterInput();
@@ -317,6 +326,16 @@ double filter(double inputData[])
 	}
 	ret = ret/((double)FILTER_ORDER);
 	return ret;
+}
+
+/*
+ * @brief:	Initialize the MC module
+ * @param:	Placeholder
+ * @note:	The MC is in charge of controlling the speed and direction of the vehicle.
+ */
+double getLinearSpeed()
+{
+	return (movementModule.leftMotor.input + movementModule.rightMotor.input) * AGV_WHEEL_RADIUS / 2.0;
 }
 
 
@@ -369,6 +388,26 @@ void MC_getWheelSpeeds(double * speeds)
 	speeds[1] = movementModule.leftMotor.input;
 	speeds[2] = movementModule.rightMotor.setpoint;
 	speeds[3] = movementModule.rightMotor.input;
+}
+
+/*
+ * @brief:	Sets the angular speed for the vehicle.
+ * @param:	w:   angular speed, as a double the sign defines if is clockwise or anti-clockwise.
+ * @note:	This value will be controlled by a PID, so settlement time must be taken into account.
+ */
+double MC_getDistanceTravelled()
+{
+	return movementModule.getDistanceTravelled();
+}
+
+/*
+ * @brief:	Sets the angular speed for the vehicle.
+ * @param:	w:   angular speed, as a double the sign defines if is clockwise or anti-clockwise.
+ * @note:	This value will be controlled by a PID, so settlement time must be taken into account.
+ */
+void MC_setDistanceTravelled(double distance)
+{
+	movementModule.setDistanceTravelled(distance);
 }
 
 /*
