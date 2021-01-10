@@ -71,7 +71,7 @@ MSG_REC_HEADER_T CCO_getMsgType()
 		retVal=CCO_CONTINUE;
 	else if(header =="Status")
 		retVal=CCO_STATUS_REQ;
-	else if(header =="QuestAbort?")
+	else if(header =="Quest abort")
 		retVal=CCO_ABORT_MISSION;
 	else if(header =="Pause")
 		retVal=CCO_PAUSE_MISSION;
@@ -123,6 +123,10 @@ bool_t CCO_getMission(MISSION_T * mission)
 		}
 	}
 	mission->currBlock=0;
+	if (mission->interBlockEvent[0]==IBE_HOUSTON_CONTINUE || mission->interBlockEvent[0]==IBE_BUTTON_PRESS )
+		mission->waitForInterBlockEvent=1;
+	else
+		mission->waitForInterBlockEvent=0;
 	return retVal;
 }
 
@@ -203,9 +207,9 @@ bool_t CCO_sendMsgWithoutData(MSG_SEND_HEADER_T msg)
 	else if (msg == CCO_MISSION_STEP_REACHED)
 		auxStr="Quest step reached";
 	else if (msg == CCO_IBE_RECIEVED)
-		auxStr="Interblock event recieved";
+		auxStr="Interblock event";
 	else if (msg == CCO_EMERGENCY_STOP)
-		auxStr="Emergency";
+		auxStr="Emergency stop";
 	else if (msg == CCO_PRIORITY_STOP)
 		auxStr="Quest paused\nPriority stop";
 	else if (msg == CCO_MISSION_ABORT)
@@ -213,7 +217,9 @@ bool_t CCO_sendMsgWithoutData(MSG_SEND_HEADER_T msg)
 	else if (msg == CCO_MISSION_PAUSE)
 			auxStr="Quest paused";
 	else if (msg == CCO_CONTINUE_SEND)
-		auxStr="Continue";
+		auxStr="Resumed";
+	else if (msg == CCO_EMERGENCY_BUTTON_FREED)
+		auxStr="Emergency button freed";
 	else
 		assert(0);
 

@@ -32,6 +32,8 @@ using namespace pid;
 #define N_ERR_TO_STOP 30
 
 #define MIN_DISTANCE_BETWEEN_TAGS 0.5
+#define DIST_TO_STOP_SHOWING_LIGHTS_STATION 0.2
+#define MIN_DISTANCE_BETWEEN_CHECKPOINTS MIN_DISTANCE_BETWEEN_TAGS
 
 typedef enum {OPENMV_FOLLOW_LINE, OPENMV_FORK_LEFT, OPENMV_FORK_RIGHT, OPENMV_MERGE, OPENMV_ERROR,OPENMV_IDLE,OPENMV_SEND_DATA=10}openMV_states; //Los distintos estados del OpenMV
 typedef enum {TAG_SLOW_DOWN, TAG_SPEED_UP, TAG_STATION=3}Tag_t; //Los distintos TAGs
@@ -175,9 +177,17 @@ bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
 		err_count=0;
 	else
 		err_count++;
+	/*Manejo de luces para luego de estación */
+	if(HMI_IsOutputSet(OUTPUT_LEDSTRIP_LEFT) && MC_getDistanceTravelled()>DIST_TO_STOP_SHOWING_LIGHTS_STATION)
+		HMI_ClearOutput(OUTPUT_LEDSTRIP_LEFT);
+	if(HMI_IsOutputSet(OUTPUT_LEDSTRIP_RIGHT) && MC_getDistanceTravelled()>DIST_TO_STOP_SHOWING_LIGHTS_STATION)
+		HMI_ClearOutput(OUTPUT_LEDSTRIP_RIGHT);
 
-	if (steppingCondition)
+	/*Avance de misiones*/
+	if (steppingCondition && MC_getDistanceTravelled()>MIN_DISTANCE_BETWEEN_CHECKPOINTS )
 	{
+		HMI_ClearOutput(OUTPUT_LEDSTRIP_LEFT); //Siempre que avanza un paso de la misión, borra todo lo previo
+		HMI_ClearOutput(OUTPUT_LEDSTRIP_RIGHT);//Que se estaba haciendo con los guiños.
 		(missionBlock->currStep)++;
 		*stepReached=true; //Indico que se llegï¿½ a un paso
 		switch (currChkpnt) 
@@ -313,10 +323,11 @@ void PCP_startNewMissionBlock(BLOCK_DETAILS_T * mb)
 {
 	missionBlock = mb;
 	agvSpeedData.v_output = AGV_CRUISE_SPEED;
+	//MC_setDistanceTravelled(0); //NO! puedo haber abortado a la mitad del camino y en dist travelled se guarda esa info
 	setOpenMVNextState(missionBlock->blockCheckpoints[0]);
 	PCP_continueMissionBlock();
-	HMIW_SetOutput(OUTPUT_LEDSTRIP_LEFT, false);
-	HMIW_SetOutput(OUTPUT_LEDSTRIP_RIGHT, false);
+	//HMIW_SetOutput(OUTPUT_LEDSTRIP_LEFT, false);
+	//HMIW_SetOutput(OUTPUT_LEDSTRIP_RIGHT, false);
 }
 void PCP_SetLinearSpeed(double v)
 {

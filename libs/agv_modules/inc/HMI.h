@@ -82,6 +82,10 @@ void HMI_clearInputs();
 
 void HMI_ClearOutputs();
 
+void HMI_ClearOutput(HMI_OUTPUT_ID outputId);
+
+bool_t HMI_IsOutputSet(HMI_OUTPUT_ID outputId);
+
 #ifdef __cplusplus
 }
 #endif

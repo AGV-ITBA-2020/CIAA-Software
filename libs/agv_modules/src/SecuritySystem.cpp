@@ -48,6 +48,7 @@ void SS_MainTask(void *)
 		}
 		else if (!read && lastEmergSignalValue)
 		{
+			xEventGroupSetBits( xEventGroup,GEG_EMERGENCY_BUTTON_FREED);
 			HMIW_SetOutput(OUTPUT_LEDSTRIP_STOP, false);
 		}
 		lastEmergSignalValue=read;

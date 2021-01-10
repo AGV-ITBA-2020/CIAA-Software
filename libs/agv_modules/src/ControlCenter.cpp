@@ -146,15 +146,20 @@ void CC_idleParseEv(EventBits_t ev)
 	{
 		CCO_getMission(&currMission);
 		CCO_sendMsgWithoutData(CCO_MISSION_ACCEPT); //Le comunica a houston que acepta la mision
-		PC_setMissionBlock(getNextMissionBlock());
+
 		if(!currMission.waitForInterBlockEvent) //En el caso que no necesite un evento extra para arrancar la misiï¿½n
 		{
+			PC_setMissionBlock(getNextMissionBlock());
 			HMIW_Blink(OUTPUT_BUT_GREEN, 3);
 			changeStateTo(CC_ON_MISSION); //Pasa a estado misiï¿½n
 			xEventGroupSetBitsFromISR( xEventGroup, GEG_MISSION_BLOCK_STARTED, NULL );
 		}
 		else
+		{
 			changeStateTo(CC_PAUSE); //Sino espera hasta que ocurra ese evento
+			if (currMission.interBlockEvent[0]==IBE_BUTTON_PRESS)
+				HMIW_Blink(OUTPUT_BUT_GREEN, 15);
+		}
 	}
 	checkIfManualModeEnabled(ev);
 }
@@ -224,12 +229,13 @@ void CC_pauseParseEv(EventBits_t ev)
 		{
 			HMI_ClearOutputs();
 			currMission.waitForInterBlockEvent=false; //Ya no se tiene que esperar por evento.
-			CCO_sendMsgWithoutData(CCO_IBE_RECIEVED); //Comunica a Houston que recibiï¿½ el IBE
+			if((currMissionIBE()== IBE_BUTTON_PRESS) && hmiEvCondition(ev,INPUT_BUT_GREEN, SHORT_PRESS))
+				CCO_sendMsgWithoutData(CCO_IBE_RECIEVED); //Comunica a Houston que recibiï¿½ el IBE
 			if(!isMissionCompleted()) //Si faltan bloques de la misiï¿½n
 			{
 				PC_setMissionBlock(getNextMissionBlock());
-				xEventGroupSetBits( xEventGroup, GEG_MISSION_BLOCK_STARTED);
 				changeStateTo(CC_ON_MISSION);
+				xEventGroupSetBits( xEventGroup, GEG_MISSION_BLOCK_STARTED);
 			}
 			else //Si este evento era el ï¿½ltimo paso de la misiï¿½n, vuelve a IDLE
 				changeStateTo(CC_IDLE);
@@ -259,6 +265,8 @@ void CC_emergencyParseEv(EventBits_t ev)
 		else if(hmiEvCondition(ev,INPUT_BUT_GREEN, LONG_PRESS)) //Si se presionï¿½ el botï¿½n pero no se estaba en emergencia
 			HMIW_ListenToLongPress(INPUT_BUT_GREEN); //Se escucha de vuelta al input.
 	}
+	if(ev & GEG_EMERGENCY_BUTTON_FREED)
+		CCO_sendMsgWithoutData(CCO_EMERGENCY_BUTTON_FREED);
 }
 void CC_onErrorRoutine(EventBits_t ev)
 {
@@ -294,6 +302,8 @@ void changeStateTo(CC_State newState)
 	}
 	else if(state==CC_ON_MISSION)
 	{
+		//HMI_ClearOutput(OUTPUT_LEDSTRIP_LEFT); //Al haber terminado en una estación va a tener estos leds prendidos, por lo que al empezar otra misión hay que limpiarlos
+		//HMI_ClearOutput(OUTPUT_LEDSTRIP_RIGHT);
 		HMIW_ListenToShortPress(INPUT_BUT_BLUE);	// BLUE for AVORT
 		HMIW_ListenToShortPress(INPUT_BUT_GREEN);	// GREEN for PAUSE
 	}

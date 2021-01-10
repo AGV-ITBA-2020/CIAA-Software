@@ -48,6 +48,7 @@ void LoadOutputConfig(HMI_Output_t * data);
 void GpioInit();
 
 
+
 ////////////////////////////Funciones externas ///////////////////////////////////
 void HMI_Init()
 {
@@ -91,6 +92,15 @@ void HMI_ClearOutputs()
 		outputArray[i].actionCounter = 0;
 		HMI_SetOutputPin(outputArray[i].outputPin, false);
 	}
+}
+void HMI_ClearOutput(HMI_OUTPUT_ID outputId)
+{
+	outputArray[outputId].actionCounter = 0;
+	HMI_SetOutputPin(HMI_getCorrespondingPin(HMI_OUTPUT, outputId), 0);
+}
+bool_t HMI_IsOutputSet(HMI_OUTPUT_ID outputId)
+{
+	return gpioRead(HMI_getCorrespondingPin(HMI_OUTPUT, outputId)) && outputArray[outputId].actionCounter == 0;
 }
 
 ////////////////////////////Funciones internas ///////////////////////////////////
