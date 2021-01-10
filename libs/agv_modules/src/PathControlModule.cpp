@@ -122,6 +122,11 @@ void runParseEv(EventBits_t ev)
 	{
 		state=PC_IDLE;
 	}
+	else if(ev & GEG_CTMOVE_ERROR)
+	{
+		PCP_abortMissionBlock();
+		state=PC_ERROR;
+	}
 }
 
 void pauseParseEv(EventBits_t ev)

@@ -232,6 +232,7 @@ bool_t CCO_sendStatus(AGV_STATUS_T status)
 	//Acá vendrán más status que aporten, pero por ahora se necesitaban estos.
 	string finalMsg= header + distance + batVolt;
 	finalMsg.copy(auxSendMsg.array,finalMsg.length());
+	auxSendMsg.array[finalMsg.length()]=0;
 	retVal= EMH_sendMsg(&auxSendMsg);
 	return retVal;
 }
@@ -241,6 +242,7 @@ bool_t CCO_sendError(string err)
 	bool_t retVal=1;
 	string finalMsg= "Error\n"+err;
 	finalMsg.copy(auxSendMsg.array,finalMsg.length());
+	auxSendMsg.array[finalMsg.length()]=0;
 	retVal= EMH_sendMsg(&auxSendMsg);
 	return retVal;
 }

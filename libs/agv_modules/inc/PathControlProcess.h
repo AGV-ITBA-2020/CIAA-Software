@@ -65,7 +65,7 @@ void PCP_SetLinearSpeed(double v);
 
 double PCP_getLinearSpeed();
 
-void PCP_getLinearSpeed(double distance);
+//void PCP_getLinearSpeed(double distance);
 
 void PCP_setPIDTunings(double Kp, double Ki, double Kd);
 

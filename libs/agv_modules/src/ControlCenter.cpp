@@ -24,7 +24,7 @@ typedef enum{CC_IDLE,CC_ON_MISSION,CC_MANUAL, CC_ERROR, CC_PAUSE, CC_EMERGENCY,C
 #define N_PRESSES_ON_EMERGENCY 2
 // #define N_PRESSES_TO_ABORT_MISSION 3
 // #define N_PRESSES_TO_PAUSE_MISSION 1
-#define NOTIFY_STATUS_PERIOD_MS 1000
+#define NOTIFY_STATUS_PERIOD_MS 2000
 /*==================[internal data declaration]==============================*/
 extern EventGroupHandle_t xEventGroup;
 static CC_State state,prevState;
@@ -65,6 +65,7 @@ void genAgvStatusStruct()
 	agvStatus.inMision=currMission.active;
 	agvStatus.waitForInterBlockEvent=currMission.waitForInterBlockEvent;
 	agvStatus.batVoltage = SS_GetBatteryLevel();
+	//agvStatus.batVoltage = 12.43;
 }
 /*===============[Tasks]=====================*/
 void CC_notifyStatus(void *)
@@ -73,8 +74,12 @@ void CC_notifyStatus(void *)
 	TickType_t xLastTimeWoke = xTaskGetTickCount();
 	for( ;; )
 	{
-		genAgvStatusStruct();
-		CCO_sendStatus(agvStatus);
+
+		if (state!=CC_ERROR)
+		{
+			genAgvStatusStruct();
+			CCO_sendStatus(agvStatus);
+		}
 		vTaskDelayUntil(&xLastTimeWoke, timeoutDelay);
 	}
 
@@ -258,7 +263,12 @@ void CC_emergencyParseEv(EventBits_t ev)
 void CC_onErrorRoutine(EventBits_t ev)
 {
 	if(ev & GEG_CTMOVE_ERROR)
+	{
 		CCO_sendError("Line lost");
+		HMI_ClearOutputs();
+		HMIW_Blink(OUTPUT_LEDSTRIP_STOP, 2);
+		HMIW_SetOutput(OUTPUT_BUT_BLUE,1);
+	}
 	//Pasar por todos los m�dulos con eventos de error y recupera el string de error
 	//Lo comunica a houston salvo que sea algo del centro de comunicaciones (CCO_sendError(string err))
 }
