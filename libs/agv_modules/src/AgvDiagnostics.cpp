@@ -134,10 +134,11 @@ static void RunModuleServices()
 		// Joystick currTick resets when message is received. Therefore, tickPeriod means timeout and service shutdown
 		if(++info.joystick.currTick >= info.joystick.tickPeriod)
 		{
-			PCP_SetLinearSpeed(0.0);
+			MC_setLinearSpeed(0.0);
 			MC_setAngularSpeed(0.0);
 			info.joystick.currTick = 0;
 			info.joystick.on = false;
+			MC_SetManualMode(false);
 			printf("DIAG>MSG;Joystick timeout!! \r\n");
 			fflush(stdout);
 		}
@@ -238,12 +239,8 @@ static bool ProcessMessage()
 			{
 				if(msg->id == DIAG_ID_VWSPD)
 				{
-			#ifndef DEBUG_WITHOUT_MC
-					PCP_SetLinearSpeed(msg->values[0]);
-			#else
 					MC_setLinearSpeed(msg->values[0]);
 					MC_setAngularSpeed(msg->values[1]);	
-			#endif
 					info.joystick.currTick = 0;
 				}
 				else if(msg->id == DIAG_ID_MOD_STOP)
@@ -254,6 +251,7 @@ static bool ProcessMessage()
 						timerIsOn = false;
 					}
 					info.joystick.on = false;
+					MC_SetManualMode(false);
 				}
 			}
 			else
@@ -266,6 +264,7 @@ static bool ProcessMessage()
 						timerIsOn == true;
 					}
 					info.joystick.on = true;
+					MC_SetManualMode(true);
 				}
 			}
 		break;

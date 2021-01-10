@@ -145,7 +145,6 @@ void errorParseEv(EventBits_t ev)
 /*==================[external functions definition]==========================*/
 void PC_Init(void)
 {
-	MC_Init();
 	PCP_Init();
 	xTaskCreate( pcmMainTask, "PC Main task", 100	, NULL, 1, NULL ); //Crea task de misiï¿½n
 	xTaskCreate( pcmDistEstTask, "PCM dist estimator", 100	, NULL, 1, NULL ); //Task para estimación de la dist recorrida

@@ -24,9 +24,10 @@ using namespace pid;
 #define OPEN_MV_MSG_LEN 4 //Length en bytes del mensaje del openMV
 #define MAX_DISPLACEMENT 80.0
 #define EVENT_QUEUE_LEN 10
+#define AGV_CRUISE_SPEED 0.16	// Normal speed=0.16
 
-#define LOW_SPEED_VEL 0.5
-#define HIGH_SPEED_VEL 1.0
+#define LOW_SPEED_VEL 0.08
+#define HIGH_SPEED_VEL 0.45
 #define PCP_OPENMV_PROCESSING_PERIOD_MS 100
 
 typedef enum {OPENMV_FOLLOW_LINE, OPENMV_FORK_LEFT, OPENMV_FORK_RIGHT, OPENMV_MERGE, OPENMV_ERROR,OPENMV_IDLE,OPENMV_SEND_DATA=10}openMV_states; //Los distintos estados del OpenMV
@@ -107,10 +108,11 @@ void missionTask(void * ptr)
 		quit=missionBlockLogic(msg, &stepReached);//Se aplica las l�gicas de camino, determinando si se lleg� al paso de misi�n y si se termin� la misi�n
 		
 		computeAngVel(msg.displacement);
-#ifndef DEBUG_WITHOUT_MC
-		MC_setLinearSpeed(agvSpeedData.v_output); 	//Se setean las velocidades para el seguimiento de l�nea
-		MC_setAngularSpeed(agvSpeedData.v_output > 0 ? agvSpeedData.w_output : 0.0);
-#endif
+		if(MC_GetManualMode() == false)	// Set AGV speeds only if manual mode is off
+		{
+			MC_setLinearSpeed(agvSpeedData.v_output); 	//Se setean las velocidades para el seguimiento de l�nea
+			MC_setAngularSpeed(agvSpeedData.v_output > 0 ? agvSpeedData.w_output : 0.0);
+		}
 
 
 		if(stepReached) //Levanto los eventos correspondientes
@@ -282,9 +284,7 @@ void PCP_Init(void){
 	uartCallbackSet( PC_UART, UART_RECEIVE,(callBackFuncPtr_t) callbackInterrupt);
 	missionTaskHandle =NULL;
 	openMVSendTaskHandle= NULL;
-#ifndef DEBUG_WITHOUT_MC
 	MC_Init();
-#endif
 	// Turn the PID on
   	pidController.SetMode(AUTOMATIC);
   	pidController.SetOutputLimits(PID_OUTPUT_MIN, PID_OUTPUT_MAX);
@@ -299,7 +299,7 @@ void PCP_Init(void){
 void PCP_startNewMissionBlock(BLOCK_DETAILS_T * mb)
 {
 	missionBlock = mb;
-	agvSpeedData.v_output = 0.16;
+	agvSpeedData.v_output = AGV_CRUISE_SPEED;
 	setOpenMVNextState(missionBlock->blockCheckpoints[0]);
 	PCP_continueMissionBlock();
 	HMIW_SetOutput(OUTPUT_LEDSTRIP_LEFT, false);

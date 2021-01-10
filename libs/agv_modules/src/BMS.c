@@ -11,7 +11,7 @@
 #define ADC_VREF (3.3)	// ADC reference voltage
 #define ADC_BIT_RES 10
 #define ADC_TO_VOLT(x) (((float)x)*0.0142+0.0224)
-#define FILTER_ORDER 8
+#define FILTER_ORDER 30
 
 
 float valArray[FILTER_ORDER];

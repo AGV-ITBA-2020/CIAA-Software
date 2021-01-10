@@ -142,6 +142,9 @@ void MC_getRightPIDTunings(double * Kp, double * Ki, double * Kd);
 void MC_SetFilterState(bool_t state);
 bool_t MC_GetFilterState();
 
+bool_t MC_GetManualMode();
+void MC_SetManualMode(bool_t status);
+
 #endif /* _MC */
 
 /**
