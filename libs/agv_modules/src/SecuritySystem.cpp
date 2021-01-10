@@ -48,6 +48,7 @@ void SS_MainTask(void *)
 		}
 		else if (!read && lastEmergSignalValue)
 		{
+			xEventGroupSetBits( xEventGroup,GEG_EMERGENCY_BUTTON_FREED);
 			HMIW_SetOutput(OUTPUT_LEDSTRIP_STOP, false);
 		}
 		lastEmergSignalValue=read;
@@ -69,8 +70,8 @@ void SS_init()
 	gpioInit( emergencyPin, GPIO_INPUT );
 	BMS_Init();
 	BMS_MeasureBlocking();	// Start a blocking measurement of the battery voltage
-	xTaskCreate(SS_MainTask, "HMI_TASK", 100, NULL, 1, NULL);
-	//Habria que hacerlo con callbacks pero una paja de leer eso, no hay nada hecho
+	xTaskCreate(SS_MainTask, "SS_TASK", 100, NULL, 1, NULL);
+	//Habr�a que hacerlo con callbacks pero una paja de leer eso, no hay nada hecho
 }
 
 

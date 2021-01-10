@@ -24,7 +24,7 @@ typedef enum{CC_IDLE,CC_ON_MISSION,CC_MANUAL, CC_ERROR, CC_PAUSE, CC_EMERGENCY,C
 #define N_PRESSES_ON_EMERGENCY 2
 // #define N_PRESSES_TO_ABORT_MISSION 3
 // #define N_PRESSES_TO_PAUSE_MISSION 1
-#define NOTIFY_STATUS_PERIOD_MS 1000
+#define NOTIFY_STATUS_PERIOD_MS 2000
 /*==================[internal data declaration]==============================*/
 extern EventGroupHandle_t xEventGroup;
 static CC_State state,prevState;
@@ -65,6 +65,7 @@ void genAgvStatusStruct()
 	agvStatus.inMision=currMission.active;
 	agvStatus.waitForInterBlockEvent=currMission.waitForInterBlockEvent;
 	agvStatus.batVoltage = SS_GetBatteryLevel();
+	//agvStatus.batVoltage = 12.43;
 }
 /*===============[Tasks]=====================*/
 void CC_notifyStatus(void *)
@@ -73,8 +74,12 @@ void CC_notifyStatus(void *)
 	TickType_t xLastTimeWoke = xTaskGetTickCount();
 	for( ;; )
 	{
-		genAgvStatusStruct();
-		CCO_sendStatus(agvStatus);
+
+		if (state!=CC_ERROR)
+		{
+			genAgvStatusStruct();
+			CCO_sendStatus(agvStatus);
+		}
 		vTaskDelayUntil(&xLastTimeWoke, timeoutDelay);
 	}
 
@@ -141,15 +146,20 @@ void CC_idleParseEv(EventBits_t ev)
 	{
 		CCO_getMission(&currMission);
 		CCO_sendMsgWithoutData(CCO_MISSION_ACCEPT); //Le comunica a houston que acepta la mision
-		PC_setMissionBlock(getNextMissionBlock());
+
 		if(!currMission.waitForInterBlockEvent) //En el caso que no necesite un evento extra para arrancar la misiï¿½n
 		{
+			PC_setMissionBlock(getNextMissionBlock());
 			HMIW_Blink(OUTPUT_BUT_GREEN, 3);
 			changeStateTo(CC_ON_MISSION); //Pasa a estado misiï¿½n
 			xEventGroupSetBitsFromISR( xEventGroup, GEG_MISSION_BLOCK_STARTED, NULL );
 		}
 		else
+		{
 			changeStateTo(CC_PAUSE); //Sino espera hasta que ocurra ese evento
+			if (currMission.interBlockEvent[0]==IBE_BUTTON_PRESS)
+				HMIW_Blink(OUTPUT_BUT_GREEN, 15);
+		}
 	}
 	checkIfManualModeEnabled(ev);
 }
@@ -179,11 +189,14 @@ void CC_onMissionParseEv(EventBits_t ev)
 	{
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_PAUSE_CMD);
 		changeStateTo(CC_EMERGENCY);
+		CCO_sendMsgWithoutData(CCO_EMERGENCY_STOP);
 	}
 	if(((ev & GEG_COMS_RX) && recHeader == CCO_ABORT_MISSION) || hmiEvCondition(ev,INPUT_BUT_BLUE, SHORT_PRESS)) //Recibe que aborte misiï¿½n por internes
 	{
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_ABORT_CMD);
 		changeStateTo(CC_IDLE);
+		if(hmiEvCondition(ev,INPUT_BUT_BLUE, SHORT_PRESS))
+			CCO_sendMsgWithoutData(CCO_MISSION_ABORT);
 	}
 
 	if(((ev & GEG_COMS_RX) && recHeader == CCO_PAUSE_MISSION) || hmiEvCondition(ev,INPUT_BUT_GREEN, SHORT_PRESS))//Recibe que pause misiï¿½n por internes
@@ -191,6 +204,8 @@ void CC_onMissionParseEv(EventBits_t ev)
 		HMIW_Blink(OUTPUT_BUT_GREEN, 10000);
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_PAUSE_CMD);
 		changeStateTo(CC_PAUSE);
+		if(hmiEvCondition(ev,INPUT_BUT_GREEN, SHORT_PRESS))
+			CCO_sendMsgWithoutData(CCO_MISSION_PAUSE);
 	}
 
 	checkIfManualModeEnabled(ev);
@@ -204,6 +219,8 @@ void CC_pauseParseEv(EventBits_t ev)
 		HMI_ClearOutputs();
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_ABORT_CMD);
 		changeStateTo(CC_IDLE);
+		if(hmiEvCondition(ev,INPUT_BUT_BLUE, LONG_PRESS))
+			CCO_sendMsgWithoutData(CCO_MISSION_ABORT);
 	}
 	if(currMission.waitForInterBlockEvent) //En el caso en que se este esperando por un evento entre bloques.
 	{
@@ -212,12 +229,13 @@ void CC_pauseParseEv(EventBits_t ev)
 		{
 			HMI_ClearOutputs();
 			currMission.waitForInterBlockEvent=false; //Ya no se tiene que esperar por evento.
-			CCO_sendMsgWithoutData(CCO_IBE_RECIEVED); //Comunica a Houston que recibiï¿½ el IBE
+			if((currMissionIBE()== IBE_BUTTON_PRESS) && hmiEvCondition(ev,INPUT_BUT_GREEN, SHORT_PRESS))
+				CCO_sendMsgWithoutData(CCO_IBE_RECIEVED); //Comunica a Houston que recibiï¿½ el IBE
 			if(!isMissionCompleted()) //Si faltan bloques de la misiï¿½n
 			{
 				PC_setMissionBlock(getNextMissionBlock());
-				xEventGroupSetBits( xEventGroup, GEG_MISSION_BLOCK_STARTED);
 				changeStateTo(CC_ON_MISSION);
+				xEventGroupSetBits( xEventGroup, GEG_MISSION_BLOCK_STARTED);
 			}
 			else //Si este evento era el ï¿½ltimo paso de la misiï¿½n, vuelve a IDLE
 				changeStateTo(CC_IDLE);
@@ -227,6 +245,8 @@ void CC_pauseParseEv(EventBits_t ev)
 		HMI_ClearOutputs();
 		xEventGroupSetBits( xEventGroup, GEG_CONTINUE);
 		changeStateTo(CC_ON_MISSION);
+		if(hmiEvCondition(ev,INPUT_BUT_GREEN, SHORT_PRESS))
+			CCO_sendMsgWithoutData(CCO_CONTINUE_SEND);
 	}
 	checkIfManualModeEnabled(ev);
 }
@@ -239,13 +259,24 @@ void CC_emergencyParseEv(EventBits_t ev)
 			HMI_ClearOutputs();
 			changeStateTo(prevState);
 			xEventGroupSetBits( xEventGroup, GEG_CONTINUE); //Si vuelve a estado misiï¿½n deberï¿½a poner esto
+			if(hmiEvCondition(ev,INPUT_BUT_GREEN, LONG_PRESS))
+				CCO_sendMsgWithoutData(CCO_CONTINUE_SEND);
 		}
 		else if(hmiEvCondition(ev,INPUT_BUT_GREEN, LONG_PRESS)) //Si se presionï¿½ el botï¿½n pero no se estaba en emergencia
 			HMIW_ListenToLongPress(INPUT_BUT_GREEN); //Se escucha de vuelta al input.
 	}
+	if(ev & GEG_EMERGENCY_BUTTON_FREED)
+		CCO_sendMsgWithoutData(CCO_EMERGENCY_BUTTON_FREED);
 }
 void CC_onErrorRoutine(EventBits_t ev)
 {
+	if(ev & GEG_CTMOVE_ERROR)
+	{
+		CCO_sendError("Line lost");
+		HMI_ClearOutputs();
+		HMIW_Blink(OUTPUT_LEDSTRIP_STOP, 2);
+		HMIW_SetOutput(OUTPUT_BUT_BLUE,1);
+	}
 	//Pasar por todos los mï¿½dulos con eventos de error y recupera el string de error
 	//Lo comunica a houston salvo que sea algo del centro de comunicaciones (CCO_sendError(string err))
 }
@@ -271,6 +302,8 @@ void changeStateTo(CC_State newState)
 	}
 	else if(state==CC_ON_MISSION)
 	{
+		//HMI_ClearOutput(OUTPUT_LEDSTRIP_LEFT); //Al haber terminado en una estación va a tener estos leds prendidos, por lo que al empezar otra misión hay que limpiarlos
+		//HMI_ClearOutput(OUTPUT_LEDSTRIP_RIGHT);
 		HMIW_ListenToShortPress(INPUT_BUT_BLUE);	// BLUE for AVORT
 		HMIW_ListenToShortPress(INPUT_BUT_GREEN);	// GREEN for PAUSE
 	}
