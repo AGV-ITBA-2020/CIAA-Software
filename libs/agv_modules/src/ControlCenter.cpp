@@ -24,7 +24,7 @@ typedef enum{CC_IDLE,CC_ON_MISSION,CC_MANUAL, CC_ERROR, CC_PAUSE, CC_EMERGENCY,C
 #define N_PRESSES_ON_EMERGENCY 2
 // #define N_PRESSES_TO_ABORT_MISSION 3
 // #define N_PRESSES_TO_PAUSE_MISSION 1
-#define NOTIFY_STATUS_PERIOD_MS 3000
+#define NOTIFY_STATUS_PERIOD_MS 10000
 /*==================[internal data declaration]==============================*/
 extern EventGroupHandle_t xEventGroup;
 static CC_State state,prevState;
