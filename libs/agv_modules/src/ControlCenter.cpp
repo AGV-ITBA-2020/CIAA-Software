@@ -176,11 +176,14 @@ void CC_onMissionParseEv(EventBits_t ev)
 	{
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_PAUSE_CMD);
 		changeStateTo(CC_EMERGENCY);
+		CCO_sendMsgWithoutData(CCO_EMERGENCY_STOP);
 	}
 	if(((ev & GEG_COMS_RX) && recHeader == CCO_ABORT_MISSION) || hmiEvCondition(ev,INPUT_BUT_BLUE, SHORT_PRESS)) //Recibe que aborte misi�n por internes
 	{
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_ABORT_CMD);
 		changeStateTo(CC_IDLE);
+		if(hmiEvCondition(ev,INPUT_BUT_BLUE, SHORT_PRESS))
+			CCO_sendMsgWithoutData(CCO_MISSION_ABORT);
 	}
 
 	if(((ev & GEG_COMS_RX) && recHeader == CCO_PAUSE_MISSION) || hmiEvCondition(ev,INPUT_BUT_GREEN, SHORT_PRESS))//Recibe que pause misi�n por internes
@@ -188,6 +191,8 @@ void CC_onMissionParseEv(EventBits_t ev)
 		HMIW_Blink(OUTPUT_BUT_GREEN, 10000);
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_PAUSE_CMD);
 		changeStateTo(CC_PAUSE);
+		if(hmiEvCondition(ev,INPUT_BUT_GREEN, SHORT_PRESS))
+			CCO_sendMsgWithoutData(CCO_MISSION_PAUSE);
 	}
 
 	checkIfManualModeEnabled(ev);
@@ -201,6 +206,8 @@ void CC_pauseParseEv(EventBits_t ev)
 		HMI_ClearOutputs();
 		xEventGroupSetBits( xEventGroup, GEG_MISSION_ABORT_CMD);
 		changeStateTo(CC_IDLE);
+		if(hmiEvCondition(ev,INPUT_BUT_BLUE, LONG_PRESS))
+			CCO_sendMsgWithoutData(CCO_MISSION_ABORT);
 	}
 	if(currMission.waitForInterBlockEvent) //En el caso en que se este esperando por un evento entre bloques.
 	{
@@ -224,6 +231,8 @@ void CC_pauseParseEv(EventBits_t ev)
 		HMI_ClearOutputs();
 		xEventGroupSetBits( xEventGroup, GEG_CONTINUE);
 		changeStateTo(CC_ON_MISSION);
+		if(hmiEvCondition(ev,INPUT_BUT_GREEN, SHORT_PRESS))
+			CCO_sendMsgWithoutData(CCO_CONTINUE_SEND);
 	}
 	checkIfManualModeEnabled(ev);
 }
@@ -236,6 +245,8 @@ void CC_emergencyParseEv(EventBits_t ev)
 			HMI_ClearOutputs();
 			changeStateTo(prevState);
 			xEventGroupSetBits( xEventGroup, GEG_CONTINUE); //Si vuelve a estado misi�n deber�a poner esto
+			if(hmiEvCondition(ev,INPUT_BUT_GREEN, LONG_PRESS))
+				CCO_sendMsgWithoutData(CCO_CONTINUE_SEND);
 		}
 		else if(hmiEvCondition(ev,INPUT_BUT_GREEN, LONG_PRESS)) //Si se presion� el bot�n pero no se estaba en emergencia
 			HMIW_ListenToLongPress(INPUT_BUT_GREEN); //Se escucha de vuelta al input.
@@ -243,6 +254,8 @@ void CC_emergencyParseEv(EventBits_t ev)
 }
 void CC_onErrorRoutine(EventBits_t ev)
 {
+	if(ev & GEG_CTMOVE_ERROR)
+		CCO_sendError("Line lost");
 	//Pasar por todos los m�dulos con eventos de error y recupera el string de error
 	//Lo comunica a houston salvo que sea algo del centro de comunicaciones (CCO_sendError(string err))
 }

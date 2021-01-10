@@ -203,11 +203,17 @@ bool_t CCO_sendMsgWithoutData(MSG_SEND_HEADER_T msg)
 	else if (msg == CCO_MISSION_STEP_REACHED)
 		auxStr="Quest step reached";
 	else if (msg == CCO_IBE_RECIEVED)
-		auxStr="Inter-block event recieved";
+		auxStr="Interblock event recieved";
 	else if (msg == CCO_EMERGENCY_STOP)
-		auxStr="QuestPaused\nEmergency stop";
+		auxStr="Emergency";
 	else if (msg == CCO_PRIORITY_STOP)
-		auxStr="QuestPaused\nPriority stop";
+		auxStr="Quest paused\nPriority stop";
+	else if (msg == CCO_MISSION_ABORT)
+		auxStr="Quest abort";
+	else if (msg == CCO_MISSION_PAUSE)
+			auxStr="Quest paused";
+	else if (msg == CCO_CONTINUE_SEND)
+		auxStr="Continue";
 	else
 		assert(0);
 

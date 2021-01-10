@@ -30,7 +30,7 @@ int main( void )
 	// Read clock settings and update SystemCoreClock variable
 	bool_t debugUartEnable=1;
 	MySapi_BoardInit(debugUartEnable);
-	AgvDiag_Init();
+	//AgvDiag_Init();
     CC_Init();
 	#ifdef DEBUG_WITHOUT_MC
 		MC_Init();

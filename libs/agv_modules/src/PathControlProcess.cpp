@@ -29,6 +29,7 @@ using namespace pid;
 #define LOW_SPEED_VEL 0.08
 #define HIGH_SPEED_VEL 0.45
 #define PCP_OPENMV_PROCESSING_PERIOD_MS 100
+#define N_ERR_TO_STOP 30
 
 typedef enum {OPENMV_FOLLOW_LINE, OPENMV_FORK_LEFT, OPENMV_FORK_RIGHT, OPENMV_MERGE, OPENMV_ERROR,OPENMV_IDLE,OPENMV_SEND_DATA=10}openMV_states; //Los distintos estados del OpenMV
 typedef enum {TAG_SLOW_DOWN, TAG_SPEED_UP, TAG_STATION=3}Tag_t; //Los distintos TAGs
@@ -52,6 +53,7 @@ static SemaphoreHandle_t xBinarySemaphore;
 static TaskHandle_t * missionTaskHandle;
 static TaskHandle_t * openMVSendTaskHandle;
 static uint8_t msgCodeForOpenMV;
+static unsigned int err_count;
 
 typedef struct {
 	double error;
@@ -167,6 +169,11 @@ bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
 									(IS_FORKORMERGE_MISSION(currChkpnt) && msg.form_passed)
 								); //Condiciones para ir al siguiente paso de la mision
 	//Control de pasos de misi�n
+	if(msg.error==0)
+		err_count=0;
+	else
+		err_count++;
+
 	if (steppingCondition)
 	{
 		(missionBlock->currStep)++;
@@ -201,6 +208,9 @@ bool_t missionBlockLogic(openMV_msg msg, bool_t *stepReached)
 		agvSpeedData.v_output =HIGH_SPEED_VEL;
 	if(missionBlock->currStep == missionBlock->blockLen)//Si ahora se lleg� al final de la misi�n, quit=1
 		missionFinished=1;
+
+	if(err_count >= N_ERR_TO_STOP)
+		xEventGroupSetBits( xEventGroup, GEG_CTMOVE_ERROR);
 	return missionFinished;
 }
 
@@ -284,6 +294,7 @@ void PCP_Init(void){
 	uartCallbackSet( PC_UART, UART_RECEIVE,(callBackFuncPtr_t) callbackInterrupt);
 	missionTaskHandle =NULL;
 	openMVSendTaskHandle= NULL;
+	err_count=0;
 	MC_Init();
 	// Turn the PID on
   	pidController.SetMode(AUTOMATIC);
@@ -351,5 +362,6 @@ void PCP_continueMissionBlock(void)
 	while(uartReadByte(PC_UART,(uint8_t *) &(recBuff[0])));// Si qued� basura en la cola de la uart la vuela
 	xTaskCreate( missionTask, "PCP mission task", 200	, NULL, 2, missionTaskHandle ); //Crea task de misi�n
 	xTaskCreate( openMVSendTask, "Send to openMV", 100	, NULL, 3, openMVSendTaskHandle );
+	err_count=0;
 	uartInterrupt( PC_UART, 1 ); //Enables uart interrupts
 }
